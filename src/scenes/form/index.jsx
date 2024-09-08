@@ -13,7 +13,15 @@ const Form = () => {
 
   return (
     <Box m="20px">
-      <Header title="CREATE USER" subtitle="Create a New User Profile" />
+      {/* Header */}
+      <Header
+        title="Add Team Member"
+        subtitle="Create a new team member profile" // Brief subtitle
+        breadcrumbs={[
+          { label: "Dashboard", link: "/" }, // Adjust links as needed
+          { label: "Add Team", link: "/form" }, 
+        ]}
+      />
 
       <Formik
         onSubmit={handleFormSubmit}

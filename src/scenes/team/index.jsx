@@ -1,11 +1,14 @@
-import { Box, Typography, useTheme } from "@mui/material";
+import { Box, Button, Typography, useTheme } from "@mui/material";
 import { DataGrid } from "@mui/x-data-grid";
 import { tokens } from "../../theme";
 import { mockDataTeam } from "../../data/mockData";
 import AdminPanelSettingsOutlinedIcon from "@mui/icons-material/AdminPanelSettingsOutlined";
 import LockOpenOutlinedIcon from "@mui/icons-material/LockOpenOutlined";
 import SecurityOutlinedIcon from "@mui/icons-material/SecurityOutlined";
-import Header from "../../components/Header";
+import { Link } from "react-router-dom"; // Import Link
+import PersonAddOutlinedIcon from '@mui/icons-material/PersonAddOutlined'; // Import Add User Icon
+import DownloadOutlinedIcon from "@mui/icons-material/DownloadOutlined";
+
 
 const Team = () => {
   const theme = useTheme();
@@ -51,8 +54,8 @@ const Team = () => {
               access === "admin"
                 ? colors.greenAccent[600]
                 : access === "manager"
-                ? colors.greenAccent[700]
-                : colors.greenAccent[700]
+                  ? colors.greenAccent[700]
+                  : colors.greenAccent[700]
             }
             borderRadius="4px"
           >
@@ -70,7 +73,52 @@ const Team = () => {
 
   return (
     <Box m="20px">
-      <Header title="TEAM" subtitle="Managing the Team Members" />
+      <Box display="flex" justifyContent="space-between" alignItems="center">
+        <Box>
+          <Typography variant="h6" fontWeight="600" color={colors.grey[100]}>
+            <Link to="/" style={{ textDecoration: 'none', color: colors.grey[100] }}>
+              Home
+            </Link>{" "}
+            / Team
+          </Typography>
+          <Typography variant="h2" fontWeight="600" color={colors.grey[100]}>
+            Team Overview
+          </Typography>
+          <Typography variant="subtitle2" color={colors.grey[500]}>
+            Monitor metrics, check reports and review performance
+          </Typography>
+        </Box>
+
+        <Box display="flex">
+        <Link to="/form" style={{ textDecoration: 'none' }}> {/* Add Link component */}
+  <Button
+    sx={{
+      backgroundColor: colors.blueAccent[700],
+      color: colors.grey[100],
+      fontSize: "14px",
+      fontWeight: "bold",
+      padding: "10px 20px",
+      marginRight: "15px", 
+    }}
+  >
+    <PersonAddOutlinedIcon sx={{ mr: "10px" }} />
+    Add Team
+  </Button>
+</Link> 
+          <Button
+            sx={{
+              backgroundColor: colors.blueAccent[700],
+              color: colors.grey[100],
+              fontSize: "14px",
+              fontWeight: "bold",
+              padding: "10px 20px",
+            }}
+          >
+            <DownloadOutlinedIcon sx={{ mr: "10px" }} />
+            Export
+          </Button>
+        </Box>
+      </Box>
       <Box
         m="40px 0 0 0"
         height="75vh"
