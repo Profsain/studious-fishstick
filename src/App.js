@@ -1,18 +1,15 @@
 
-import Team from "./scenes/team";
-import Invoices from "./scenes/invoices";
 import CustomerManager from "./scenes/customer";
 import EventManager from "./scenes/event";
 import EmailNotification from "./scenes/emailnotify";
 import AdvertManager from "./scenes/advertisement";
 import PromoCodeManager from "./scenes/promo";
 import PushNotificationManager from "./scenes/pushnotify";
+import { Routes, Route, Navigate } from 'react-router-dom';
 import SubscriptionManager from "./scenes/subscription";
 import WithdrawalRequest from "./scenes/withdrawal";
 import React, { useState, useEffect, useContext } from 'react';
 import AuthContext from './context/AuthContext';
-import { Routes, Route, Navigate } from 'react-router-dom';
-import Login from './scenes/login';
 import Topbar from './scenes/global/Topbar';
 import Sidebar from './scenes/global/Sidebar';
 import Dashboard from './scenes/dashboard';
@@ -84,6 +81,7 @@ const AppLayout = () => {
 function App() {
   const [theme, colorMode] = useMode();
   const { user } = useAuth(); // Use the custom hook
+  const [isSidebar, setIsSidebar] = useState(true);
 
   return (
     <ColorModeContext.Provider value={colorMode}>
