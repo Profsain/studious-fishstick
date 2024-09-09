@@ -80,7 +80,7 @@ const Sidebar = () => {
                 ml="15px"
               >
                 <Typography variant="h3" color={colors.grey[100]}>
-                  ADMINIS
+                  ADMIN
                 </Typography>
                 <IconButton onClick={() => setIsCollapsed(!isCollapsed)}>
                   <MenuOutlinedIcon />
@@ -130,8 +130,9 @@ const Sidebar = () => {
               color={colors.grey[300]}
               sx={{ m: "15px 0 5px 20px" }}
             >
-              Data
+              Manager
             </Typography>
+
             <Item
               title="Manage Team"
               to="/team"
@@ -139,17 +140,75 @@ const Sidebar = () => {
               selected={selected}
               setSelected={setSelected}
             />
+
             <Item
-              title="Contacts Information"
-              to="/contacts"
-              icon={<ContactsOutlinedIcon />}
+              title="Manage Customer"
+              to="/customer-manager"
+              icon={<span class="material-symbols-outlined">groups</span>}
               selected={selected}
               setSelected={setSelected}
             />
+
             <Item
-              title="Invoices Balances"
-              to="/invoices"
-              icon={<ReceiptOutlinedIcon />}
+              title="Event Manager"
+              to="/events"
+              icon={
+                <span class="material-symbols-outlined">event_available</span>
+              }
+              selected={selected}
+              setSelected={setSelected}
+            />
+
+            <Item
+              title="Advert Manager"
+              to="/advert-manager"
+              icon={<span class="material-symbols-outlined">campaign</span>}
+              selected={selected}
+              setSelected={setSelected}
+            />
+
+            <Item
+              title="Withdrawal Request"
+              to="/withdrawal"
+              icon={<span class="material-symbols-outlined">attach_money</span>}
+              selected={selected}
+              setSelected={setSelected}
+            />
+
+            <Item
+              title="Subscriptions Manager"
+              to="/subscriptions"
+              icon={
+                <span class="material-symbols-outlined">subscriptions</span>
+              }
+              selected={selected}
+              setSelected={setSelected}
+            />
+
+            <Item
+              title="Promo Code"
+              to="/promo-code"
+              icon={<span class="material-symbols-outlined">app_promo</span>}
+              selected={selected}
+              setSelected={setSelected}
+            />
+
+            <Item
+              title="Push Notification"
+              to="/push-notification"
+              icon={
+                <span class="material-symbols-outlined">notifications</span>
+              }
+              selected={selected}
+              setSelected={setSelected}
+            />
+
+            <Item
+              title="Email Notification"
+              to="/email-notification"
+              icon={
+                <span class="material-symbols-outlined">mark_email_unread</span>
+              }
               selected={selected}
               setSelected={setSelected}
             />
@@ -159,7 +218,7 @@ const Sidebar = () => {
               color={colors.grey[300]}
               sx={{ m: "15px 0 5px 20px" }}
             >
-              Pages
+              More
             </Typography>
             <Item
               title="Profile Form"
