@@ -1,3 +1,14 @@
+
+import Team from "./scenes/team";
+import Invoices from "./scenes/invoices";
+import CustomerManager from "./scenes/customer";
+import EventManager from "./scenes/event";
+import EmailNotification from "./scenes/emailnotify";
+import AdvertManager from "./scenes/advertisement";
+import PromoCodeManager from "./scenes/promo";
+import PushNotificationManager from "./scenes/pushnotify";
+import SubscriptionManager from "./scenes/subscription";
+import WithdrawalRequest from "./scenes/withdrawal";
 import React, { useState, useEffect, useContext } from 'react';
 import AuthContext from './context/AuthContext';
 import { Routes, Route, Navigate } from 'react-router-dom';
@@ -78,13 +89,32 @@ function App() {
     <ColorModeContext.Provider value={colorMode}>
       <ThemeProvider theme={theme}>
         <CssBaseline />
-        <Routes>
-          <Route path="/login" element={<Login />} />
-          <Route 
-            path="/*" 
-            element={user ? <AppLayout /> : <Navigate to="/login" />} 
-          />
-        </Routes>
+        <div className="app">
+          <Sidebar isSidebar={isSidebar} />
+          <main className="content">
+            <Topbar setIsSidebar={setIsSidebar} />
+            <Routes>
+              <Route path="/" element={<Dashboard />} />
+              <Route path="/team" element={<Team />} />
+              <Route path="/customer-manager" element={<CustomerManager />} />
+              <Route path="/events" element={<EventManager />} />
+              <Route path="/advert-manager" element={<AdvertManager />} />
+              <Route path="/withdrawal" element={<WithdrawalRequest />} />
+              <Route path="/subscriptions" element={<SubscriptionManager />} />
+              <Route path="/promo-code" element={<PromoCodeManager />} />
+              <Route path="/push-notification" element={<PushNotificationManager />} />
+              <Route path="/email-notification" element={<EmailNotification />} />
+              <Route path="/invoices" element={<Invoices />} />
+              <Route path="/form" element={<Form />} />
+              <Route path="/bar" element={<Bar />} />
+              <Route path="/pie" element={<Pie />} />
+              <Route path="/line" element={<Line />} />
+              <Route path="/faq" element={<FAQ />} />
+              <Route path="/calendar" element={<Calendar />} />
+              <Route path="/geography" element={<Geography />} />
+            </Routes>
+          </main>
+        </div>
       </ThemeProvider>
     </ColorModeContext.Provider>
   );
