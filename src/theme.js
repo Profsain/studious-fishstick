@@ -28,15 +28,15 @@ export const tokens = (mode) => ({
           900: "#040509",
         },
         greenAccent: {
-          100: "#dbf5ee",
-          200: "#b7ebde",
-          300: "#94e2cd",
-          400: "#70d8bd",
-          500: "#4cceac",
-          600: "#3da58a",
-          700: "#2e7c67",
-          800: "#1e5245",
-          900: "#0f2922",
+          100: "#ffe5db",  // Lightest shade
+          200: "#ffccba",  // Lighter
+          300: "#ffb39a",  // Light
+          400: "#ff9a79",  // Medium light
+          500: "#fa7c50",  // Base brand color
+          600: "#d66748",  // Slightly darker than the base
+          700: "#b25240",  // Darker
+          800: "#8e3d38",  // Even darker
+          900: "#6a292f",  // Darkest shade
         },
         redAccent: {
           100: "#f8dcdb",
