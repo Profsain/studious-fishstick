@@ -1281,3 +1281,814 @@ export const mockGeographyData = [
     value: 171135,
   },
 ];
+
+
+// In your theme.js or a separate mock data file
+export const teamData = [
+  { id: 1, staffId: 'SP-0021', name: 'Jame Owan', email: 'jame@gmail.com', phone: '+7005533827', location: 'London, UK', role: 'Super Admin' },
+  { id: 2, staffId: 'SP-0023', name: 'Grace Doe', email: 'grace@yahoo.com', phone: '+7009876363', location: 'Lagos, Nigeria', role: 'Staff Admin' },
+  { id: 3, staffId: 'SP-0024', name: 'Peter Jones', email: 'peter@example.com', phone: '+1-555-123-4567', location: 'New York, USA', role: 'Content Manager' },
+  { id: 4, staffId: 'SP-0025', name: 'Mary Smith', email: 'mary@sample.com', phone: '+44-20-7890-1234', location: 'Manchester, UK', role: 'Finance Officer' },
+  { id: 5, staffId: 'SP-0026', name: 'David Lee', email: 'david@test.com', phone: '+86-10-1234-5678', location: 'Beijing, China', role: 'Marketing Manager' },
+  { id: 6, staffId: 'SP-0027', name: 'Sarah Brown', email: 'sarah@domain.com', phone: '+61-2-9876-5432', location: 'Sydney, Australia', role: 'Sales Representative' },
+  { id: 7, staffId: 'SP-0028', name: 'Michael Kim', email: 'michael@mail.com', phone: '+82-2-5678-1234', location: 'Seoul, South Korea', role: 'Support Specialist' },
+  { id: 8, staffId: 'SP-0029', name: 'Emily Chen', email: 'emily@company.com', phone: '+81-3-4567-8901', location: 'Tokyo, Japan', role: 'Project Manager' },
+  { id: 9, staffId: 'SP-0030', name: 'Daniel Garcia', email: 'daniel@website.com', phone: '+55-11-9876-5432', location: 'São Paulo, Brazil', role: 'Data Analyst' },
+  { id: 10, staffId: 'SP-0031', name: 'Olivia Rodriguez', email: 'olivia@domain.net', phone: '+34-91-1234-5678', location: 'Madrid, Spain', role: 'UX Designer' },
+  { id: 11, staffId: 'SP-0032', name: 'Sophia Dubois', email: 'sophia@email.fr', phone: '+33-1-4567-8901', location: 'Paris, France', role: 'Software Engineer' }
+];
+
+
+
+
+export const withdrawalRequestsData = [
+  { 
+    id: 1, 
+    eventDate: '2024-10-23', 
+    eventName: 'Hiking Trip', 
+    amountRequested: '$150', 
+    amountContributed: '$200', 
+    eventId: 'EVT-1234', 
+    status: 'Pending'
+  },
+  { 
+    id: 2, 
+    eventDate: '2024-11-15', 
+    eventName: 'Concert Tickets', 
+    amountRequested: '$50', 
+    amountContributed: '$50', 
+    eventId: 'EVT-5678', 
+    status: 'Paid' 
+  },
+  { 
+    id: 3, 
+    eventDate: '2024-12-05', 
+    eventName: 'Dinner Party', 
+    amountRequested: '$80', 
+    amountContributed: '$100', 
+    eventId: 'EVT-9012', 
+    status: 'Declined' 
+  },
+  { 
+    id: 4, 
+    eventDate: '2025-01-10', 
+    eventName: 'Ski Trip', 
+    amountRequested: '$300', 
+    amountContributed: '$350', 
+    eventId: 'EVT-3456', 
+    status: 'Pending' 
+  },
+  { 
+    id: 5, 
+    eventDate: '2025-02-20', 
+    eventName: 'Weekend Getaway', 
+    amountRequested: '$120', 
+    amountContributed: '$150', 
+    eventId: 'EVT-7890', 
+    status: 'Paid' 
+  },
+  { 
+    id: 6, 
+    eventDate: '2025-03-12', 
+    eventName: 'Museum Visit', 
+    amountRequested: '$25', 
+    amountContributed: '$30', 
+    eventId: 'EVT-2345', 
+    status: 'Pending' 
+  },
+  { 
+    id: 7, 
+    eventDate: '2025-04-01', 
+    eventName: 'Theme Park Trip', 
+    amountRequested: '$180', 
+    amountContributed: '$200', 
+    eventId: 'EVT-6789', 
+    status: 'Declined' 
+  },
+  { 
+    id: 8, 
+    eventDate: '2025-05-28', 
+    eventName: 'Camping Trip', 
+    amountRequested: '$75', 
+    amountContributed: '$100', 
+    eventId: 'EVT-0123', 
+    status: 'Paid' 
+  },
+  { 
+    id: 9, 
+    eventDate: '2025-06-18', 
+    eventName: 'Music Festival', 
+    amountRequested: '$250', 
+    amountContributed: '$280', 
+    eventId: 'EVT-4567', 
+    status: 'Pending' 
+  },
+  { 
+    id: 10, 
+    eventDate: '2025-07-04', 
+    eventName: 'Beach Vacation', 
+    amountRequested: '$400', 
+    amountContributed: '$450', 
+    eventId: 'EVT-8901', 
+    status: 'Paid' 
+  },
+  { 
+    id: 11, 
+    eventDate: '2025-08-22', 
+    eventName: 'Road Trip', 
+    amountRequested: '$100', 
+    amountContributed: '$120', 
+    eventId: 'EVT-2346', 
+    status: 'Pending' 
+  }
+];
+
+export const subscriptionData = [
+  {
+    id: 1,
+    name: 'John Doe',
+    location: 'New York, USA',
+    planAmount: '$19.99',
+    planName: 'Premium',
+    recurring: true,
+    status: 'Active'
+  },
+  {
+    id: 2,
+    name: 'Jane Smith',
+    location: 'London, UK',
+    planAmount: '$9.99',
+    planName: 'Basic',
+    recurring: false,
+    status: 'Expired'
+  },
+  {
+    id: 3,
+    name: 'David Lee',
+    location: 'Los Angeles, USA',
+    planAmount: '$14.99',
+    planName: 'Standard',
+    recurring: true,
+    status: 'Active'
+  },
+  {
+    id: 4,
+    name: 'Emily Chen',
+    location: 'Tokyo, Japan',
+    planAmount: '$24.99',
+    planName: 'Premium+',
+    recurring: true,
+    status: 'Active'
+  },
+  {
+    id: 5,
+    name: 'Michael Kim',
+    location: 'Seoul, South Korea',
+    planAmount: '$9.99',
+    planName: 'Basic',
+    recurring: true,
+    status: 'Active'
+  },
+  {
+    id: 6,
+    name: 'Sarah Wilson',
+    location: 'Sydney, Australia',
+    planAmount: '$19.99',
+    planName: 'Premium',
+    recurring: false,
+    status: 'Cancelled'
+  },
+  {
+    id: 7,
+    name: 'Chris Brown',
+    location: 'Toronto, Canada',
+    planAmount: '$14.99',
+    planName: 'Standard',
+    recurring: true,
+    status: 'Active'
+  },
+  {
+    id: 8,
+    name: 'Olivia Rodriguez',
+    location: 'Madrid, Spain',
+    planAmount: '$24.99',
+    planName: 'Premium+',
+    recurring: true,
+    status: 'Active'
+  },
+  {
+    id: 9,
+    name: 'Daniel Garcia',
+    location: 'Berlin, Germany',
+    planAmount: '$9.99',
+    planName: 'Basic',
+    recurring: false,
+    status: 'Expired'
+  },
+  {
+    id: 10,
+    name: 'Sophia Dubois',
+    location: 'Paris, France',
+    planAmount: '$14.99',
+    planName: 'Standard',
+    recurring: true,
+    status: 'Active'
+  },
+  {
+    id: 11,
+    name: 'William Moore',
+    location: 'Rome, Italy',
+    planAmount: '$19.99',
+    planName: 'Premium',
+    recurring: true,
+    status: 'Active'
+  }
+];
+
+
+export const pushNotificationsData = [
+  {
+    id: 1,
+    date: '2024-10-27',
+    message: 'New event added: Hiking Adventure!',
+    recipient: 'All Users',
+    createdBy: 'Admin',
+    status: 'Sent'
+  },
+  {
+    id: 2,
+    date: '2024-10-25',
+    message: 'Payment reminder: Concert Tickets',
+    recipient: 'John Doe',
+    createdBy: 'System',
+    status: 'Delivered'
+  },
+  {
+    id: 3,
+    date: '2024-10-20',
+    message: 'Welcome to Splinx Planet!',
+    recipient: 'New Users',
+    createdBy: 'Admin',
+    status: 'Sent'
+  },
+  {
+    id: 4,
+    date: '2024-10-18',
+    message: 'Promo code: SAVE10 for 10% off!',
+    recipient: 'All Users',
+    createdBy: 'Marketing',
+    status: 'Sent'
+  },
+  {
+    id: 5,
+    date: '2024-10-15',
+    message: 'Your withdrawal request has been approved.',
+    recipient: 'Jane Smith',
+    createdBy: 'System',
+    status: 'Delivered'
+  },
+  {
+    id: 6,
+    date: '2024-10-10',
+    message: 'Event reminder: Dinner Party',
+    recipient: 'David Lee',
+    createdBy: 'System',
+    status: 'Delivered'
+  },
+  {
+    id: 7,
+    date: '2024-10-05',
+    message: 'New feature update! Check it out.',
+    recipient: 'All Users',
+    createdBy: 'Admin',
+    status: 'Sent'
+  },
+  {
+    id: 8,
+    date: '2024-10-01',
+    message: 'Feedback appreciated! Rate our app.',
+    recipient: 'Active Users',
+    createdBy: 'Marketing',
+    status: 'Sent'
+  },
+  {
+    id: 9,
+    date: '2024-09-25',
+    message: 'Limited time offer: Premium upgrade discount!',
+    recipient: 'Basic Plan Users',
+    createdBy: 'Marketing',
+    status: 'Sent'
+  },
+  {
+    id: 10,
+    date: '2024-09-20',
+    message: 'Account update successful.',
+    recipient: 'Emily Chen',
+    createdBy: 'System',
+    status: 'Delivered'
+  },
+  {
+    id: 11,
+    date: '2024-09-15',
+    message: 'Event cancelled: Movie Night',
+    recipient: 'Event Participants',
+    createdBy: 'Admin',
+    status: 'Sent'
+  }
+];
+
+
+
+export const promoData = [
+  {
+    id: 1,
+    promoCode: 'SUMMER20',
+    name: 'Summer Sale',
+    discount: 20,
+    dateCreated: '2024-06-15',
+    status: 'Active'
+  },
+  {
+    id: 2,
+    promoCode: 'WELCOME10',
+    name: 'Welcome Discount',
+    discount: 10,
+    dateCreated: '2024-08-20',
+    status: 'Active'
+  },
+  {
+    id: 3,
+    promoCode: 'HOLIDAY30',
+    name: 'Holiday Special',
+    discount: 30,
+    dateCreated: '2024-11-20',
+    status: 'Active'
+  },
+  {
+    id: 4,
+    promoCode: 'BLACKFRI50',
+    name: 'Black Friday Deal',
+    discount: 50,
+    dateCreated: '2024-11-25',
+    status: 'Expired'
+  },
+  {
+    id: 5,
+    promoCode: 'NEWYEAR15',
+    name: 'New Year Offer',
+    discount: 15,
+    dateCreated: '2024-12-28',
+    status: 'Active'
+  },
+  {
+    id: 6,
+    promoCode: 'SPRING25',
+    name: 'Spring Savings',
+    discount: 25,
+    dateCreated: '2025-03-10',
+    status: 'Active'
+  },
+  {
+    id: 7,
+    promoCode: 'FLASH40',
+    name: 'Flash Sale',
+    discount: 40,
+    dateCreated: '2025-04-05',
+    status: 'Expired'
+  },
+  {
+    id: 8,
+    promoCode: 'BIRTHDAY10',
+    name: 'Birthday Discount',
+    discount: 10,
+    dateCreated: '2025-05-15',
+    status: 'Active'
+  },
+  {
+    id: 9,
+    promoCode: 'THANKYOU20',
+    name: 'Customer Appreciation',
+    discount: 20,
+    dateCreated: '2025-07-01',
+    status: 'Active'
+  },
+  {
+    id: 10,
+    promoCode: 'BACKTOSCHOOL15',
+    name: 'Back to School',
+    discount: 15,
+    dateCreated: '2025-08-15',
+    status: 'Active'
+  },
+  {
+    id: 11,
+    promoCode: 'CYBERMON35',
+    name: 'Cyber Monday Madness',
+    discount: 35,
+    dateCreated: '2025-11-29',
+    status: 'Expired'
+  }
+];
+
+
+export const eventsData = [
+  {
+    id: 1,
+    date: '2024-11-10',
+    eventName: 'Tech Conference',
+    address: 'Manhattan Convention Center, New York City',
+    budget: '$10,000',
+    category: 'Technology',
+    createdBy: 'Admin'
+  },
+  {
+    id: 2,
+    date: '2024-11-17',
+    eventName: 'Music Festival',
+    address: 'Hyde Park, London',
+    budget: '$50,000',
+    category: 'Music',
+    createdBy: 'John Doe'
+  },
+  {
+    id: 3,
+    date: '2024-12-05',
+    eventName: 'Charity Gala',
+    address: 'Beverly Hills Hotel, Los Angeles',
+    budget: '$20,000',
+    category: 'Charity',
+    createdBy: 'Jane Smith'
+  },
+  {
+    id: 4,
+    date: '2025-01-20',
+    eventName: 'Art Exhibition',
+    address: 'Louvre Museum, Paris',
+    budget: '$15,000',
+    category: 'Art',
+    createdBy: 'Admin'
+  },
+  {
+    id: 5,
+    date: '2025-02-14',
+    eventName: 'Valentine\'s Day Dinner',
+    address: 'The Ritz, London',
+    budget: '$5,000',
+    category: 'Food & Drink',
+    createdBy: 'System'
+  },
+  {
+    id: 6,
+    date: '2025-03-25',
+    eventName: 'Spring Break Party',
+    address: 'South Beach, Miami',
+    budget: '$30,000',
+    category: 'Party',
+    createdBy: 'David Lee'
+  },
+  {
+    id: 7,
+    date: '2025-04-12',
+    eventName: 'Sports Tournament',
+    address: 'Wembley Stadium, London',
+    budget: '$25,000',
+    category: 'Sports',
+    createdBy: 'Emily Chen'
+  },
+  {
+    id: 8,
+    date: '2025-05-01',
+    eventName: 'Labor Day Picnic',
+    address: 'Central Park, New York City',
+    budget: '$10,000',
+    category: 'Community',
+    createdBy: 'Admin'
+  },
+  {
+    id: 9,
+    date: '2025-06-20',
+    eventName: 'Summer Solstice Celebration',
+    address: 'Stonehenge, UK',
+    budget: '$15,000',
+    category: 'Festival',
+    createdBy: 'Michael Kim'
+  },
+  {
+    id: 10,
+    date: '2025-07-04',
+    eventName: 'Independence Day Fireworks',
+    address: 'National Mall, Washington D.C.',
+    budget: '$40,000',
+    category: 'Holiday',
+    createdBy: 'Admin'
+  },
+  {
+    id: 11,
+    date: '2025-08-15',
+    eventName: 'Back to School Concert',
+    address: 'Hollywood Bowl, Los Angeles',
+    budget: '$35,000',
+    category: 'Music',
+    createdBy: 'Sarah Wilson'
+  }
+];
+
+
+export const emailNotificationsData = [
+  {
+    id: 1,
+    date: '2024-10-28',
+    subject: 'Welcome to Splinx Planet!',
+    recipient: 'john.doe@email.com',
+    createdBy: 'System',
+    status: 'Sent'
+  },
+  {
+    id: 2,
+    date: '2024-10-26',
+    subject: 'New Event Invitation: Tech Conference',
+    recipient: 'jane.smith@email.com',
+    createdBy: 'Admin',
+    status: 'Delivered'
+  },
+  {
+    id: 3,
+    date: '2024-10-22',
+    subject: 'Payment Confirmation',
+    recipient: 'david.lee@email.com',
+    createdBy: 'System',
+    status: 'Sent'
+  },
+  {
+    id: 4,
+    date: '2024-10-19',
+    subject: 'Password Reset Request',
+    recipient: 'emily.chen@email.com',
+    createdBy: 'System',
+    status: 'Delivered'
+  },
+  {
+    id: 5,
+    date: '2024-10-17',
+    subject: 'Splinx Planet Newsletter',
+    recipient: 'All Users',
+    createdBy: 'Marketing',
+    status: 'Sent'
+  },
+  {
+    id: 6,
+    date: '2024-10-12',
+    subject: 'Event Reminder: Music Festival',
+    recipient: 'michael.kim@email.com',
+    createdBy: 'System',
+    status: 'Delivered'
+  },
+  {
+    id: 7,
+    date: '2024-10-08',
+    subject: 'Your Feedback is Important to Us',
+    recipient: 'sarah.wilson@email.com',
+    createdBy: 'Marketing',
+    status: 'Sent'
+  },
+  {
+    id: 8,
+    date: '2024-10-04',
+    subject: 'Account Update Confirmation',
+    recipient: 'chris.brown@email.com',
+    createdBy: 'System',
+    status: 'Delivered'
+  },
+  {
+    id: 9,
+    date: '2024-10-01',
+    subject: 'Special Offer: Premium Upgrade Discount',
+    recipient: 'olivia.rodriguez@email.com',
+    createdBy: 'Marketing',
+    status: 'Sent'
+  },
+  {
+    id: 10,
+    date: '2024-09-27',
+    subject: 'Withdrawal Request Update',
+    recipient: 'daniel.garcia@email.com',
+    createdBy: 'System',
+    status: 'Delivered'
+  },
+  {
+    id: 11,
+    date: '2024-09-24',
+    subject: 'Important Account Security Notice',
+    recipient: 'sophia.dubois@email.com',
+    createdBy: 'System',
+    status: 'Sent'
+  }
+];
+
+
+export const customerData = [
+  {
+    id: 1,
+    userId: 'USR-001',
+    name: 'Alice Johnson',
+    email: 'alice.johnson@email.com',
+    phoneNumber: '+1-555-123-4567',
+    location: 'New York, USA',
+    plan: 'Premium'
+  },
+  {
+    id: 2,
+    userId: 'USR-002',
+    name: 'Bob Williams',
+    location: 'London, UK',
+    email: 'bob.williams@email.com',
+    phoneNumber: '+44-20-7890-1234',
+    plan: 'Basic'
+  },
+  {
+    id: 3,
+    userId: 'USR-003',
+    name: 'Charlie Brown',
+    email: 'charlie.brown@email.com',
+    phoneNumber: '+61-2-9876-5432',
+    location: 'Sydney, Australia',
+    plan: 'Standard'
+  },
+  {
+    id: 4,
+    userId: 'USR-004',
+    name: 'David Lee',
+    email: 'david.lee@email.com',
+    phoneNumber: '+81-3-4567-8901',
+    location: 'Tokyo, Japan',
+    plan: 'Premium'
+  },
+  {
+    id: 5,
+    userId: 'USR-005',
+    name: 'Emily Chen',
+    location: 'Beijing, China',
+    email: 'emily.chen@email.com',
+    phoneNumber: '+86-10-1234-5678',
+    plan: 'Basic'
+  },
+  {
+    id: 6,
+    userId: 'USR-006',
+    name: 'Frank Garcia',
+    email: 'frank.garcia@email.com',
+    phoneNumber: '+55-11-9876-5432',
+    location: 'Sao Paulo, Brazil',
+    plan: 'Standard'
+  },
+  {
+    id: 7,
+    userId: 'USR-007',
+    name: 'Grace Kim',
+    email: 'grace.kim@email.com',
+    phoneNumber: '+82-2-5678-1234',
+    location: 'Seoul, South Korea',
+    plan: 'Premium'
+  },
+  {
+    id: 8,
+    userId: 'USR-008',
+    name: 'Henry Wilson',
+    location: 'Berlin, Germany',
+    email: 'henry.wilson@email.com',
+    phoneNumber: '+49-30-1234-5678',
+    plan: 'Basic'
+  },
+  {
+    id: 9,
+    userId: 'USR-009',
+    name: 'Isabella Rodriguez',
+    email: 'isabella.rodriguez@email.com',
+    phoneNumber: '+34-91-1234-5678',
+    location: 'Madrid, Spain',
+    plan: 'Standard'
+  },
+  {
+    id: 10,
+    userId: 'USR-010',
+    name: 'Jack Smith',
+    location: 'Paris, France',
+    email: 'jack.smith@email.com',
+    phoneNumber: '+33-1-4567-8901',
+    plan: 'Premium'
+  },
+  {
+    id: 11,
+    userId: 'USR-011',
+    name: 'Katherine Brown',
+    email: 'katherine.brown@email.com',
+    phoneNumber: '+39-06-1234-5678',
+    location: 'Rome, Italy',
+    plan: 'Basic'
+  }
+];
+
+
+
+
+export const advertData = [
+  {
+    id: 1,
+    startDate: '2024-10-29',
+    endDate: '2024-11-29',
+    businessName: 'Tech Solutions Inc.',
+    address: '123 Main Street, Anytown, USA',
+    phone: '+1-555-123-4567',
+    adsStatus: 'Active'
+  },
+  {
+    id: 2,
+    startDate: '2024-11-05',
+    endDate: '2024-12-05',
+    businessName: 'Fashion Boutique',
+    address: '456 Elm Street, London, UK',
+    phone: '+44-20-7890-1234',
+    adsStatus: 'Paused'
+  },
+  {
+    id: 3,
+    startDate: '2024-11-12',
+    endDate: '2024-12-12',
+    businessName: 'Travel Agency',
+    address: '789 Oak Street, Sydney, Australia',
+    phone: '+61-2-9876-5432',
+    adsStatus: 'Active'
+  },
+  {
+    id: 4,
+    startDate: '2024-11-19',
+    endDate: '2024-12-19',
+    businessName: 'Restaurant Delicioso',
+    address: '101 Pine Street, Rome, Italy',
+    phone: '+39-06-1234-5678',
+    adsStatus: 'Expired' 
+  },
+  {
+    id: 5,
+    startDate: '2024-11-26',
+    endDate: '2024-12-26',
+    businessName: 'Online Bookstore',
+    address: '202 Birch Street, Tokyo, Japan',
+    phone: '+81-3-4567-8901',
+    adsStatus: 'Active' 
+  },
+  {
+    id: 6,
+    startDate: '2024-12-03',
+    endDate: '2025-01-03',
+    businessName: 'Fitness Center',
+    address: '303 Cedar Street, Berlin, Germany',
+    phone: '+49-30-1234-5678',
+    adsStatus: 'Active'
+  },
+  {
+    id: 7,
+    startDate: '2024-12-10',
+    endDate: '2025-01-10',
+    businessName: 'Coffee Shop',
+    address: '404 Willow Street, Paris, France',
+    phone: '+33-1-4567-8901',
+    adsStatus: 'Paused'
+  },
+  {
+    id: 8,
+    startDate: '2024-12-17',
+    endDate: '2025-01-17',
+    businessName: 'Art Gallery',
+    address: '505 Maple Street, Madrid, Spain',
+    phone: '+34-91-1234-5678',
+    adsStatus: 'Active' 
+  },
+  {
+    id: 9,
+    startDate: '2024-12-24',
+    endDate: '2025-01-24',
+    businessName: 'Music Studio',
+    address: '606 Oak Street, Seoul, South Korea',
+    phone: '+82-2-5678-1234',
+    adsStatus: 'Expired' 
+  },
+  {
+    id: 10,
+    startDate: '2024-12-31',
+    endDate: '2025-01-31',
+    businessName: 'Bakery',
+    address: '707 Pine Street, Sao Paulo, Brazil',
+    phone: '+55-11-9876-5432',
+    adsStatus: 'Active' 
+  },
+  {
+    id: 11,
+    startDate: '2025-01-07',
+    endDate: '2025-02-07',
+    businessName: 'Movie Theater',
+    address: '808 Birch Street, Beijing, China',
+    phone: '+86-10-1234-5678',
+    adsStatus: 'Active'
+  }
+];
