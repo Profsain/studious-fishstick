@@ -1,5 +1,5 @@
-import React from 'react'; // Add this line
-import { Box, IconButton, Typography, useTheme } from "@mui/material";
+// import React, { useEffect, useState } from 'react';
+import { Box, IconButton, Typography, useTheme, useMediaQuery } from "@mui/material";
 import { tokens } from "../../theme";
 import { mockTransactions } from "../../data/mockData";
 import DownloadOutlinedIcon from "@mui/icons-material/DownloadOutlined";
@@ -13,64 +13,85 @@ import GeographyChart from "../../components/GeographyChart";
 import BarChart from "../../components/BarChart";
 import StatBox from "../../components/StatBox";
 import ProgressCircle from "../../components/ProgressCircle";
+// import axios from 'axios';
+// import { useNavigate } from 'react-router-dom'; // Import useNavigate
 
-
-
+// const API_URL = process.env.API_URL;
 
 const Dashboard = () => {
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
-  
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+  // const navigate = useNavigate(); // Initialize useNavigate
+
+  // const [data, setData] = useState(null);
+  // const [isLoading, setIsLoading] = useState(true); 
+  // const [error, setError] = useState(null);
+
+  // const isLoggedIn = localStorage.getItem('token') === 'true'; 
+
+  // useEffect(() => {
+  //   const fetchData = async () => {
+  //     if (isLoggedIn) { 
+  //       setIsLoading(true);
+  //       try {
+  //         const response = await axios.get(`${API_URL}/admin-get-all`);
+  //         setData(response.data);
+  //       } catch (err) {
+  //         console.error('Error fetching admin data:', err);
+  //         setError(err.message);
+  //       } finally {
+  //         setIsLoading(false);
+  //       }
+  //     } else {
+  //       navigate('/login'); 
+  //     }
+  //   };
+
+  //   fetchData();
+  // }, [isLoggedIn, navigate]);
+
+  // if (isLoading) return <CircularProgress />;
+  // if (error) return <Typography color="error">{error}</Typography>;
+
+
   return (
     <Box m="20px">
       {/* HEADER */}
-
       <Box display="flex" justifyContent="space-between" alignItems="center">
-      <Header 
-     title="Splinx Planet" 
-     subtitle="Welcome to your Splinx Plant dashboard" 
-     breadcrumbs={[
-       { label: 'Dashboard', link: '/dashboard' },
-     ]}
-     sideButtons={
-       <Box display="flex">
-         {/* Add buttons here if needed */}
-       </Box>
-     }
-   />
-
-        
+        <Header
+          title="Splinx Planet"
+          subtitle="Welcome to your Splinx Planet dashboard"
+          breadcrumbs={[{ label: 'Dashboard', link: '/dashboard' }]}
+          sideButtons={<Box display="flex" />}
+        />
       </Box>
 
       {/* GRID & CHARTS */}
       <Box
         display="grid"
-        gridTemplateColumns="repeat(12, 1fr)"
+        gridTemplateColumns={isMobile ? "repeat(1, 1fr)" : "repeat(12, 1fr)"} // Adjust for mobile view
         gridAutoRows="140px"
         gap="20px"
       >
         {/* ROW 1 */}
         <Box
-          gridColumn="span 3"
+          gridColumn={isMobile ? "span 1" : "span 3"}
           backgroundColor={colors.primary[400]}
           display="flex"
           alignItems="center"
           justifyContent="center"
         >
           <StatBox
-            title="12,361"
+            // title={data ? data.totalEmailsSent : 0} // Access data from the 'data' object
             subtitle="Emails Sent"
             progress="0.75"
             increase="+14%"
-            icon={
-              <EmailIcon
-                sx={{ color: colors.greenAccent[600], fontSize: "26px" }}
-              />
-            }
+            icon={<EmailIcon sx={{ color: colors.greenAccent[600], fontSize: "26px" }} />}
           />
         </Box>
         <Box
-          gridColumn="span 3"
+          gridColumn={isMobile ? "span 1" : "span 3"} // Stack on mobile
           backgroundColor={colors.primary[400]}
           display="flex"
           alignItems="center"
@@ -81,15 +102,11 @@ const Dashboard = () => {
             subtitle="Sales Obtained"
             progress="0.50"
             increase="+21%"
-            icon={
-              <PointOfSaleIcon
-                sx={{ color: colors.greenAccent[600], fontSize: "26px" }}
-              />
-            }
+            icon={<PointOfSaleIcon sx={{ color: colors.greenAccent[600], fontSize: "26px" }} />}
           />
         </Box>
         <Box
-          gridColumn="span 3"
+          gridColumn={isMobile ? "span 1" : "span 3"} // Stack on mobile
           backgroundColor={colors.primary[400]}
           display="flex"
           alignItems="center"
@@ -100,15 +117,11 @@ const Dashboard = () => {
             subtitle="New Clients"
             progress="0.30"
             increase="+5%"
-            icon={
-              <PersonAddIcon
-                sx={{ color: colors.greenAccent[600], fontSize: "26px" }}
-              />
-            }
+            icon={<PersonAddIcon sx={{ color: colors.greenAccent[600], fontSize: "26px" }} />}
           />
         </Box>
         <Box
-          gridColumn="span 3"
+          gridColumn={isMobile ? "span 1" : "span 3"} // Stack on mobile
           backgroundColor={colors.primary[400]}
           display="flex"
           alignItems="center"
@@ -119,48 +132,34 @@ const Dashboard = () => {
             subtitle="Traffic Received"
             progress="0.80"
             increase="+43%"
-            icon={
-              <TrafficIcon
-                sx={{ color: colors.greenAccent[600], fontSize: "26px" }}
-              />
-            }
+            icon={<TrafficIcon sx={{ color: colors.greenAccent[600], fontSize: "26px" }} />}
           />
         </Box>
 
         {/* ROW 2 */}
         <Box
-          gridColumn="span 8"
+          gridColumn={isMobile ? "span 1" : "span 8"} // Adjust for mobile view
           gridRow="span 2"
           backgroundColor={colors.primary[400]}
         >
           <Box
             mt="25px"
             p="0 30px"
-            display="flex "
+            display="flex"
             justifyContent="space-between"
             alignItems="center"
           >
             <Box>
-              <Typography
-                variant="h5"
-                fontWeight="600"
-                color={colors.grey[100]}
-              >
+              <Typography variant="h5" fontWeight="600" color={colors.grey[100]}>
                 Revenue Generated
               </Typography>
-              <Typography
-                variant="h3"
-                fontWeight="bold"
-                color={colors.greenAccent[500]}
-              >
+              <Typography variant="h3" fontWeight="bold" color={colors.greenAccent[500]}>
                 $59,342.32
               </Typography>
             </Box>
             <Box>
               <IconButton>
-                <DownloadOutlinedIcon
-                  sx={{ fontSize: "26px", color: colors.greenAccent[500] }}
-                />
+                <DownloadOutlinedIcon sx={{ fontSize: "26px", color: colors.greenAccent[500] }} />
               </IconButton>
             </Box>
           </Box>
@@ -169,7 +168,7 @@ const Dashboard = () => {
           </Box>
         </Box>
         <Box
-          gridColumn="span 4"
+          gridColumn={isMobile ? "span 1" : "span 4"} // Adjust for mobile view
           gridRow="span 2"
           backgroundColor={colors.primary[400]}
           overflow="auto"
@@ -196,11 +195,7 @@ const Dashboard = () => {
               p="15px"
             >
               <Box>
-                <Typography
-                  color={colors.greenAccent[500]}
-                  variant="h5"
-                  fontWeight="600"
-                >
+                <Typography color={colors.greenAccent[500]} variant="h5" fontWeight="600">
                   {transaction.txId}
                 </Typography>
                 <Typography color={colors.grey[100]}>
@@ -221,7 +216,7 @@ const Dashboard = () => {
 
         {/* ROW 3 */}
         <Box
-          gridColumn="span 4"
+          gridColumn={isMobile ? "span 1" : "span 4"} // Adjust for mobile view
           gridRow="span 2"
           backgroundColor={colors.primary[400]}
           p="30px"
@@ -229,33 +224,20 @@ const Dashboard = () => {
           <Typography variant="h5" fontWeight="600">
             Campaign
           </Typography>
-          <Box
-            display="flex"
-            flexDirection="column"
-            alignItems="center"
-            mt="25px"
-          >
+          <Box display="flex" flexDirection="column" alignItems="center" mt="25px">
             <ProgressCircle size="125" />
-            <Typography
-              variant="h5"
-              color={colors.greenAccent[500]}
-              sx={{ mt: "15px" }}
-            >
+            <Typography variant="h5" color={colors.greenAccent[500]} sx={{ mt: "15px" }}>
               $48,352 revenue generated
             </Typography>
             <Typography>Includes extra misc expenditures and costs</Typography>
           </Box>
         </Box>
         <Box
-          gridColumn="span 4"
+          gridColumn={isMobile ? "span 1" : "span 4"} // Adjust for mobile view
           gridRow="span 2"
           backgroundColor={colors.primary[400]}
         >
-          <Typography
-            variant="h5"
-            fontWeight="600"
-            sx={{ padding: "30px 30px 0 30px" }}
-          >
+          <Typography variant="h5" fontWeight="600" sx={{ padding: "30px 30px 0 30px" }}>
             Sales Quantity
           </Typography>
           <Box height="250px" mt="-20px">
@@ -263,16 +245,12 @@ const Dashboard = () => {
           </Box>
         </Box>
         <Box
-          gridColumn="span 4"
+          gridColumn={isMobile ? "span 1" : "span 4"} // Adjust for mobile view
           gridRow="span 2"
           backgroundColor={colors.primary[400]}
           padding="30px"
         >
-          <Typography
-            variant="h5"
-            fontWeight="600"
-            sx={{ marginBottom: "15px" }}
-          >
+          <Typography variant="h5" fontWeight="600" sx={{ marginBottom: "15px" }}>
             Geography Based Traffic
           </Typography>
           <Box height="200px">
