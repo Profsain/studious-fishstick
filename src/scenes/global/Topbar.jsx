@@ -9,7 +9,7 @@ import SettingsOutlinedIcon from "@mui/icons-material/SettingsOutlined";
 import SearchIcon from "@mui/icons-material/Search";
 import Logout from '@mui/icons-material/Logout';
 import { useNavigate } from 'react-router-dom';
-import AuthContext from '../../context/AuthContext'; // Import AuthContext
+import AuthContext from '../../context/AuthContext'; 
 
 const Topbar = () => {
   const theme = useTheme();
