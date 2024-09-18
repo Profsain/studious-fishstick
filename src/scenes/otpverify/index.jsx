@@ -63,11 +63,11 @@ const OtpVerify = () => {
         >
             <Box
                 sx={{
-                    maxWidth: 400,
+                    maxWidth: 500, // Increase the max width
                     width: '100%',
                     mx: 'auto',
                     mt: 5,
-                    p: 4,
+                    p: 6, // Increase padding
                     bgcolor: (theme) => theme.palette.mode === 'dark' ? '#282C34' : '#fff',
                     borderRadius: '8px',
                     boxShadow: 3,

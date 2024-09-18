@@ -1,4 +1,3 @@
-// import React, { useEffect, useState } from 'react';
 import { Box, IconButton, Typography, useTheme, useMediaQuery } from "@mui/material";
 import { tokens } from "../../theme";
 import { mockTransactions } from "../../data/mockData";
@@ -13,47 +12,12 @@ import GeographyChart from "../../components/GeographyChart";
 import BarChart from "../../components/BarChart";
 import StatBox from "../../components/StatBox";
 import ProgressCircle from "../../components/ProgressCircle";
-// import axios from 'axios';
-// import { useNavigate } from 'react-router-dom'; // Import useNavigate
 
-// const API_URL = process.env.API_URL;
 
 const Dashboard = () => {
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
-  // const navigate = useNavigate(); // Initialize useNavigate
-
-  // const [data, setData] = useState(null);
-  // const [isLoading, setIsLoading] = useState(true); 
-  // const [error, setError] = useState(null);
-
-  // const isLoggedIn = localStorage.getItem('token') === 'true'; 
-
-  // useEffect(() => {
-  //   const fetchData = async () => {
-  //     if (isLoggedIn) { 
-  //       setIsLoading(true);
-  //       try {
-  //         const response = await axios.get(`${API_URL}/admin-get-all`);
-  //         setData(response.data);
-  //       } catch (err) {
-  //         console.error('Error fetching admin data:', err);
-  //         setError(err.message);
-  //       } finally {
-  //         setIsLoading(false);
-  //       }
-  //     } else {
-  //       navigate('/login'); 
-  //     }
-  //   };
-
-  //   fetchData();
-  // }, [isLoggedIn, navigate]);
-
-  // if (isLoading) return <CircularProgress />;
-  // if (error) return <Typography color="error">{error}</Typography>;
-
 
   return (
     <Box m="20px">
