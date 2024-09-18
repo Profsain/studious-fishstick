@@ -1,18 +1,18 @@
 import React, { useState, useEffect, useRef } from 'react';
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
-import PersonOutlinedIcon from '@mui/icons-material/PersonOutlined';
-import CalendarTodayOutlinedIcon from '@mui/icons-material/CalendarTodayOutlined';
-import BarChartOutlinedIcon from '@mui/icons-material/BarChartOutlined';
-import PieChartOutlineOutlinedIcon from '@mui/icons-material/PieChartOutlineOutlined';
-import TimelineOutlinedIcon from '@mui/icons-material/TimelineOutlined';
-import MapOutlinedIcon from '@mui/icons-material/MapOutlined';
+// import PersonOutlinedIcon from '@mui/icons-material/PersonOutlined';
+// import CalendarTodayOutlinedIcon from '@mui/icons-material/CalendarTodayOutlined';
+// import BarChartOutlinedIcon from '@mui/icons-material/BarChartOutlined';
+// import PieChartOutlineOutlinedIcon from '@mui/icons-material/PieChartOutlineOutlined';
+// import TimelineOutlinedIcon from '@mui/icons-material/TimelineOutlined';
+// import MapOutlinedIcon from '@mui/icons-material/MapOutlined';
+// import HelpOutlineOutlinedIcon from "@mui/icons-material/HelpOutlineOutlined";
 import { ProSidebar, Menu, MenuItem } from "react-pro-sidebar";
 import { Box, IconButton, Typography, useTheme } from "@mui/material";
 import { Link } from "react-router-dom";
 import "react-pro-sidebar/dist/css/styles.css";
 import { tokens } from "../../theme";
 import PeopleOutlinedIcon from "@mui/icons-material/PeopleOutlined";
-import HelpOutlineOutlinedIcon from "@mui/icons-material/HelpOutlineOutlined";
 import MenuOutlinedIcon from "@mui/icons-material/MenuOutlined";
 
 const Item = ({ title, to, icon, selected, setSelected }) => {
@@ -116,7 +116,7 @@ const Sidebar = () => {
                 ml="15px"
               >
                 <Typography variant="h3" color={colors.grey[100]}>
-                  ADMIN
+                <img src={`${process.env.PUBLIC_URL}/splinxfav.ico`} alt="Logo" style={{ width: '40px', height: '40px' }} />
                 </Typography>
                 <IconButton onClick={() => setIsCollapsed(!isCollapsed)}>
                   <MenuOutlinedIcon />
@@ -284,7 +284,7 @@ const Sidebar = () => {
               setSelected={setSelected}
             />
 
-            <Typography
+            {/* <Typography
               variant="h6"
               color={colors.grey[300]}
               sx={{ m: "15px 0 5px 20px" }}
@@ -347,7 +347,7 @@ const Sidebar = () => {
               icon={<MapOutlinedIcon />}
               selected={selected}
               setSelected={setSelected}
-            />
+            /> */}
           </Box>
         </Menu>
       </ProSidebar>

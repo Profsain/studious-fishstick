@@ -1,13 +1,13 @@
 import React, { useState } from 'react';
 import {
-  Box, Typography, Button, ButtonGroup, Grid, Menu, MenuItem, Link, Modal
+  Box, Typography, TextField, Button, ButtonGroup, Grid, Menu, MenuItem, Link, Modal
 } from '@mui/material';
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
+import VisibilityIcon from '@mui/icons-material/Visibility';
 import { teamData } from "../../data/mockData";
 import { DataGrid } from "@mui/x-data-grid";
 import { useTheme } from '@mui/material/styles';
 import { tokens } from '../../theme';
-import Chip from '@mui/material/Chip';
 import PersonAddOutlinedIcon from '@mui/icons-material/PersonAddOutlined';
 import useMediaQuery from '@mui/material/useMediaQuery';
 
@@ -17,6 +17,15 @@ const TeamManager = () => {
   const [openViewModal, setOpenViewModal] = useState(false);
   const [selectedTeamMember, setSelectedTeamMember] = useState(null);
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+  const [searchText, setSearchText] = useState('');
+
+
+  const filteredRows = teamData.filter((row) =>
+    row.name.toLowerCase().includes(searchText.toLowerCase()) ||
+    row.email.toLowerCase().includes(searchText.toLowerCase()) ||
+    row.staffId.toLowerCase().includes(searchText.toLowerCase())
+  );
+
   // Modal style
   const style = {
     position: 'absolute',
@@ -51,50 +60,12 @@ const TeamManager = () => {
   };
 
   const columns = [
-    {
-      field: "staffId",
-      headerName: "Staff ID",
-      width: 130,
-      editable: true,
-    },
-    {
-      field: "name",
-      headerName: "Name",
-      width: 120,
-      editable: true,
-    },
-    {
-      field: "email",
-      headerName: "Email",
-      width: 150,
-      editable: true,
-    },
-    {
-      field: "phone",
-      headerName: "Phone Number",
-      type: "number",
-      width: 150,
-      editable: true,
-    },
-    {
-      field: "location",
-      headerName: "Location",
-      width: 160,
-      editable: true,
-    },
-    {
-      field: 'role',
-      headerName: 'Role',
-      width: 140,
-      renderCell: ({ row: { role } }) => {
-        return (
-          <Chip
-            label={role}
-            color={role === 'Admin' | 'Super Admin' ? 'primary' : 'secondary'}
-          />
-        );
-      },
-    },
+    { field: "staffId", headerName: "Staff ID", width: 130 },
+    { field: "name", headerName: "Name", flex: 1 }, // Use flex for responsiveness
+    { field: "email", headerName: "Email", flex: 1 },
+    { field: "phone", headerName: "Phone Number", flex: 1 },
+    { field: "location", headerName: "Location", flex: 1 },
+    { field: "role", headerName: "Role", flex: 1 },
     {
       field: "actions",
       headerName: "Actions",
@@ -102,33 +73,32 @@ const TeamManager = () => {
       renderCell: (params) => (
         <ButtonGroup variant="contained">
           <Button
-            onClick={() => handleView(params.row)}
             sx={{
-              backgroundColor: colors.blueAccent[700],
-              color: colors.grey[100],
+              backgroundColor: colors.greenAccent[600],
+              color: 'white',
               '&:hover': {
-                backgroundColor: colors.blueAccent[800],
+                backgroundColor: '#f86a3b',
               },
+
             }}
+            onClick={() => handleView(params.row)}
+            startIcon={<VisibilityIcon />} // Add the VisibilityIcon (eye)
           >
             View
           </Button>
           <Button
-            size="small"
-            aria-controls={`split-button-menu-${params.id}`}
-            aria-expanded={openMenuId === params.id ? 'true' : undefined}
-            aria-label="select merge strategy"
-            aria-haspopup="menu"
-            onClick={(event) => handleClick(event, params.id)}
             sx={{
-              backgroundColor: colors.blueAccent[700],
-              color: colors.grey[100],
+              backgroundColor: '#fa7c50',
+              color: 'white',
               '&:hover': {
-                backgroundColor: colors.blueAccent[800],
+                backgroundColor: '#f86a3b',
               },
+
             }}
+            onClick={(event) => handleClick(event, params.id)}
+            endIcon={<ArrowDropDownIcon />} // Add the ArrowDropDownIcon
           >
-            <ArrowDropDownIcon />
+
           </Button>
         </ButtonGroup>
       ),
@@ -154,9 +124,41 @@ const TeamManager = () => {
         </Grid>
         <Grid item xs={12} container spacing={1} justifyContent={isMobile ? "flex-start" : "flex-end"}>
           <Grid item>
+            <TextField
+              variant="outlined"
+              placeholder="Search..."
+              value={searchText}
+              onChange={(e) => setSearchText(e.target.value)}
+              sx={{
+                mb: 2,
+                width: isMobile? "100%" : "200px", // Responsive width for mobile
+                mr: 2,
+                height: "100%",
+                '& .MuiOutlinedInput-root': {
+                  '& fieldset': {
+                    borderColor: colors.grey[300], // Default border color
+                  },
+                  '&:hover fieldset': {
+                    borderColor: colors.grey[500], // Darker border on hover
+                  },
+                  '&.Mui-focused fieldset': {
+                    borderColor: colors.greenAccent[700], // Green border when focused
+                  },
+                },
+                '& .MuiInputLabel-root': { // Style the label
+                  color: colors.grey[400],          // Default label color
+                  '&.Mui-focused': {
+                    color: colors.greenAccent[700], // Green label when focused
+                  },
+                },
+                '& .MuiInputBase-input': { // Style the input text
+                  color: colors.grey[100],           // Input text color 
+                },
+              }}
+            />
             <Button
               sx={{
-                backgroundColor: colors.greenAccent[700],
+                backgroundColor: colors.greenAccent[600],
                 color: colors.grey[100],
                 fontSize: "16px",
                 fontWeight: "600",
@@ -211,33 +213,33 @@ const TeamManager = () => {
             <DataGrid
               checkboxSelection
               hideFooterSelectedRowCount
-              rows={teamData}
+              rows={filteredRows}
               columns={columns}
               pageSize={10}
               rowsPerPageOptions={[10, 25, 50, 100]}
             />
-<Menu
-        id={`split-button-menu-${openMenuId}`}
-        anchorEl={anchorEl}
-        open={Boolean(anchorEl)}
-        onClose={handleClose}
-        anchorOrigin={{
-          vertical: 'bottom',
-          horizontal: 'right',
-        }}
-        transformOrigin={{
-          vertical: 'top',
-          horizontal: 'right',
-        }}
-      >
-        <MenuItem onClick={handleClose} sx={{ color: colors.grey[100], '&:hover': { backgroundColor: colors.primary[300] } }}>
-          Edit
-        </MenuItem>
-        <MenuItem onClick={handleClose} sx={{ color: colors.grey[100], '&:hover': { backgroundColor: colors.primary[300] } }}>
-          Delete
-        </MenuItem>
-      </Menu>
-    </Box>        </Grid>
+            <Menu
+              id={`split-button-menu-${openMenuId}`}
+              anchorEl={anchorEl}
+              open={Boolean(anchorEl)}
+              onClose={handleClose}
+              anchorOrigin={{
+                vertical: 'bottom',
+                horizontal: 'right',
+              }}
+              transformOrigin={{
+                vertical: 'top',
+                horizontal: 'right',
+              }}
+            >
+              <MenuItem onClick={handleClose} sx={{ color: colors.grey[100], '&:hover': { backgroundColor: colors.primary[300] } }}>
+                Edit
+              </MenuItem>
+              <MenuItem onClick={handleClose} sx={{ color: colors.grey[100], '&:hover': { backgroundColor: colors.primary[300] } }}>
+                Delete
+              </MenuItem>
+            </Menu>
+          </Box>        </Grid>
       </Grid>
       {/* View Modal */}
       <Modal
@@ -264,7 +266,7 @@ const TeamManager = () => {
           )}
         </Box>
       </Modal>
-     
+
     </Box>
   );
 };
