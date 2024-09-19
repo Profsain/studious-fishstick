@@ -3,7 +3,7 @@ import axios from 'axios';
 
 const API_URL = 'https://splinx-server.onrender.com';
 
-export const loginAdmin = async (emailAddress, password) => {
+const loginAdmin = async (emailAddress, password) => {
     try {
         const response = await axios.post(`${API_URL}/admin-login`, {
             emailAddress,
@@ -16,3 +16,5 @@ export const loginAdmin = async (emailAddress, password) => {
         throw error; // Rethrow the error for further handling
     }
 };
+
+export default loginAdmin;

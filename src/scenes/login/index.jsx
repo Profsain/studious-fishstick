@@ -12,7 +12,7 @@ import { useNavigate } from "react-router-dom";
 import { useTheme } from "@mui/material/styles";
 import AuthContext from "../../context/AuthContext";
 import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
-import { loginAdmin } from '../../api/adminApi';
+import loginAdmin from "../../api/adminApi";
 
 const Login = () => {
   const { setUser } = useContext(AuthContext);
