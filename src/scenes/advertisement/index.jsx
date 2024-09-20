@@ -10,7 +10,6 @@ import { useTheme } from '@mui/material/styles';
 import { tokens } from '../../theme';
 import Chip from '@mui/material/Chip';
 import PersonAddOutlinedIcon from '@mui/icons-material/PersonAddOutlined';
-import DownloadOutlinedIcon from "@mui/icons-material/DownloadOutlined";
 import useMediaQuery from '@mui/material/useMediaQuery'; 
 
 const AdvertManager = () => {

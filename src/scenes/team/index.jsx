@@ -1,16 +1,31 @@
 import React, { useState } from 'react';
 import {
-  Box, Typography, Button, ButtonGroup, Grid, Menu, MenuItem, Link, Modal, InputBase, InputAdornment, IconButton
+  Box,
+  Typography,
+  Button,
+  ButtonGroup,
+  Grid,
+  Menu,
+  MenuItem,
+  Link,
+  InputBase,
+  InputAdornment,
+  IconButton,
+  Avatar,
 } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import VisibilityIcon from '@mui/icons-material/Visibility';
-import { teamData } from "../../data/mockData";
-import { DataGrid } from "@mui/x-data-grid";
+// import EditIcon from '@mui/icons-material/Edit';
+import { teamData as initialTeamData } from '../../data/mockData';
+import { DataGrid } from '@mui/x-data-grid';
 import { useTheme } from '@mui/material/styles';
 import { tokens } from '../../theme';
 import PersonAddOutlinedIcon from '@mui/icons-material/PersonAddOutlined';
 import useMediaQuery from '@mui/material/useMediaQuery';
+import ViewModal from '../../components/ViewModal';
+import { teamViewFields } from './teamFields';
+import EditModal from '../../components/EditModal';
 
 const TeamManager = () => {
   const theme = useTheme();
@@ -20,26 +35,8 @@ const TeamManager = () => {
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
   const [searchText, setSearchText] = useState('');
 
-
-  const filteredRows = teamData.filter((row) => {
-    const search = searchText.toLowerCase();
-    return (
-      (row.name?.toLowerCase() ?? '').includes(search) ||
-      (row.email?.toLowerCase() ?? '').includes(search) ||
-      (row.staffId?.toLowerCase() ?? '').includes(search)
-    );
-  });
-  // Modal style
-  const style = {
-    position: 'absolute',
-    top: '50%',
-    left: '50%',
-    transform: 'translate(-50%, -50%)',
-    width: 400,
-    bgcolor: 'background.paper',
-    boxShadow: 24,
-    p: 4,
-  };
+  const [openEditModal, setOpenEditModal] = useState(false);
+  const [editMemberData, setEditMemberData] = useState(null);
 
   const [anchorEl, setAnchorEl] = useState(null);
   const [openMenuId, setOpenMenuId] = useState(null);
@@ -53,6 +50,7 @@ const TeamManager = () => {
     setAnchorEl(null);
     setOpenMenuId(null);
   };
+
   const handleView = (member) => {
     setSelectedTeamMember(member);
     setOpenViewModal(true);
@@ -62,16 +60,51 @@ const TeamManager = () => {
     setOpenViewModal(false);
   };
 
+  const handleEdit = (member) => {
+    setEditMemberData(member);
+    setOpenEditModal(true);
+  };
+
+  const [teamData, setTeamData] = useState(initialTeamData); // Replace initialTeamData with your initial mock data
+
+  const handleEditSubmit = (values) => {
+    console.log('Updating team member with values:', values);
+
+    // 1. Update the local data (replace with your actual API call logic)
+    const updatedTeamData = teamData.map((tm) => 
+      tm.staffId === values.staffId ? values : tm
+    );
+    setTeamData(updatedTeamData);
+
+    // 2. Close the Edit Modal 
+    setOpenEditModal(false); 
+  };
+  const filteredRows = teamData.filter((row) => {
+    const search = searchText.toLowerCase();
+    return (
+    (row.name?.toLowerCase() ?? '').includes(search) ||
+    (row.email?.toLowerCase() ?? '').includes(search) ||
+    (row.staffId?.toLowerCase() ?? '').includes(search)
+    );
+    });
   const columns = [
-    { field: "staffId", headerName: "Staff ID", width: 130 },
-    { field: "name", headerName: "Name", flex: 1 }, // Use flex for responsiveness
-    { field: "email", headerName: "Email", flex: 1 },
-    { field: "phone", headerName: "Phone Number", flex: 1 },
-    { field: "location", headerName: "Location", flex: 1 },
-    { field: "role", headerName: "Role", flex: 1 },
+    { field: 'staffId', headerName: 'Staff ID', width: 100 },
     {
-      field: "actions",
-      headerName: "Actions",
+      field: 'profileImage',
+      headerName: 'Profile',
+      width: 80,
+      renderCell: (params) => (
+        <Avatar alt={params.row.name} src={params.row.profileImage} />
+      ),
+    },
+    { field: 'name', headerName: 'Name', flex: 2 },
+    { field: 'email', headerName: 'Email', flex: 1 },
+    { field: 'phone', headerName: 'Phone Number', flex: 1 },
+    { field: 'location', headerName: 'Location', flex: 1 },
+    { field: 'role', headerName: 'Role', flex: 1 },
+    {
+      field: 'actions',
+      headerName: 'Actions',
       width: 200,
       renderCell: (params) => (
         <ButtonGroup variant="contained">
@@ -79,13 +112,10 @@ const TeamManager = () => {
             sx={{
               backgroundColor: colors.greenAccent[600],
               color: 'white',
-              '&:hover': {
-                backgroundColor: '#f86a3b',
-              },
-
+              '&:hover': { backgroundColor: '#f86a3b' },
             }}
             onClick={() => handleView(params.row)}
-            startIcon={<VisibilityIcon />} // Add the VisibilityIcon (eye)
+            startIcon={<VisibilityIcon />}
           >
             View
           </Button>
@@ -93,15 +123,11 @@ const TeamManager = () => {
             sx={{
               backgroundColor: '#fa7c50',
               color: 'white',
-              '&:hover': {
-                backgroundColor: '#f86a3b',
-              },
-
+              '&:hover': { backgroundColor: '#f86a3b' },
             }}
-            onClick={(event) => handleClick(event, params.id)}
-            endIcon={<ArrowDropDownIcon />} // Add the ArrowDropDownIcon
+            onClick={(event) => handleClick(event, params.row)} // Pass the row data 
+            endIcon={<ArrowDropDownIcon />}
           >
-
           </Button>
         </ButtonGroup>
       ),
@@ -127,7 +153,7 @@ const TeamManager = () => {
         </Grid>
         <Grid item xs={12} container spacing={1} justifyContent={isMobile ? "flex-start" : "flex-end"}>
           <Grid item>
-          <InputBase
+            <InputBase
               sx={{
                 mr: 2, flex: 3,
                 border: '1px solid white',
@@ -211,31 +237,66 @@ const TeamManager = () => {
               pageSize={10}
               rowsPerPageOptions={[10, 25, 50, 100]}
             />
+            {/* Actions Dropdown Menu */}
             <Menu
               id={`split-button-menu-${openMenuId}`}
               anchorEl={anchorEl}
               open={Boolean(anchorEl)}
               onClose={handleClose}
-              anchorOrigin={{
-                vertical: 'bottom',
-                horizontal: 'right',
-              }}
-              transformOrigin={{
-                vertical: 'top',
-                horizontal: 'right',
-              }}
+              anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+              transformOrigin={{ vertical: 'top', horizontal: 'right' }}
             >
-              <MenuItem onClick={handleClose} sx={{ color: colors.grey[100], '&:hover': { backgroundColor: colors.primary[300] } }}>
+              <MenuItem
+                onClick={() => {
+                  handleClose();
+                  handleEdit(openMenuId);
+                }}
+                sx={{ color: colors.grey[100], '&:hover': { backgroundColor: colors.primary[300] } }}
+              >
                 Edit
               </MenuItem>
               <MenuItem onClick={handleClose} sx={{ color: colors.grey[100], '&:hover': { backgroundColor: colors.primary[300] } }}>
                 Delete
               </MenuItem>
             </Menu>
-          </Box>        </Grid>
-      </Grid>
-      {/* View Modal */}
-      <Modal
+          </Box>
+        </Grid>
+
+        {/* ViewModal */}
+        <ViewModal
+          open={openViewModal}
+          onClose={handleCloseModal}
+          recordData={selectedTeamMember}
+          fields={teamViewFields}
+        >
+          {/* Correct way to pass JSX as children */}
+          <Button
+            variant="contained"
+            onClick={() => {
+              handleCloseModal();
+              handleEdit(selectedTeamMember);
+            }}
+            sx={{
+              backgroundColor: colors.greenAccent[600],
+              color: colors.grey[100],
+              '&:hover': { backgroundColor: colors.greenAccent[700] },
+              mt: 2,
+            }}
+          >
+            Edit
+          </Button>
+        </ViewModal>
+
+        {/* EditModal */}
+        <EditModal
+          open={openEditModal}
+          onClose={() => setOpenEditModal(false)}
+          initialValues={editMemberData}
+          onSubmit={handleEditSubmit}
+          fields={teamViewFields}
+        />
+        {/* View Modal */}
+        {/* <Modal
         open={openViewModal}
         onClose={handleCloseModal}
         aria-labelledby="view-team-member-modal"
@@ -244,9 +305,9 @@ const TeamManager = () => {
         <Box sx={style}>
           {selectedTeamMember && (
             <div>
-              <Typography id="view-team-member-modal" variant="h6" component="h2">
-                {selectedTeamMember.name}
-              </Typography>
+             <Typography id="view-team-member-modal" variant="h6" component="h2">
+        {selectedTeamMember.firstName} {selectedTeamMember.lastName} 
+      </Typography>
               <Typography id="view-team-member-details" sx={{ mt: 2 }}>
                 <strong>Staff ID:</strong> {selectedTeamMember.staffId}<br />
                 <strong>Email:</strong> {selectedTeamMember.email}<br />
@@ -258,9 +319,9 @@ const TeamManager = () => {
             </div>
           )}
         </Box>
-      </Modal>
-
-    </Box>
+      </Modal> */}
+      </Grid>
+    </Box >
   );
 };
 

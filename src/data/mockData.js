@@ -1282,22 +1282,74 @@ export const mockGeographyData = [
   },
 ];
 
-
-// In your theme.js or a separate mock data file
 export const teamData = [
-  { id: 1, staffId: 'SP-0021', name: 'Jame Owan', email: 'jame@gmail.com', phone: '+7005533827', location: 'London, UK', role: 'Super Admin' },
-  { id: 2, staffId: 'SP-0023', name: 'Grace Doe', email: 'grace@yahoo.com', phone: '+7009876363', location: 'Lagos, Nigeria', role: 'Staff Admin' },
-  { id: 3, staffId: 'SP-0024', name: 'Peter Jones', email: 'peter@example.com', phone: '+1-555-123-4567', location: 'New York, USA', role: 'Content Manager' },
-  { id: 4, staffId: 'SP-0025', name: 'Mary Smith', email: 'mary@sample.com', phone: '+44-20-7890-1234', location: 'Manchester, UK', role: 'Finance Officer' },
-  { id: 5, staffId: 'SP-0026', name: 'David Lee', email: 'david@test.com', phone: '+86-10-1234-5678', location: 'Beijing, China', role: 'Marketing Manager' },
-  { id: 6, staffId: 'SP-0027', name: 'Sarah Brown', email: 'sarah@domain.com', phone: '+61-2-9876-5432', location: 'Sydney, Australia', role: 'Sales Representative' },
-  { id: 7, staffId: 'SP-0028', name: 'Michael Kim', email: 'michael@mail.com', phone: '+82-2-5678-1234', location: 'Seoul, South Korea', role: 'Support Specialist' },
-  { id: 8, staffId: 'SP-0029', name: 'Emily Chen', email: 'emily@company.com', phone: '+81-3-4567-8901', location: 'Tokyo, Japan', role: 'Project Manager' },
-  { id: 9, staffId: 'SP-0030', name: 'Daniel Garcia', email: 'daniel@website.com', phone: '+55-11-9876-5432', location: 'São Paulo, Brazil', role: 'Data Analyst' },
-  { id: 10, staffId: 'SP-0031', name: 'Olivia Rodriguez', email: 'olivia@domain.net', phone: '+34-91-1234-5678', location: 'Madrid, Spain', role: 'UX Designer' },
-  { id: 11, staffId: 'SP-0032', name: 'Sophia Dubois', email: 'sophia@email.fr', phone: '+33-1-4567-8901', location: 'Paris, France', role: 'Software Engineer' }
+  { 
+    id: 1, 
+    staffId: 'SP-0021', 
+    firstName: 'James',
+    lastName: 'Owan',
+    email: 'james.owan@splinxplanet.com', 
+    phone: '+1-202-555-0121', 
+    location: 'Washington D.C., USA', 
+    role: 'Super Admin',
+    profileImage: '../../assets/user.png', // Add profileImage
+    userName: 'jowan',
+    address: '1600 Pennsylvania Avenue NW',
+    city: 'Washington',
+    country: 'USA',
+    name: 'James Owan',  // Add the concatenated name 
+    nextOfKin: {
+      fullName: 'Mary Owan',
+      phoneNumber: '+1-202-555-0122',
+      email: 'mary.owan@email.com',
+      address: '123 Main Street, Anytown, USA'
+    }
+  },
+  { 
+    id: 2, 
+    staffId: 'SP-0023', 
+    firstName: 'Grace',
+    lastName: 'Doe',
+    email: 'grace.doe@splinxplanet.com', 
+    phone: '+234-803-123-4567',
+    location: 'Lagos, Nigeria', 
+    role: 'Staff Admin',
+    profileImage: '/user.png', 
+    userName: 'gdoe',
+    address: '78 Ikorodu Road',
+    city: 'Lagos',
+    country: 'Nigeria',
+    name: 'Grace Doe',
+    nextOfKin: {
+      fullName: 'John Doe',
+      phoneNumber: '+234-803-987-6543',
+      email: 'john.doe@email.com',
+      address: '45 Broad Street, Lagos, Nigeria'
+    }
+  },
+  { 
+    id: 3, 
+    staffId: 'SP-0024', 
+    firstName: 'Peter', 
+    lastName: 'Jones',
+    email: 'peter.jones@splinxplanet.com', 
+    phone: '+44-20-7890-1234', 
+    location: 'London, UK', 
+    role: 'Staff Admin',
+    profileImage: '/user.png', 
+    userName: 'pjones',
+    address: '221B Baker Street',
+    city: 'London',
+    country: 'UK',
+    name: 'Peter Jones',  // Add the concatenated name 
+    nextOfKin: {
+      fullName: 'Anna Jones',
+      phoneNumber: '+44-20-7890-5678',
+      email: 'anna.jones@email.com',
+      address: '42 Oxford Street, London, UK'
+    }
+  },
 ];
-
 
 
 
