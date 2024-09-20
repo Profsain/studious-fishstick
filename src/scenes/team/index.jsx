@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import {
-  Box, Typography, TextField, Button, ButtonGroup, Grid, Menu, MenuItem, Link, Modal
+  Box, Typography, Button, ButtonGroup, Grid, Menu, MenuItem, Link, Modal, InputBase, InputAdornment, IconButton
 } from '@mui/material';
+import SearchIcon from '@mui/icons-material/Search';
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import { teamData } from "../../data/mockData";
@@ -20,12 +21,14 @@ const TeamManager = () => {
   const [searchText, setSearchText] = useState('');
 
 
-  const filteredRows = teamData.filter((row) =>
-    row.name.toLowerCase().includes(searchText.toLowerCase()) ||
-    row.email.toLowerCase().includes(searchText.toLowerCase()) ||
-    row.staffId.toLowerCase().includes(searchText.toLowerCase())
-  );
-
+  const filteredRows = teamData.filter((row) => {
+    const search = searchText.toLowerCase();
+    return (
+      (row.name?.toLowerCase() ?? '').includes(search) ||
+      (row.email?.toLowerCase() ?? '').includes(search) ||
+      (row.staffId?.toLowerCase() ?? '').includes(search)
+    );
+  });
   // Modal style
   const style = {
     position: 'absolute',
@@ -124,37 +127,27 @@ const TeamManager = () => {
         </Grid>
         <Grid item xs={12} container spacing={1} justifyContent={isMobile ? "flex-start" : "flex-end"}>
           <Grid item>
-            <TextField
-              variant="outlined"
-              placeholder="Search..."
+          <InputBase
+              sx={{
+                mr: 2, flex: 3,
+                border: '1px solid white',
+                borderRadius: '4px',
+                marginBottom: '10px',
+                padding: '10px 14px',
+                '& .MuiInputBase-input': {
+                  color: 'white',
+                }
+              }}
               value={searchText}
               onChange={(e) => setSearchText(e.target.value)}
-              sx={{
-                mb: 2,
-                width: isMobile? "100%" : "200px", // Responsive width for mobile
-                mr: 2,
-                height: "100%",
-                '& .MuiOutlinedInput-root': {
-                  '& fieldset': {
-                    borderColor: colors.grey[300], // Default border color
-                  },
-                  '&:hover fieldset': {
-                    borderColor: colors.grey[500], // Darker border on hover
-                  },
-                  '&.Mui-focused fieldset': {
-                    borderColor: colors.greenAccent[700], // Green border when focused
-                  },
-                },
-                '& .MuiInputLabel-root': { // Style the label
-                  color: colors.grey[400],          // Default label color
-                  '&.Mui-focused': {
-                    color: colors.greenAccent[700], // Green label when focused
-                  },
-                },
-                '& .MuiInputBase-input': { // Style the input text
-                  color: colors.grey[100],           // Input text color 
-                },
-              }}
+              placeholder="Search Events..."
+              endAdornment={
+                <InputAdornment position="end">
+                  <IconButton type="button" sx={{ p: 1 }}>
+                    <SearchIcon />
+                  </IconButton>
+                </InputAdornment>
+              }
             />
             <Button
               sx={{
