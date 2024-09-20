@@ -1,5 +1,5 @@
 /* eslint-disable import/no-unresolved */
-import React, { useState, useContext } from "react";
+import React, { useState} from "react";
 import {
   Box,
   TextField,
@@ -7,25 +7,18 @@ import {
   Typography,
   CircularProgress,
   Avatar,
-  IconButton,
-  InputAdornment,
   Link,
 } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import { useTheme } from "@mui/material/styles";
-import AuthContext from "../../context/AuthContext";
 import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
-import Visibility from "@mui/icons-material/Visibility";
-import VisibilityOff from "@mui/icons-material/VisibilityOff";
-import loginAdmin from "../../api/adminApi";
 
-const Login = () => {
-  const { setUser, setToken } = useContext(AuthContext);
+
+const ForgotPassword = () => {
   const theme = useTheme();
   const navigate = useNavigate();
   const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [showPassword, setShowPassword] = useState(false); // State for password visibility
+  const [userName, setUserName] = useState("");
   const [error, setError] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -34,16 +27,94 @@ const Login = () => {
     setError(null);
     setIsLoading(true);
 
-    try {
-      const data = await loginAdmin(email, password);
-      if (data.success) {
-        setToken(data.token);
-        setUser(data.admin);
+    const requestHtml = `
+        <!DOCTYPE html>
+        <html lang="en">
+        <head>
+          <meta charset="UTF-8">
+          <meta name="viewport" content="width=device-width, initial-scale=1.0">
+          <title>Password Recovery Request</title>
+          <style>
+            body {
+              font-family: Arial, sans-serif;
+              background-color: #f4f4f4;
+              color: #333;
+              padding: 0;
+              margin: 0;
+            }
+            .container {
+              width: 100%;
+              max-width: 600px;
+              margin: 0 auto;
+              background-color: #ffffff;
+              padding: 20px;
+              border-radius: 8px;
+              box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            }
+            h1 {
+              font-size: 24px;
+              color: #333;
+            }
+            p {
+              font-size: 16px;
+              line-height: 1.5;
+              color: #555;
+            }
 
-        // Redirect to the dashboard after successful login
-        navigate("/dashboard");
+            .footer {
+              margin-top: 30px;
+              font-size: 14px;
+              color: #777;
+            }
+          </style>
+        </head>
+        <body>
+          <div class="container">
+            <h1>Password Recovery Request</h1>
+            <p>Hello,</p>
+            <p>Splinx Planet admin has requested password change</p>
+            <h4>Admin Request Details</h4>
+            <p>Username: {{userName}}</p>
+            <p>Email: {{email}}</p>
+            
+            <p>If you didn't recognize this admin, please ignore this email.</p>
+            <div class="footer">
+              <p>Thanks,<br>The Splinx Planet Team</p>
+            </div>
+          </div>
+        </body>
+        </html>
+        `;
+
+    const subject = `Admin Password Recovery Request`;
+    const reEmail = "splinxplanent@gmail.com";
+    const apiUrl = process.env.REACT_APP_API_URL;
+
+    try {
+      const response = await fetch(`${apiUrl}/email/send-email`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          email: reEmail,
+          subject,
+          html: requestHtml
+        }),
+      });
+
+      console.log(response)
+
+      if (response.ok) {
+        // Show success message
+        setError("Password recovery request sent successfully. Redirecting to login page...");
+        // Redirect to login page after 3 seconds
+        setTimeout(() => {
+          navigate("/login");
+        }, 3000);
       } else {
-        setError(data.message || "Invalid username or password.");
+        const data = await response.json();
+        setError(data.message);
       }
     } catch (err) {
       setError("An error occurred during login. Please try again.");
@@ -51,10 +122,6 @@ const Login = () => {
     } finally {
       setIsLoading(false);
     }
-  };
-
-  const togglePasswordVisibility = () => {
-    setShowPassword((prevShowPassword) => !prevShowPassword);
   };
 
   return (
@@ -89,7 +156,7 @@ const Login = () => {
           <LockOutlinedIcon />
         </Avatar>
         <Typography variant="h2" fontWeight="bold" mb={4} color="#262a31">
-          Splinx Planet Login
+          Splinx Planet Password Recovery
         </Typography>
 
         {error && (
@@ -104,6 +171,7 @@ const Login = () => {
           fullWidth
           margin="normal"
           value={email}
+          type="email"
           onChange={(e) => setEmail(e.target.value)}
           InputLabelProps={{ style: { color: "#262a31" } }}
           sx={{
@@ -124,34 +192,19 @@ const Login = () => {
             },
           }}
         />
-
         <TextField
-          label="Password"
+          label="Username"
           variant="outlined"
-          type={showPassword ? "text" : "password"} // Toggle password visibility
           fullWidth
           margin="normal"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
+          value={userName}
+          type="text"
+          onChange={(e) => setUserName(e.target.value)}
           InputLabelProps={{ style: { color: "#262a31" } }}
-          InputProps={{
-            endAdornment: (
-              <InputAdornment position="end">
-                <IconButton
-                  onClick={togglePasswordVisibility}
-                  edge="end"
-                  aria-label="toggle password visibility"
-                  sx={{ color: "gray" }} // Set eye icon color to gray
-                >
-                  {showPassword ? <VisibilityOff /> : <Visibility />}
-                </IconButton>
-              </InputAdornment>
-            ),
-          }}
           sx={{
             input: {
-              color: "gray",
-              backgroundColor: password ? "transparent" : "inherit", // No background when filled
+              color: "#262a31",
+              backgroundColor: userName ? "transparent" : "inherit", // No background when filled
             },
             "& .MuiOutlinedInput-root": {
               "& fieldset": {
@@ -188,13 +241,13 @@ const Login = () => {
             },
           }}
         >
-          {isLoading ? <CircularProgress size={24} /> : "LOGIN"}
+          {isLoading ? <CircularProgress size={24} /> : "Submit"}
         </Button>
 
         {/* Forgot Password Link */}
         <Box mt={2}>
-          <Link href="/forgot-password" underline="hover" color="primary">
-            Forgot password?
+          <Link href="/login" underline="hover" color="primary">
+            Remembered your password? Login
           </Link>
         </Box>
       </Box>
@@ -202,4 +255,4 @@ const Login = () => {
   );
 };
 
-export default Login;
+export default ForgotPassword;

@@ -16,7 +16,7 @@ const Topbar = () => {
   const colors = tokens(theme.palette.mode);
   const colorMode = useContext(ColorModeContext);
   const navigate = useNavigate(); // Add this line
-  const { setUser } = useContext(AuthContext); // Get setUser from context
+  const { setUser, setToken } = useContext(AuthContext); // Get setUser from context
 
   const [anchorEl, setAnchorEl] = useState(null);
   const open = Boolean(anchorEl);
@@ -32,7 +32,9 @@ const Topbar = () => {
   // Handle logout and redirect to login page
   const handleLogout = () => {
     setUser(null); // Clear user data from the AuthContext
-    localStorage.removeItem('user'); 
+    setToken(null); // Clear token from the AuthContext
+  
+    // Redirect to login page
     navigate('/login');
   };
 

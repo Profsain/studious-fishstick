@@ -1,12 +1,6 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useRef, useContext } from 'react';
+import AuthContext from '../../context/AuthContext';
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
-// import PersonOutlinedIcon from '@mui/icons-material/PersonOutlined';
-// import CalendarTodayOutlinedIcon from '@mui/icons-material/CalendarTodayOutlined';
-// import BarChartOutlinedIcon from '@mui/icons-material/BarChartOutlined';
-// import PieChartOutlineOutlinedIcon from '@mui/icons-material/PieChartOutlineOutlined';
-// import TimelineOutlinedIcon from '@mui/icons-material/TimelineOutlined';
-// import MapOutlinedIcon from '@mui/icons-material/MapOutlined';
-// import HelpOutlineOutlinedIcon from "@mui/icons-material/HelpOutlineOutlined";
 import { ProSidebar, Menu, MenuItem } from "react-pro-sidebar";
 import { Box, IconButton, Typography, useTheme } from "@mui/material";
 import { Link } from "react-router-dom";
@@ -34,14 +28,15 @@ const Item = ({ title, to, icon, selected, setSelected }) => {
 };
 
 const Sidebar = () => {
+  const { user } = useContext(AuthContext);
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [selected, setSelected] = useState("Dashboard");
+
   const [profileImage, setProfileImage] = useState("../../assets/user.png");
   const fileInputRef = useRef(null);
   const [isHovered, setIsHovered] = useState(false);
-  const [adminData, setAdminData] = useState(null); // State to hold admin data
 
   const handleImageClick = () => {
     fileInputRef.current.click();
@@ -58,24 +53,6 @@ const Sidebar = () => {
       reader.readAsDataURL(file);
     }
   };
-
-   useEffect(() => {
-    const fetchAdmins = async () => {
-      try {
-        const response = await fetch('https://splinx-server.onrender.com/admin/admin-get-all');
-        if (!response.ok) {
-          throw new Error('Network response was not ok');
-        }
-        const data = await response.json();
-        setAdminData(data.admins[0]); // Assuming you want the first admin
-      } catch (error) {
-        console.error('Error fetching admins:', error);
-      }
-    };
-
-    fetchAdmins();
-  }, []);
-
 
   return (
     <Box
@@ -116,7 +93,11 @@ const Sidebar = () => {
                 ml="15px"
               >
                 <Typography variant="h3" color={colors.grey[100]}>
-                <img src={`${process.env.PUBLIC_URL}/splinxfav.ico`} alt="Logo" style={{ width: '40px', height: '40px' }} />
+                  <img
+                    src={`${process.env.PUBLIC_URL}/splinxfav.ico`}
+                    alt="Logo"
+                    style={{ width: "40px", height: "40px" }}
+                  />
                 </Typography>
                 <IconButton onClick={() => setIsCollapsed(!isCollapsed)}>
                   <MenuOutlinedIcon />
@@ -139,7 +120,7 @@ const Sidebar = () => {
                   alt="profile-user"
                   width="100px"
                   height="100px"
-                  src={profileImage}
+                  src={user?.profileImage ? user.profileImage : profileImage}
                   style={{ cursor: "pointer", borderRadius: "50%" }}
                   onClick={handleImageClick}
                 />
@@ -169,29 +150,29 @@ const Sidebar = () => {
                 />
               </Box>
               <Box textAlign="center">
-        {adminData && (
-          <>
-            <Typography
-              variant="h2"
-              color={colors.grey[100]}
-              fontWeight="bold"
-              sx={{ m: "10px 0 0 0" }}
-            >
-              {adminData.firstName} {adminData.lastName}
-            </Typography>
-            <Typography variant="h5" color={colors.greenAccent[500]}>
-              {adminData.role}
-            </Typography>
-          </>
-        )}
-      </Box>
-    </Box>
+                {user && (
+                  <>
+                    <Typography
+                      variant="h2"
+                      color={colors.grey[100]}
+                      fontWeight="bold"
+                      sx={{ m: "10px 0 0 0" }}
+                    >
+                      {user.firstName} {user.lastName}
+                    </Typography>
+                    <Typography variant="h5" color={colors.greenAccent[500]}>
+                      {user.role}
+                    </Typography>
+                  </>
+                )}
+              </Box>
+            </Box>
           )}
 
           <Box paddingLeft={isCollapsed ? undefined : "10%"}>
             <Item
               title="Dashboard"
-              to="/"
+              to="/dashboard"
               icon={<PeopleOutlinedIcon />}
               selected={selected}
               setSelected={setSelected}
@@ -224,7 +205,9 @@ const Sidebar = () => {
               title="Event Manager"
               to="/events"
               icon={
-                <span className="material-symbols-outlined">event_available</span>
+                <span className="material-symbols-outlined">
+                  event_available
+                </span>
               }
               selected={selected}
               setSelected={setSelected}
@@ -241,7 +224,9 @@ const Sidebar = () => {
             <Item
               title="Withdrawal Request"
               to="/withdrawal"
-              icon={<span className="material-symbols-outlined">attach_money</span>}
+              icon={
+                <span className="material-symbols-outlined">attach_money</span>
+              }
               selected={selected}
               setSelected={setSelected}
             />
@@ -259,7 +244,9 @@ const Sidebar = () => {
             <Item
               title="Promo Code"
               to="/promo-code"
-              icon={<span className="material-symbols-outlined">app_promo</span>}
+              icon={
+                <span className="material-symbols-outlined">app_promo</span>
+              }
               selected={selected}
               setSelected={setSelected}
             />
@@ -278,7 +265,9 @@ const Sidebar = () => {
               title="Email Notification"
               to="/email-notification"
               icon={
-                <span className="material-symbols-outlined">mark_email_unread</span>
+                <span className="material-symbols-outlined">
+                  mark_email_unread
+                </span>
               }
               selected={selected}
               setSelected={setSelected}
