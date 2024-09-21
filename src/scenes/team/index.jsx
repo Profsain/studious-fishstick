@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useContext, useCallback, useMemo } from 'react';
 import {
-  Box, Avatar, Typography, Button, ButtonGroup, Grid, Menu, MenuItem, Link, Modal, InputBase, InputAdornment, IconButton
+  Box, Chip, Avatar, Typography, Button, Grid, Menu, MenuItem, Link, InputBase, InputAdornment, IconButton
 } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
@@ -10,12 +10,18 @@ import { useTheme } from '@mui/material/styles';
 import { tokens } from '../../theme';
 import useMediaQuery from '@mui/material/useMediaQuery';
 import AuthContext from '../../context/AuthContext';
-import ViewModal from '../../components/ViewModal';
-import EditModal from '../../components/EditModal';
+import ViewModal from '../../components/Modals/ViewModal';
+import EditModal from '../../components/Modals/EditModal';
 import { teamViewFields } from './teamFields';
 import PersonAddOutlinedIcon from '@mui/icons-material/PersonAddOutlined';
+import ConfirmationDialog from './ConfirmationDialog';
+import AddModal from '../../components/Modals/AddModal'; // Update the import path
+
+
+
 
 const TeamManager = () => {
+  // Fetch admin data from the server
   const apiUrl = process.env.REACT_APP_API_URL;
   const { token } = useContext(AuthContext);
 
@@ -56,7 +62,6 @@ const TeamManager = () => {
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
   const [searchText, setSearchText] = useState('');
   const [anchorEl, setAnchorEl] = useState(null);
-  const [openMenuId, setOpenMenuId] = useState(null);
 
   // Memoize filteredRows for performance
   const filteredRows = useMemo(() => {
@@ -72,14 +77,13 @@ const TeamManager = () => {
     });
   }, [adminData, searchText]);
 
-  const handleClick = (event, row) => { // Update handleClick to accept row data
+  const handleClick = (event, row) => {
     setAnchorEl(event.currentTarget);
-    setSelectedAdmin(row); // Set the selected admin when clicking the dropdown
+    setSelectedAdmin(row);
   };
 
   const handleClose = () => {
     setAnchorEl(null);
-    setOpenMenuId(null);
   };
 
   const handleView = (admin) => {
@@ -96,14 +100,64 @@ const TeamManager = () => {
     setEditAdminData(admin);
     setOpenEditModal(true);
   };
+  // Delete an admin (using ConfirmationDialog)
+  const [openConfirmDialog, setOpenConfirmDialog] = useState(false);
+  const [adminToDelete, setAdminToDelete] = useState(null);
+
+  const handleDelete = async (admin) => {
+    try {
+      const response = await fetch(`${apiUrl}/admin/admin-delete/${admin._id}`, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (response.ok) {
+        setAdminData(prevData => prevData.filter(item => item._id !== admin._id));
+        alert('Success', 'Admin deleted successfully!');
+      } else {
+        const errorData = await response.json();
+        alert('Error', errorData.message || 'Failed to delete the admin.');
+      }
+    } catch (error) {
+      alert('Error', 'Failed to delete the admin.');
+    }
+  };
+
+  // Combine handleDelete and confirmDelete into a single function 
+  const handleConfirmDelete = async () => {
+    try {
+      const response = await fetch(`${apiUrl}/admin/admin-delete/${adminToDelete._id}`, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (response.ok) {
+        setAdminData(prevData => prevData.filter(item => item._id !== adminToDelete._id));
+        alert('Success', 'Admin deleted successfully!');
+      } else {
+        const errorData = await response.json();
+        alert('Error', errorData.message || 'Failed to delete the admin.');
+      }
+    } catch (error) {
+      alert('Error', 'Failed to delete the admin.');
+    } finally {
+      setOpenConfirmDialog(false);
+      setAdminToDelete(null);
+    }
+  };
 
   const handleEditSubmit = async (values) => {
     console.log('Updating admin with values:', values);
 
     try {
-      // 1. Make API call to update the admin data
       const response = await fetch(`${apiUrl}/admin/admin-update/${values._id}`, {
-        method: 'PUT', // Or PATCH, depending on your API
+        method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${token}`,
@@ -115,7 +169,6 @@ const TeamManager = () => {
         throw new Error(`HTTP error! Status: ${response.status}`);
       }
 
-      // 2. Update the adminData state (after successful API call)
       const updatedAdminData = await response.json();
       setAdminData(prevData =>
         prevData.map(admin => (admin._id === updatedAdminData._id ? updatedAdminData : admin))
@@ -124,23 +177,72 @@ const TeamManager = () => {
       setOpenEditModal(false);
     } catch (error) {
       console.error('Error updating admin:', error);
-      // Handle error (display error message, etc.)
+    }
+  };
+  const [openAddModal, setOpenAddModal] = useState(false);
+
+  const handleOpenAddModal = () => {
+    setOpenAddModal(true);
+  };
+
+  const handleCloseAddModal = () => {
+    setOpenAddModal(false);
+  };
+
+  const handleSubmitNewAdmin = async (formData) => {
+    try {
+      const response = await fetch(`${apiUrl}/admin/admin-create`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(formData),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to create admin');
+      }
+
+      const newAdmin = await response.json();
+      setAdminData(prevData => [...prevData, newAdmin]); // Update adminData
+      handleCloseAddModal();
+    } catch (error) {
+      console.error("Error creating admin:", error);
+      // Handle error (e.g., display an error message)
     }
   };
 
   const columns = [
     {
-      field: 'profileImage', // Add the image field
-      headerName: 'Profile',
+      field: 'profileImage',
+      headerName: 'Avatar',
       width: 80,
       renderCell: (params) => (
-        <Avatar alt={params.row.firstName} src={params.row.profileImage} /> // Display the image in the Avatar
+        <Avatar alt={params.row.firstName} src={params.row.profileImage} />
       ),
     },
-    { field: "staffId", headerName: "Staff ID", width: 130 },
-    { field: "firstName", headerName: "Firstname", flex: 1 },
-    { field: "lastName", headerName: "Surname", flex: 1 },
-    { field: "emailAddress", headerName: "Email", flex: 1 },
+    {
+      field: 'nameAndId', // Combine name and staffId
+      headerName: 'Full Name - Staff ID',
+      flex: 2,
+      renderCell: (params) => (
+        <Box display="flex" alignItems="center">
+          <Typography variant="h6" sx={{ fontWeight: 'bold', marginRight: '8px', }}>
+            {`${params.row.firstName} ${params.row.lastName}`}
+          </Typography>
+          <Chip
+            label={`${params.row.staffId}`}
+            sx={{
+              backgroundColor: colors.greenAccent[500],
+              color: colors.primary.contrastText,
+              padding: '41px 8px',
+            }}
+          />
+        </Box>
+      ),
+    },
+    { field: "emailAddress", headerName: "Email", flex: 2 },
     { field: "phoneNumber", headerName: "Phone Number", flex: 1 },
     { field: "city", headerName: "Location", flex: 1 },
     { field: "role", headerName: "Role", flex: 1 },
@@ -170,10 +272,9 @@ const TeamManager = () => {
           >
             <ArrowDropDownIcon />
           </IconButton>
-          {/* Menu should be outside the ButtonGroup */}
           <Menu
             anchorEl={anchorEl}
-            open={Boolean(anchorEl)} // Open menu when anchorEl is set
+            open={Boolean(anchorEl)}
             onClose={handleClose}
           >
             <MenuItem onClick={() => { handleEdit(selectedAdmin); handleClose(); }}>Edit</MenuItem>
@@ -225,6 +326,7 @@ const TeamManager = () => {
                 </InputAdornment>
               }
             />
+            {/* Add Team Button */}
             <Button
               sx={{
                 backgroundColor: colors.greenAccent[600],
@@ -235,9 +337,10 @@ const TeamManager = () => {
                 marginRight: isMobile ? "0" : "0px",
                 marginBottom: isMobile ? "10px" : "0",
                 '&:hover': {
-                  backgroundColor: colors.greenAccent[600], // Darker green on hover
+                  backgroundColor: colors.greenAccent[600],
                 },
               }}
+              onClick={handleOpenAddModal}
             >
               <PersonAddOutlinedIcon sx={{ mr: "10px" }} />
               Add Team
@@ -282,6 +385,10 @@ const TeamManager = () => {
                 getRowId={(row) => row._id}
                 columns={columns}
                 pageSize={10}
+                onRowClick={(params) => {
+                  const clickedAdmin = params.row;
+                  handleView(clickedAdmin);
+                }}
                 rowsPerPageOptions={[10, 25, 50, 100]}
               />
             )}
@@ -304,11 +411,21 @@ const TeamManager = () => {
           onSubmit={handleEditSubmit}
           fields={teamViewFields}
         />
-
-        {/* ConfirmationDialog (You'll need to implement this from your Prof's code) */}
-        {/* <ConfirmationDialog 
-          // ... props for the ConfirmationDialog 
-        /> */}
+        {/* AddModal */}
+        <AddModal
+          open={openAddModal}
+          onClose={handleCloseAddModal}
+          fields={teamViewFields}
+          onSubmit={handleSubmitNewAdmin}
+          title="Create New Admin"
+        />
+        {/* ConfirmationDialog */}
+        <ConfirmationDialog
+          open={openConfirmDialog}
+          onClose={() => setOpenConfirmDialog(false)}
+          onConfirm={handleConfirmDelete}  // Use handleConfirmDelete here
+          admin={adminToDelete}
+        />
       </Grid>
     </Box>
   );
