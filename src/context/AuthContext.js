@@ -6,15 +6,10 @@ const AuthContext = createContext();
 // Create Provider Component
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
-
-  // Simulate authentication logic
-  useEffect(() => {
-    // Check user authentication status here
-    // Example: setUser({ name: 'John Doe' });
-  }, []);
+  const [token, setToken] = useState(null);
 
   return (
-    <AuthContext.Provider value={{ user, setUser }}>
+    <AuthContext.Provider value={{ user, setUser, token, setToken }}>
       {children}
     </AuthContext.Provider>
   );

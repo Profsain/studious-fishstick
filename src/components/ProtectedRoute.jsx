@@ -1,18 +1,17 @@
-import React from 'react';
-import { Route, Redirect } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';
+import { useContext } from "react";
+import { Navigate } from "react-router-dom";
+import AuthContext from "../context/AuthContext";
 
-const ProtectedRoute = ({ component: Component, ...rest }) => {
-  const { user } = useAuth();
+const ProtectedRoute = ({ children }) => {
+  const { user, token } = useContext(AuthContext);
 
-  return (
-    <Route
-      {...rest}
-      render={(props) =>
-        user ? <Component {...props} /> : <Redirect to="/" />
-      }
-    />
-  );
+  // If no user or token, redirect to login
+  if (!user || !token) {
+    return <Navigate to="/login" replace />;
+  }
+
+  // If authenticated, allow access to the route
+  return children;
 };
 
 export default ProtectedRoute;
