@@ -1,7 +1,8 @@
 // api/adminApi.js
 import axios from 'axios';
 
-const API_URL = process.env.REACT_APP_API_URL;
+const API_URL = 'https://splinx-server.onrender.com';
+// const API_URL = process.env.REACT_APP_API_URL;
 
 const loginAdmin = async (emailAddress, password) => {
     try {

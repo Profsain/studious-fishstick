@@ -4,10 +4,10 @@ import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 import { ProSidebar, Menu, MenuItem } from "react-pro-sidebar";
 import { Box, IconButton, Typography, useTheme } from "@mui/material";
 import { Link } from "react-router-dom";
+import { tokens } from '../../theme';
 import "react-pro-sidebar/dist/css/styles.css";
-import { tokens } from "../../theme";
-import PeopleOutlinedIcon from "@mui/icons-material/PeopleOutlined";
 import MenuOutlinedIcon from "@mui/icons-material/MenuOutlined";
+import PeopleOutlinedIcon from '@mui/icons-material/PeopleOutlined';
 
 const Item = ({ title, to, icon, selected, setSelected }) => {
   const theme = useTheme();
@@ -48,7 +48,7 @@ const Sidebar = () => {
       const reader = new FileReader();
       reader.onloadend = () => {
         setProfileImage(reader.result);
-        localStorage.setItem("profileImage", reader.result);
+        localStorage.setItem('profileImage', reader.result);
       };
       reader.readAsDataURL(file);
     }
@@ -57,20 +57,20 @@ const Sidebar = () => {
   return (
     <Box
       sx={{
-        "& .pro-sidebar-inner": {
+        '& .pro-sidebar-inner': {
           background: `${colors.primary[400]} !important`,
         },
-        "& .pro-icon-wrapper": {
-          backgroundColor: "transparent !important",
+        '& .pro-icon-wrapper': {
+          backgroundColor: 'transparent !important',
         },
-        "& .pro-inner-item": {
-          padding: "5px 35px 5px 20px !important",
+        '& .pro-inner-item': {
+          padding: '5px 35px 5px 20px !important',
         },
-        "& .pro-inner-item:hover": {
-          color: "#868dfb !important",
+        '& .pro-inner-item:hover': {
+          color: '#868dfb !important',
         },
-        "& .pro-menu-item.active": {
-          color: "#6870fa !important",
+        '& .pro-menu-item.active': {
+          color: '#6870fa !important',
         },
       }}
     >
@@ -81,17 +81,12 @@ const Sidebar = () => {
             onClick={() => setIsCollapsed(!isCollapsed)}
             icon={isCollapsed ? <MenuOutlinedIcon /> : undefined}
             style={{
-              margin: "10px 0 20px 0",
+              margin: '10px 0 20px 0',
               color: colors.grey[100],
             }}
           >
             {!isCollapsed && (
-              <Box
-                display="flex"
-                justifyContent="space-between"
-                alignItems="center"
-                ml="15px"
-              >
+              <Box display="flex" justifyContent="space-between" alignItems="center" ml="15px">
                 <Typography variant="h3" color={colors.grey[100]}>
                   <img
                     src={`${process.env.PUBLIC_URL}/splinxfav.ico`}
@@ -106,6 +101,7 @@ const Sidebar = () => {
             )}
           </MenuItem>
 
+          {/* USER PROFILE */}
           {!isCollapsed && (
             <Box mb="25px">
               <Box
@@ -127,25 +123,23 @@ const Sidebar = () => {
                 {isHovered && (
                   <IconButton
                     sx={{
-                      position: "absolute",
-                      top: "50%",
-                      left: "50%",
-                      transform: "translate(-50%, -50%)",
-                      backgroundColor: "rgba(0, 0, 0, 0.5)",
-                      "&:hover": { backgroundColor: "rgba(0, 0, 0, 0.7)" },
+                      position: 'absolute',
+                      top: '50%',
+                      left: '50%',
+                      transform: 'translate(-50%, -50%)',
+                      backgroundColor: 'rgba(0, 0, 0, 0.5)',
+                      '&:hover': { backgroundColor: 'rgba(0, 0, 0, 0.7)' },
                     }}
                     onClick={handleImageClick}
                   >
-                    <AddCircleOutlineIcon
-                      sx={{ color: "white", fontSize: 30 }}
-                    />
+                    <AddCircleOutlineIcon sx={{ color: 'white', fontSize: 30 }} />
                   </IconButton>
                 )}
                 <input
                   type="file"
                   accept="image/*"
                   ref={fileInputRef}
-                  style={{ display: "none" }}
+                  style={{ display: 'none' }}
                   onChange={handleImageChange}
                 />
               </Box>
@@ -169,7 +163,8 @@ const Sidebar = () => {
             </Box>
           )}
 
-          <Box paddingLeft={isCollapsed ? undefined : "10%"}>
+          {/* MENU ITEMS */}
+          <Box paddingLeft={isCollapsed ? undefined : '10%'}>
             <Item
               title="Dashboard"
               to="/dashboard"
@@ -180,7 +175,7 @@ const Sidebar = () => {
             <Typography
               variant="h6"
               color={colors.grey[300]}
-              sx={{ m: "15px 0 5px 20px" }}
+              sx={{ m: '15px 0 5px 20px' }}
             >
               Manager
             </Typography>
@@ -192,7 +187,6 @@ const Sidebar = () => {
               selected={selected}
               setSelected={setSelected}
             />
-
             <Item
               title="Manage Customer"
               to="/customer-manager"
@@ -200,7 +194,6 @@ const Sidebar = () => {
               selected={selected}
               setSelected={setSelected}
             />
-
             <Item
               title="Event Manager"
               to="/events"
@@ -212,7 +205,6 @@ const Sidebar = () => {
               selected={selected}
               setSelected={setSelected}
             />
-
             <Item
               title="Advert Manager"
               to="/advert-manager"
@@ -220,7 +212,6 @@ const Sidebar = () => {
               selected={selected}
               setSelected={setSelected}
             />
-
             <Item
               title="Withdrawal Request"
               to="/withdrawal"
@@ -230,17 +221,13 @@ const Sidebar = () => {
               selected={selected}
               setSelected={setSelected}
             />
-
             <Item
               title="Subscriptions Manager"
               to="/subscriptions"
-              icon={
-                <span className="material-symbols-outlined">subscriptions</span>
-              }
+              icon={<span className="material-symbols-outlined">subscriptions</span>}
               selected={selected}
               setSelected={setSelected}
             />
-
             <Item
               title="Promo Code"
               to="/promo-code"
@@ -250,93 +237,22 @@ const Sidebar = () => {
               selected={selected}
               setSelected={setSelected}
             />
-
             <Item
               title="Push Notification"
               to="/push-notification"
-              icon={
-                <span className="material-symbols-outlined">notifications</span>
-              }
+              icon={<span className="material-symbols-outlined">notifications</span>}
               selected={selected}
               setSelected={setSelected}
             />
-
             <Item
               title="Email Notification"
               to="/email-notification"
-              icon={
-                <span className="material-symbols-outlined">
+              icon={<span className="material-symbols-outlined">
                   mark_email_unread
-                </span>
-              }
+                </span>}
               selected={selected}
               setSelected={setSelected}
             />
-
-            {/* <Typography
-              variant="h6"
-              color={colors.grey[300]}
-              sx={{ m: "15px 0 5px 20px" }}
-            >
-              More
-            </Typography>
-            <Item
-              title="Profile Form"
-              to="/form"
-              icon={<PersonOutlinedIcon />}
-              selected={selected}
-              setSelected={setSelected}
-            />
-            <Item
-              title="Calendar"
-              to="/calendar"
-              icon={<CalendarTodayOutlinedIcon />}
-              selected={selected}
-              setSelected={setSelected}
-            />
-            <Item
-              title="FAQ Page"
-              to="/faq"
-              icon={<HelpOutlineOutlinedIcon />}
-              selected={selected}
-              setSelected={setSelected}
-            />
-
-            <Typography
-              variant="h6"
-              color={colors.grey[300]}
-              sx={{ m: "15px 0 5px 20px" }}
-            >
-              Charts
-            </Typography>
-            <Item
-              title="Bar Chart"
-              to="/bar"
-              icon={<BarChartOutlinedIcon />}
-              selected={selected}
-              setSelected={setSelected}
-            />
-            <Item
-              title="Pie Chart"
-              to="/pie"
-              icon={<PieChartOutlineOutlinedIcon />}
-              selected={selected}
-              setSelected={setSelected}
-            />
-            <Item
-              title="Line Chart"
-              to="/line"
-              icon={<TimelineOutlinedIcon />}
-              selected={selected}
-              setSelected={setSelected}
-            />
-            <Item
-              title="Geography Chart"
-              to="/geography"
-              icon={<MapOutlinedIcon />}
-              selected={selected}
-              setSelected={setSelected}
-            /> */}
           </Box>
         </Menu>
       </ProSidebar>

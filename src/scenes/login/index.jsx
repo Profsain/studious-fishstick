@@ -36,23 +36,31 @@ const Login = () => {
 
     try {
       const data = await loginAdmin(email, password);
+      console.log('Login API response:', data); // Log the entire API response 
+
       if (data.success) {
         setToken(data.token);
         setUser(data.admin);
-
-        // Redirect to the dashboard after successful login
         navigate("/dashboard");
       } else {
         setError(data.message || "Invalid username or password.");
       }
     } catch (err) {
+      console.error('Login API Error:', err); // Log the full error object 
+      if (err.response) {
+        console.log('Error Response Data:', err.response.data);
+        console.log('Error Response Status:', err.response.status);
+        console.log('Error Response Headers:', err.response.headers);
+      } else if (err.request) {
+        console.log('Error Request:', err.request);
+      } else {
+        console.log('Error Message:', err.message);
+      }
       setError("An error occurred during login. Please try again.");
-      console.error(err);
     } finally {
       setIsLoading(false);
     }
   };
-
   const togglePasswordVisibility = () => {
     setShowPassword((prevShowPassword) => !prevShowPassword);
   };
