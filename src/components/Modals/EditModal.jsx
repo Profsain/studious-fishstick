@@ -74,7 +74,7 @@ const EditModal = ({ open, onClose, initialValues, onSubmit, fields }) => {
       } else if (field.type === 'date') {
         validator = Yup.date().typeError('Invalid date');
       } else {
-        validator = Yup.string(); 
+        validator = Yup.string();
       }
 
       if (field.required) {
@@ -97,7 +97,7 @@ const EditModal = ({ open, onClose, initialValues, onSubmit, fields }) => {
     {
       label: 'Next of Kin',
       description: 'Provide emergency contact information.',
-      fields: fields.filter((field) => field.name === 'nextOfKin'), 
+      fields: fields.filter((field) => field.name === 'nextOfKin'),
     },
   ];
 
@@ -113,12 +113,12 @@ const EditModal = ({ open, onClose, initialValues, onSubmit, fields }) => {
             <Step key={step.label}>
               <StepLabel>{step.label}</StepLabel>
               <StepContent>
-                <Typography>{step.description}</Typography> 
+                <Typography>{step.description}</Typography>
 
                 <Formik
                   initialValues={initialValues}
-                  validationSchema={validationSchema} 
-                  onSubmit={(values) => { 
+                  validationSchema={validationSchema}
+                  onSubmit={(values) => {
                     onSubmit(values);
                     setActiveStep(0); // Reset to the first step after submission 
                   }}
@@ -140,10 +140,10 @@ const EditModal = ({ open, onClose, initialValues, onSubmit, fields }) => {
                                   error={touched[field.name]?.[nestedField.name] && !!errors[field.name]?.[nestedField.name]}
                                   helperText={touched[field.name]?.[nestedField.name] && errors[field.name]?.[nestedField.name]}
                                 />
-                                <ErrorMessage name={`${field.name}.${nestedField.name}`} component="div" className="error" /> 
+                                <ErrorMessage name={`${field.name}.${nestedField.name}`} component="div" className="error" />
                               </Grid>
                             ));
-                          } 
+                          }
                           // Handle select fields
                           else if (field.type === 'select') {
                             return (
@@ -155,7 +155,7 @@ const EditModal = ({ open, onClose, initialValues, onSubmit, fields }) => {
                                     labelId={`${field.name}-label`}
                                     id={field.name}
                                     name={field.name}
-                                    value={values[field.name] || ''} 
+                                    value={values[field.name] || ''}
                                   >
                                     {field.options.map((option) => (
                                       <MenuItem key={option.value} value={option.value}>
@@ -167,7 +167,7 @@ const EditModal = ({ open, onClose, initialValues, onSubmit, fields }) => {
                                 </FormControl>
                               </Grid>
                             );
-                          } 
+                          }
                           // Handle date picker fields
                           else if (field.type === 'date') {
                             return (
@@ -182,7 +182,7 @@ const EditModal = ({ open, onClose, initialValues, onSubmit, fields }) => {
                                 </LocalizationProvider>
                               </Grid>
                             );
-                          } 
+                          }
                           // Default to TextField
                           else {
                             return (
@@ -215,11 +215,11 @@ const EditModal = ({ open, onClose, initialValues, onSubmit, fields }) => {
 
                         <Box>
                           <Button
-                            type="button" 
+                            type="button"
                             variant="outlined"
                             color="secondary"
-                            sx={{ marginRight: 2, color: 'grey' }} 
-                            onClick={onClose} 
+                            sx={{ marginRight: 2, color: 'grey' }}
+                            onClick={onClose}
                           >
                             Cancel
                           </Button>
