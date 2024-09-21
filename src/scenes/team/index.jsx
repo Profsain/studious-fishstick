@@ -1,53 +1,48 @@
-import React, { useState, useEffect, useContext } from "react";
+import React, { useState, useEffect, useContext, useCallback, useMemo } from 'react';
 import {
-  Box,
-  Typography,
-  TextField,
-  Button,
-  ButtonGroup,
-  Grid,
-  Menu,
-  MenuItem,
-  Link,
-} from "@mui/material";
-import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
-import VisibilityIcon from "@mui/icons-material/Visibility";
-import { DataGrid } from "@mui/x-data-grid";
-import { useTheme } from "@mui/material/styles";
-import { tokens } from "../../theme";
-import useMediaQuery from "@mui/material/useMediaQuery";
-import AdminViewModal from "./AdminViewModal"; // Import the AdminViewModal
-import ConfirmationDialog from "./ConfirmationDialog"; // Import the ConfirmationDialog
-import CreateNewAdmin from "./CreateNewAdmin";
-import EditAdmin from "./EditAdmin";
-import AuthContext from "../../context/AuthContext";
+  Box, Avatar, Typography, Button, ButtonGroup, Grid, Menu, MenuItem, Link, Modal, InputBase, InputAdornment, IconButton
+} from '@mui/material';
+import SearchIcon from '@mui/icons-material/Search';
+import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
+import VisibilityIcon from '@mui/icons-material/Visibility';
+import { DataGrid } from '@mui/x-data-grid';
+import { useTheme } from '@mui/material/styles';
+import { tokens } from '../../theme';
+import useMediaQuery from '@mui/material/useMediaQuery';
+import AuthContext from '../../context/AuthContext';
+import ViewModal from '../../components/ViewModal';
+import EditModal from '../../components/EditModal';
+import { teamViewFields } from './teamFields';
+import PersonAddOutlinedIcon from '@mui/icons-material/PersonAddOutlined';
 
 const TeamManager = () => {
   // Fetch admin data from the server
   const apiUrl = process.env.REACT_APP_API_URL;
   const { token } = useContext(AuthContext);
 
-  const [adminData, setAdminData] = useState(null);
-   const fetchAdmins = async () => {
-     try {
-       const response = await fetch(`${apiUrl}/admin/admin-get-all`, {
-          headers: {
-           Authorization: `Bearer ${token}`,
-          },
-       });
-       if (!response.ok) {
-         throw new Error("Network response was not ok");
-       }
-       const data = await response.json();
-       if (data) {
-         setAdminData(data.admins);
-       } else {
-         setAdminData([]);
-       }
-     } catch (error) {
-       console.error("Error fetching admins:", error);
-     }
-   };
+  const [adminData, setAdminData] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  const fetchAdmins = useCallback(async () => {
+    setIsLoading(true);
+    try {
+      const response = await fetch(`${apiUrl}/admin/admin-get-all`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      if (!response.ok) {
+        throw new Error('Network response was not ok');
+      }
+      const data = await response.json();
+      setAdminData(data.admins);
+    } catch (error) {
+      console.error('Error fetching admins:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  }, [apiUrl, token]);
+
   useEffect(() => {
     fetchAdmins();
   }, []);
@@ -56,23 +51,31 @@ const TeamManager = () => {
   const colors = tokens(theme.palette.mode);
   const [openViewModal, setOpenViewModal] = useState(false);
   const [selectedAdmin, setSelectedAdmin] = useState(null);
-  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
-  const [searchText, setSearchText] = useState("");
+  const [openEditModal, setOpenEditModal] = useState(false);
+  const [editAdminData, setEditAdminData] = useState(null);
+
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+  const [searchText, setSearchText] = useState('');
   const [anchorEl, setAnchorEl] = useState(null);
   const [openMenuId, setOpenMenuId] = useState(null);
 
-  const filteredRows = adminData?.filter(
-    (row) =>
-      row.firstName.toLowerCase().includes(searchText.toLowerCase()) ||
-      row.lastName.toLowerCase().includes(searchText.toLowerCase()) ||
-      row.phoneNumber.toLowerCase().includes(searchText.toLowerCase()) ||
-      row.emailAddress.toLowerCase().includes(searchText.toLowerCase()) ||
-      row.staffId.toLowerCase().includes(searchText.toLowerCase())
-  );
+  // Memoize filteredRows for performance
+  const filteredRows = useMemo(() => {
+    return adminData.filter((row) => {
+      const search = searchText.toLowerCase();
+      return (
+        row.firstName.toLowerCase().includes(search) ||
+        row.lastName.toLowerCase().includes(search) ||
+        row.phoneNumber.toLowerCase().includes(search) ||
+        row.emailAddress.toLowerCase().includes(search) ||
+        row.staffId.toLowerCase().includes(search)
+      );
+    });
+  }, [adminData, searchText]);
 
-  const handleClick = (event, id) => {
+  const handleClick = (event, row) => { // Update handleClick to accept row data
     setAnchorEl(event.currentTarget);
-    setOpenMenuId(id);
+    setSelectedAdmin(row); // Set the selected admin when clicking the dropdown
   };
 
   const handleClose = () => {
@@ -89,63 +92,52 @@ const TeamManager = () => {
     setOpenViewModal(false);
   };
 
-  // Create a new admin
-  const [openCreateAdmin, setOpenCreateAdmin] = useState(false);
-  const handleCreateAdmin = () => {
-    // toggle the state of the modal
-    setOpenCreateAdmin((prev) => !prev);
-  };
-
-  // Edit an admin
-  const [openEditAdmin, setOpenEditAdmin] = useState(false);
   const handleEdit = (admin) => {
-    setSelectedAdmin(admin); // Set the selected admin to edit
-    setOpenEditAdmin(true); // Open the edit modal
+    setSelectedAdmin(admin);
+    setEditAdminData(admin);
+    setOpenEditModal(true);
   };
 
-  const handleCloseEditModal = () => {
-    setOpenEditAdmin(false);
-    setSelectedAdmin(null); // Reset selected admin
-  };
+  const handleEditSubmit = async (values) => {
+    console.log('Updating admin with values:', values);
 
-  // Delete an admin
-  const [openConfirmDialog, setOpenConfirmDialog] = useState(false);
-  const [adminToDelete, setAdminToDelete] = useState(null);
-  const handleDelete = (admin) => {
-    setAdminToDelete(admin);
-    setOpenConfirmDialog(true);
-  };
-
-  const confirmDelete = async () => {
     try {
-      const response = await fetch(
-        `${apiUrl}/admin/admin-delete/${adminToDelete._id}`,
-        {
-          method: "DELETE",
-          headers: {
-            "Content-Type": "application/json",
-          },
-        }
+      // 1. Make API call to update the admin data
+      const response = await fetch(`${apiUrl}/admin/admin-update/${values._id}`, {
+        method: 'PUT', // Or PATCH, depending on your API
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(values),
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! Status: ${response.status}`);
+      }
+
+      // 2. Update the adminData state (after successful API call)
+      const updatedAdminData = await response.json();
+      setAdminData(prevData =>
+        prevData.map(admin => (admin._id === updatedAdminData._id ? updatedAdminData : admin))
       );
 
-      if (response.ok) {
-        setAdminData((prevData) =>
-          prevData.filter((item) => item._id !== adminToDelete._id)
-        );
-        alert("Success", "Admin deleted successfully!");
-      } else {
-        const errorData = await response.json();
-        alert("Error", errorData.message || "Failed to delete the admin.");
-      }
+      setOpenEditModal(false);
     } catch (error) {
-      alert("Error", "Failed to delete the admin.");
-    } finally {
-      setOpenConfirmDialog(false);
-      setAdminToDelete(null);
+      console.error('Error updating admin:', error);
+      // Handle error (display error message, etc.)
     }
   };
 
   const columns = [
+    {
+      field: 'profileImage', // Add the image field
+      headerName: 'Profile',
+      width: 80,
+      renderCell: (params) => (
+        <Avatar alt={params.row.firstName} src={params.row.profileImage} /> // Display the image in the Avatar
+      ),
+    },
     { field: "staffId", headerName: "Staff ID", width: 130 },
     { field: "firstName", headerName: "Firstname", flex: 1 },
     { field: "lastName", headerName: "Surname", flex: 1 },
@@ -154,156 +146,108 @@ const TeamManager = () => {
     { field: "city", headerName: "Location", flex: 1 },
     { field: "role", headerName: "Role", flex: 1 },
     {
-      field: "actions",
-      headerName: "Actions",
-      width: 200,
+      field: 'actions',
+      headerName: 'Actions',
+      width: 150,
       renderCell: (params) => (
-        <ButtonGroup variant="contained">
-          <Button
+        <Box display="flex" justifyContent="space-between">
+          <IconButton
             sx={{
               backgroundColor: colors.greenAccent[600],
               color: "white",
-              "&:hover": {
-                backgroundColor: "#f86a3b",
-              },
+              "&:hover": { backgroundColor: "#f86a3b" },
             }}
             onClick={() => handleView(params.row)}
-            startIcon={<VisibilityIcon />}
           >
-            View
-          </Button>
-          <Button
+            <VisibilityIcon />
+          </IconButton>
+          <IconButton
             sx={{
               backgroundColor: "#fa7c50",
               color: "white",
-              "&:hover": {
-                backgroundColor: "#f86a3b",
-              },
+              "&:hover": { backgroundColor: "#f86a3b" },
             }}
-            onClick={(event) => handleClick(event, params.id)}
-            endIcon={<ArrowDropDownIcon />}
-          />
+            onClick={(event) => handleClick(event, params.row)}
+          >
+            <ArrowDropDownIcon />
+          </IconButton>
+          {/* Menu should be outside the ButtonGroup */}
           <Menu
             anchorEl={anchorEl}
-            open={Boolean(anchorEl) && openMenuId === params.id}
+            open={Boolean(anchorEl)} // Open menu when anchorEl is set
             onClose={handleClose}
           >
-            <MenuItem onClick={() => handleEdit(params.row)}>Edit</MenuItem>
-            <MenuItem onClick={() => handleDelete(params.row)}>Delete</MenuItem>
+            <MenuItem onClick={() => { handleEdit(selectedAdmin); handleClose(); }}>Edit</MenuItem>
+            <MenuItem onClick={() => { handleDelete(selectedAdmin); handleClose(); }}>Delete</MenuItem>
           </Menu>
-        </ButtonGroup>
+        </Box>
       ),
     },
   ];
 
-  // fetch admin when edit or create modal is closed
-  useEffect(() => {
-    if (!openCreateAdmin && !openEditAdmin) {
-      fetchAdmins();
-    }
-  }, [openCreateAdmin, openEditAdmin]);
-
-
   return (
-    <>
-      {/* show create new admin or table */}
-      {openCreateAdmin ? (
-        <CreateNewAdmin handleCancel={handleCreateAdmin} />
-      ) : openEditAdmin ? ( // Render EditAdmin component if editing
-        <EditAdmin
-          adminData={selectedAdmin}
-          handleCancel={handleCloseEditModal}
-        />
-      ) : (
-        <Box m="20px">
-          {/* Header and Create New Admin Button */}
-          <Grid container spacing={2} alignItems="flex-start">
-            <Grid item xs={12}>
-              <Typography
-                variant="h6"
-                fontWeight="600"
-                color={colors.grey[100]}
-              >
-                <Link
-                  to="/"
-                  style={{ textDecoration: "none", color: colors.grey[100] }}
-                >
-                  Home
-                </Link>{" "}
-                / Team
-              </Typography>
-              <Typography
-                variant="h2"
-                fontWeight="600"
-                color={colors.grey[100]}
-              >
-                Team Management
-              </Typography>
-              <Typography
-                variant="subtitle2"
-                fontSize={"16px"}
-                color={colors.greenAccent[500]}
-              >
-                Add, view, edit, and manage your team members
-              </Typography>
-            </Grid>
-            <Grid
-              item
-              xs={12}
-              container
-              spacing={1}
-              justifyContent={isMobile ? "flex-start" : "flex-end"}
+    <Box m="20px">
+      <Grid container spacing={2} alignItems="flex-start">
+        <Grid item xs={12}>
+          <Typography variant="h6" fontWeight="600" color={colors.grey[100]}>
+            <Link to="/" style={{ textDecoration: 'none', color: colors.grey[100] }}>
+              Home
+            </Link>{' '}
+            / Team
+          </Typography>
+          <Typography variant="h2" fontWeight="600" color={colors.grey[100]}>
+            Team Management
+          </Typography>
+          <Typography variant="subtitle2" fontSize={'16px'} color={colors.greenAccent[500]}>
+            Add, view, edit, and manage your team members
+          </Typography>
+        </Grid>
+        <Grid item xs={12} container spacing={1} justifyContent={isMobile ? "flex-start" : "flex-end"}>
+          <Grid item>
+            <InputBase
+              sx={{
+                mr: 2, flex: 3,
+                border: '1px solid white',
+                borderRadius: '4px',
+                marginBottom: '10px',
+                padding: '10px 14px',
+                '& .MuiInputBase-input': {
+                  color: 'white',
+                }
+              }}
+              value={searchText}
+              onChange={(e) => setSearchText(e.target.value)}
+              placeholder="Search Events..."
+              endAdornment={
+                <InputAdornment position="end">
+                  <IconButton type="button" sx={{ p: 1 }}>
+                    <SearchIcon />
+                  </IconButton>
+                </InputAdornment>
+              }
+            />
+            <Button
+              sx={{
+                backgroundColor: colors.greenAccent[600],
+                color: colors.grey[100],
+                fontSize: "16px",
+                fontWeight: "600",
+                padding: "10px 20px",
+                marginRight: isMobile ? "0" : "0px",
+                marginBottom: isMobile ? "10px" : "0",
+                '&:hover': {
+                  backgroundColor: colors.greenAccent[600], // Darker green on hover
+                },
+              }}
             >
-              <Grid item>
-                <TextField
-                  variant="outlined"
-                  placeholder="Search..."
-                  value={searchText}
-                  onChange={(e) => setSearchText(e.target.value)}
-                  sx={{
-                    mb: 2,
-                    width: isMobile ? "100%" : "200px",
-                    mr: 2,
-                    "& .MuiOutlinedInput-root": {
-                      "& fieldset": { borderColor: colors.grey[300] },
-                      "&:hover fieldset": { borderColor: colors.grey[500] },
-                      "&.Mui-focused fieldset": {
-                        borderColor: colors.greenAccent[700],
-                      },
-                      // Reduce the padding to decrease height
-                      "& input": {
-                        padding: "8px 12px", // Adjust these values as needed
-                        fontSize: "12px", // Adjust the font size if needed
-                      },
-                    },
-                    "& .MuiInputLabel-root": {
-                      color: colors.grey[400],
-                      "&.Mui-focused": { color: colors.greenAccent[700] },
-                    },
-                    "& .MuiInputBase-input": {
-                      color: colors.grey[100],
-                    },
-                  }}
-                />
-
-                <Button
-                  variant="contained"
-                  sx={{
-                    backgroundColor: colors.greenAccent[600],
-                    color: "white",
-                    "&:hover": {
-                      backgroundColor: colors.greenAccent[700],
-                    },
-                  }}
-                  onClick={handleCreateAdmin}
-                >
-                  Create New Admin
-                </Button>
-              </Grid>
-            </Grid>
+              <PersonAddOutlinedIcon sx={{ mr: "10px" }} />
+              Add Team
+            </Button>
           </Grid>
 
-          {/* Table */}
+        </Grid>
+        {/* DataGrid Section */}
+        <Grid item xs={12}>
           <Box
             m="0px 0 0 0"
             height={isMobile ? "75vh" : "100vh"}
@@ -327,34 +271,47 @@ const TeamManager = () => {
               },
             }}
           >
-            <DataGrid
-              checkboxSelection
-              hideFooterSelectedRowCount
-              rows={filteredRows || []}
-              getRowId={(row) => row._id}
-              columns={columns}
-              pageSize={10}
-              rowsPerPageOptions={[10, 25, 50, 100]}
-            />
+            {isLoading ? (
+              <Typography variant="h5" align="center" color="textSecondary">
+                Loading data...
+              </Typography>
+            ) : (
+              <DataGrid
+                checkboxSelection
+                hideFooterSelectedRowCount
+                rows={filteredRows}
+                getRowId={(row) => row._id}
+                columns={columns}
+                pageSize={10}
+                rowsPerPageOptions={[10, 25, 50, 100]}
+              />
+            )}
           </Box>
+        </Grid>
 
-          {/* Use the AdminViewModal */}
-          <AdminViewModal
-            openViewModal={openViewModal}
-            handleCloseModal={handleCloseModal}
-            selectedAdmin={selectedAdmin}
-          />
+        {/* ViewModal */}
+        <ViewModal
+          open={openViewModal}
+          onClose={handleCloseModal}
+          recordData={selectedAdmin}
+          fields={teamViewFields}
+        />
 
-          {/* Use the ConfirmationDialog */}
-          <ConfirmationDialog
-            open={openConfirmDialog}
-            onClose={() => setOpenConfirmDialog(false)}
-            onConfirm={confirmDelete}
-            admin={adminToDelete}
-          />
-        </Box>
-      )}
-    </>
+        {/* EditModal */}
+        <EditModal
+          open={openEditModal}
+          onClose={() => setOpenEditModal(false)}
+          initialValues={editAdminData}
+          onSubmit={handleEditSubmit}
+          fields={teamViewFields}
+        />
+
+        {/* ConfirmationDialog (You'll need to implement this from your Prof's code) */}
+        {/* <ConfirmationDialog 
+          // ... props for the ConfirmationDialog 
+        /> */}
+      </Grid>
+    </Box>
   );
 };
 
