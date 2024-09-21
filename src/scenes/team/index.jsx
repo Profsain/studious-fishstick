@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext, useCallback } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import {
   Box,
   Typography,
@@ -9,7 +9,6 @@ import {
   Menu,
   MenuItem,
   Link,
-  Avatar
 } from "@mui/material";
 import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
 import VisibilityIcon from "@mui/icons-material/Visibility";
@@ -24,34 +23,34 @@ import EditAdmin from "./EditAdmin";
 import AuthContext from "../../context/AuthContext";
 
 const TeamManager = () => {
+  // Fetch admin data from the server
   const apiUrl = process.env.REACT_APP_API_URL;
   const { token } = useContext(AuthContext);
 
   const [adminData, setAdminData] = useState(null);
-  const fetchAdmins = useCallback(async () => {
-    try {
-      const response = await fetch(`${apiUrl}/admin/admin-get-all`, { // Closing bracket added here
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      }); 
-      if (!response.ok) {
-        throw new Error('Network response was not ok');
-      }
-      const data = await response.json();
-      if (data) {
-        setAdminData(data.admins);
-      } else {
-        setAdminData([]);
-      }
-    } catch (error) {
-      console.error('Error fetching admins:', error);
-    }
-  }, [apiUrl, token]); 
-
+   const fetchAdmins = async () => {
+     try {
+       const response = await fetch(`${apiUrl}/admin/admin-get-all`, {
+          headers: {
+           Authorization: `Bearer ${token}`,
+          },
+       });
+       if (!response.ok) {
+         throw new Error("Network response was not ok");
+       }
+       const data = await response.json();
+       if (data) {
+         setAdminData(data.admins);
+       } else {
+         setAdminData([]);
+       }
+     } catch (error) {
+       console.error("Error fetching admins:", error);
+     }
+   };
   useEffect(() => {
     fetchAdmins();
-  }, [fetchAdmins]);
+  }, []);
 
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
@@ -154,23 +153,9 @@ const TeamManager = () => {
     { field: "phoneNumber", headerName: "Phone Number", flex: 1 },
     { field: "city", headerName: "Location", flex: 1 },
     { field: "role", headerName: "Role", flex: 1 },
-    { field: 'staffId', headerName: 'Staff ID', width: 100 },
     {
-      field: 'profileImage',
-      headerName: 'Profile',
-      width: 80,
-      renderCell: (params) => (
-        <Avatar alt={params.row.name} src={params.row.profileImage} />
-      ),
-    },
-    { field: 'name', headerName: 'Name', flex: 2 },
-    { field: 'email', headerName: 'Email', flex: 1 },
-    { field: 'phone', headerName: 'Phone Number', flex: 1 },
-    { field: 'location', headerName: 'Location', flex: 1 },
-    { field: 'role', headerName: 'Role', flex: 1 },
-    {
-      field: 'actions',
-      headerName: 'Actions',
+      field: "actions",
+      headerName: "Actions",
       width: 200,
       renderCell: (params) => (
         <ButtonGroup variant="contained">
@@ -216,7 +201,7 @@ const TeamManager = () => {
     if (!openCreateAdmin && !openEditAdmin) {
       fetchAdmins();
     }
-  }, [openCreateAdmin, openEditAdmin, fetchAdmins]);
+  }, [openCreateAdmin, openEditAdmin]);
 
 
   return (
