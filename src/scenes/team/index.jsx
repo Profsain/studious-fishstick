@@ -1,5 +1,3 @@
-
-
 import React, { useState, useEffect, useContext, useCallback, useMemo } from 'react';
 import {
   Box, Chip, ButtonGroup, Avatar, Typography, Button, Grid, Menu, MenuItem, Link, InputBase, InputAdornment, IconButton
@@ -14,7 +12,7 @@ import useMediaQuery from '@mui/material/useMediaQuery';
 import AuthContext from '../../context/AuthContext';
 import ViewModal from './ViewModal';
 import EditModal from './EditModal';
-import AddModal from './ViewModal'
+import AddModal from './AddModal'
 import { teamViewFields } from './teamFields';
 import PersonAddOutlinedIcon from '@mui/icons-material/PersonAddOutlined';
 import Swal from 'sweetalert2';
@@ -64,11 +62,11 @@ const TeamManager = () => {
     return adminData.filter((row) => {
       const search = searchText.toLowerCase();
       return (
-        row.firstName.toLowerCase().includes(search) ||
-        row.lastName.toLowerCase().includes(search) ||
-        row.phoneNumber.toLowerCase().includes(search) ||
-        row.emailAddress.toLowerCase().includes(search) ||
-        row.staffId.toLowerCase().includes(search)
+        row.firstName?.toLowerCase().includes(search) || // Optional chaining
+        row.lastName?.toLowerCase().includes(search) ||  // Optional chaining
+        row.phoneNumber?.toLowerCase().includes(search) || // Optional chaining
+        row.emailAddress?.toLowerCase().includes(search) || // Optional chaining
+        row.staffId?.toLowerCase().includes(search) // Optional chaining
       );
     });
   }, [adminData, searchText]);
@@ -79,7 +77,9 @@ const TeamManager = () => {
   };
 
   const handleClose = () => {
-    setAnchorEl(null);
+    setTimeout(() => {
+      setAnchorEl(null);
+    }, 100); 
   };
 
   const handleView = (admin) => {
@@ -102,12 +102,13 @@ const TeamManager = () => {
       text: 'You won\'t be able to revert this!',
       icon: 'warning',
       showCancelButton: true,
-      confirmButtonColor: '#3085d6',
+      confirmButtonColor: '#f86a3b',
       cancelButtonColor: '#d33',
       confirmButtonText: 'Yes, delete it!'
     });
 
     if (result.isConfirmed) {
+      handleClose(); 
       try {
         const response = await fetch(`${apiUrl}/admin/admin-delete/${admin._id}`, {
           method: 'DELETE',
@@ -119,7 +120,7 @@ const TeamManager = () => {
 
         if (response.ok) {
           setAdminData(prevData => prevData.filter(item => item._id !== admin._id));
-          Swal.fire('Deleted!', 'Admin deleted successfully!', 'success');
+          Swal.fire('Deleted!', `${selectedAdmin.firstName} ${selectedAdmin.lastName} deleted successfully!`, 'success');
         } else {
           const errorData = await response.json();
           Swal.fire('Error!', errorData.message || 'Failed to delete the admin.', 'error');
@@ -173,12 +174,32 @@ const TeamManager = () => {
         body: JSON.stringify(formData),
       });
 
-      if (!response.ok) throw new Error('Failed to create admin');
+      if (!response.ok) {
+        const errorData = await response.json(); // Parse error response from API
+        throw new Error(errorData.message || 'Failed to create admin'); // Throw error with message
+      }
+
+      // Parse successful response
       const newAdmin = await response.json();
-      setAdminData(prevData => [...prevData, newAdmin]);
+
+      // Update adminData with a new array reference 
+      setAdminData(prevData => [...prevData, newAdmin]); 
       handleCloseAddModal();
+
+      // Display SweetAlert for successful admin creation
+      Swal.fire({
+        title: `${formData.firstName} ${formData.lastName} has been added successfully!`,
+        icon: 'success',
+      });
+
     } catch (error) {
       console.error("Error creating admin:", error);
+      // Handle the error (e.g., display an error message)
+      Swal.fire({
+        title: 'Error!',
+        text: error.message || 'Failed to create admin',
+        icon: 'error',
+      });
     }
   };
 
@@ -287,7 +308,7 @@ const TeamManager = () => {
                   text: 'This action cannot be undone.',
                   icon: 'warning',
                   showCancelButton: true,
-                  confirmButtonColor: colors.greenAccent[600],
+                  confirmButtonColor: colors.greenAccent[500],
                   cancelButtonColor: '#d33',
                   confirmButtonText: 'Yes, delete!'
                 }).then((result) => {
@@ -338,7 +359,7 @@ const TeamManager = () => {
               }}
               value={searchText}
               onChange={(e) => setSearchText(e.target.value)}
-              placeholder="Search Events..."
+              placeholder="Search Team..."
               endAdornment={
                 <InputAdornment position="end">
                   <IconButton type="button" sx={{ p: 1 }}>

@@ -73,56 +73,73 @@ const AddModal = ({ open, onClose, onSubmit, title }) => {
       setFormData((prev) => ({ ...prev, [name]: value }));
     }
   };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setError(null);
+
+
+    // Basic Validation: Check for empty required fields
+    for (const key in formData) {
+      if (
+        (key !== 'nextOfKin' && formData[key] === '') ||
+        (key === 'nextOfKin' && Object.values(formData[key]).some(val => val === ''))
+      ) {
+        setError('Please fill in all required fields.');
+        return;
+      }
+    }
+
     if (formData.password !== formData.confirmPassword) {
       setError("Passwords don't match");
       return;
     }
 
     setLoading(true);
-    setError(null); // Clear any previous errors
 
     try {
-      await onSubmit(formData);
+      const response = await onSubmit(formData);
 
-      // Trigger SweetAlert on success
-      Swal.fire({
-        title: 'Full name has been added successfully!',
-        text: 'Do you want to add another admin?',
-        icon: 'success',
-        showCancelButton: true,
-        confirmButtonText: 'Yes',
-        cancelButtonText: 'No'
-      }).then((result) => {
-        if (result.isConfirmed) {
-          // Keep the modal open for adding another admin
-          setFormData({
-            firstName: '',
-            lastName: '',
-            emailAddress: '',
-            phoneNumber: '',
-            profileImage: '',
-            userName: '',
-            address: '',
-            city: '',
-            country: '',
-            role: '',
-            password: '',
-            confirmPassword: '',
-            nextOfKin: {
-              fullName: '',
+      if (response.ok) {
+        Swal.fire({
+          title: `${formData.firstName} ${formData.lastName} has been added successfully!`,
+          text: 'Do you want to add another admin?',
+          icon: 'success',
+          showCancelButton: true,
+          confirmButtonText: 'Yes',
+          cancelButtonText: 'No'
+        }).then((result) => {
+          if (result.isConfirmed) {
+            // Reset form and stay on the first step
+            setActiveStep(0);
+            setFormData({
+              firstName: '',
+              lastName: '',
+              emailAddress: '',
               phoneNumber: '',
-              email: '',
+              profileImage: '',
+              userName: '',
               address: '',
-            },
-          });
-        } else {
-          // Close modal if user doesn't want to add another admin
-          onClose();
-        }
-      });
+              city: '',
+              country: '',
+              role: '',
+              password: '',
+              confirmPassword: '',
+              nextOfKin: {
+                fullName: '',
+                phoneNumber: '',
+                email: '',
+                address: '',
+              },
+            });
+          } else {
+            // Close the modal 
+            onClose();
+          }
+        });
+      } else {
+        // Handle errors from the API response
+        setError('Failed to create admin. Please try again.');
+      }
     } catch (error) {
       console.error('Error creating item:', error);
       setError('An error occurred. Please try again.');
@@ -429,7 +446,7 @@ const AddModal = ({ open, onClose, onSubmit, title }) => {
           </form>
         </Paper>
 
-        
+
       </Box>
     </Modal>
   );
