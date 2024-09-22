@@ -139,23 +139,25 @@ const EditAdmin = ({ adminData, handleCancel }) => {
 
   return (
     <Box m="20px">
-      <Typography variant="h4" fontWeight="600" color={colors.grey[100]}>
-        Edit Admin
-      </Typography>
-      <Button
-        variant="outlined"
-        onClick={handleCancel}
-        sx={{
-          mb: 2,
-          color: colors.grey[100],
-          borderColor: colors.grey[400],
-          "&:hover": {
-            borderColor: colors.grey[500],
-          },
-        }}
-      >
-        Cancel
-      </Button>
+      <Grid item xs={12} sx={{ display: "flex", justifyContent: "space-between", gap: 2 }}>
+        <Typography variant="h4" fontWeight="600" color={colors.grey[100]}>
+          Edit Admin
+        </Typography>
+        <Button
+          variant="outlined"
+          onClick={handleCancel}
+          sx={{
+            mb: 2,
+            color: colors.grey[100],
+            borderColor: colors.grey[400],
+            "&:hover": {
+              borderColor: colors.grey[500],
+            },
+          }}
+        >
+          Cancel
+        </Button>
+      </Grid>
 
       <Typography variant="body1" color={colors.grey[100]}>
         Fill in the form below to create a new admin.
@@ -345,7 +347,8 @@ const EditAdmin = ({ adminData, handleCancel }) => {
                 required
               />
             </Grid>
-            <Grid item xs={12}>
+
+            <Grid item xs={12} sx={{ display: "flex", gap: 2 }}>
               <Button
                 type="submit"
                 variant="contained"
@@ -362,6 +365,21 @@ const EditAdmin = ({ adminData, handleCancel }) => {
                 ) : (
                   "Update Admin"
                 )}
+              </Button>
+
+              <Button
+                variant="outlined"
+                onClick={handleCancel}
+                sx={{
+                  color: colors.redAccent[400],
+                  borderColor: colors.redAccent[400],
+                  "&:hover": {
+                    backgroundColor: colors.redAccent[100],
+                    borderColor: colors.redAccent[600],
+                  },
+                }}
+              >
+                Cancel
               </Button>
             </Grid>
           </Grid>
