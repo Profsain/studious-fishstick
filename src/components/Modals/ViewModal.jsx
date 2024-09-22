@@ -1,9 +1,9 @@
 import React from 'react';
-import { 
+import {
   Modal, Box, Typography, Divider, Grid, Avatar, Button, IconButton, Chip
 } from '@mui/material';
 import { useTheme } from '@mui/material/styles';
-import { tokens } from '../theme';
+import { tokens } from '../../theme';
 import CloseIcon from '@mui/icons-material/Close';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
@@ -17,7 +17,7 @@ const ViewModal = ({ open, onClose, recordData, fields }) => {
     top: '50%',
     left: '50%',
     transform: 'translate(-50%, -50%)',
-    width: 700,
+    width: 500,
     bgcolor: 'background.paper',
     boxShadow: 24,
     p: 4,
@@ -27,11 +27,11 @@ const ViewModal = ({ open, onClose, recordData, fields }) => {
     <Modal open={open} onClose={onClose}>
       <Box sx={style}>
         {recordData && (
-          <Box sx={{ position: 'relative' }}> 
+          <Box sx={{ position: 'relative' }}>
             {/* Close Button */}
-            <IconButton 
-              aria-label="close" 
-              onClick={onClose} 
+            <IconButton
+              aria-label="close"
+              onClick={onClose}
               sx={{ position: 'absolute', top: 8, right: 8 }}
             >
               <CloseIcon />
@@ -39,11 +39,11 @@ const ViewModal = ({ open, onClose, recordData, fields }) => {
 
             <Grid container spacing={2} alignItems="center">
               {/* Profile Image */}
-              <Grid item xs={12} textAlign="center" mb={2}> 
-                <Avatar 
-                  alt="Profile" 
-                  src={recordData.profileImage} 
-                  sx={{ width: 150, height: 150, margin: 'auto' }} 
+              <Grid item xs={12} textAlign="center" mb={2}>
+                <Avatar
+                  alt="Profile"
+                  src={recordData.profileImage}
+                  sx={{ width: 150, height: 150, margin: 'auto' }}
                 />
               </Grid>
 
@@ -52,14 +52,14 @@ const ViewModal = ({ open, onClose, recordData, fields }) => {
                 <Typography variant="h4" fontWeight="bold" mb={1}>
                   {recordData.firstName} {recordData.lastName}
                 </Typography>
-                <Chip 
-                  label={recordData.role} 
-                  color="primary" 
+                <Chip
+                  label={recordData.role}
+                  color="primary"
                   size="medium"
                   sx={{ fontWeight: 'bold' }}
                 />
-                <Chip 
-                  label={recordData.staffId} 
+                <Chip
+                  label={recordData.staffId}
                   size="small"
                   sx={{ fontWeight: 'bold', backgroundColor: colors.greenAccent[500], color: colors.grey[100] }}
                 />
@@ -67,7 +67,7 @@ const ViewModal = ({ open, onClose, recordData, fields }) => {
 
               {/* Standard Fields (2-Column Layout) */}
               {fields
-                .filter((field) => !field.nestedFields && field.name !== 'profileImage') 
+                .filter((field) => !field.nestedFields && field.name !== 'profileImage')
                 .map((field) => (
                   <Grid item xs={6} key={field.name}>
                     <Typography sx={{ mt: 1 }}>
@@ -78,7 +78,7 @@ const ViewModal = ({ open, onClose, recordData, fields }) => {
 
               {/* Next of Kin Section */}
               {recordData.nextOfKin && (
-                <Grid item xs={12} mt={3}> 
+                <Grid item xs={12} mt={3}>
                   <Typography variant="h6" color={colors.greenAccent[500]}>
                     Next of Kin
                   </Typography>
@@ -95,23 +95,23 @@ const ViewModal = ({ open, onClose, recordData, fields }) => {
 
               {/* Buttons (Full Width) */}
               <Grid item xs={12} mt={4} display="flex" justifyContent="center">
-                <Button 
-                  variant="contained" 
-                  sx={{ 
+                <Button
+                  variant="contained"
+                  sx={{
                     backgroundColor: colors.greenAccent[600],
                     color: colors.grey[100],
-                    '&:hover': { backgroundColor: colors.greenAccent[700] } 
+                    '&:hover': { backgroundColor: colors.greenAccent[700] }
                   }}
                   onClick={onClose}
                 >
-                  Return to Dashboard 
+                  Return to Dashboard
                 </Button>
 
                 <IconButton aria-label="edit" sx={{ ml: 2, color: colors.greenAccent[600] }}>
                   <EditIcon />
                 </IconButton>
 
-                <IconButton aria-label="delete" sx={{ ml: 2, color: 'red' }}> 
+                <IconButton aria-label="delete" sx={{ ml: 2, color: 'red' }}>
                   <DeleteIcon />
                 </IconButton>
               </Grid>
