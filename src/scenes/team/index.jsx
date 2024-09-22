@@ -152,10 +152,6 @@ const TeamManager = () => {
     }
   };
 
-  const handleDelete = (admin) => {
-    console.log("Deleted Admin", admin)
-  }
-
   const handleEditSubmit = async (values) => {
     console.log('Updating admin with values:', values);
 
