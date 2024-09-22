@@ -1,388 +1,246 @@
 import React, { useState } from 'react';
 import {
+  Modal,
   Box,
   Typography,
-  TextField,
   Button,
   Grid,
-  Paper,
-  Modal,
-  Select,
+  TextField,
   MenuItem,
-  FormControl,
+  Select,
   InputLabel,
+  FormControl,
+  FormHelperText,
   Stepper,
   Step,
   StepLabel,
   StepContent,
-  IconButton,
-  InputAdornment,
 } from '@mui/material';
+import { Formik, Form, Field, ErrorMessage } from 'formik';
+import * as Yup from 'yup';
 import { useTheme } from '@mui/material/styles';
 import { tokens } from '../../theme';
-import '../../index.css';
-import Visibility from '@mui/icons-material/Visibility';
-import VisibilityOff from '@mui/icons-material/VisibilityOff';
-import Swal from 'sweetalert2'; 
+import { DatePicker } from '@mui/x-date-pickers/DatePicker';
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+import dayjs from 'dayjs';
 
-const EditModal = ({ open, onClose, initialValues, onSubmit, fields, title }) => { 
+const EditModal = ({ open, onClose, initialValues, onSubmit, fields }) => {
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
 
-  const [formData, setFormData] = useState(initialValues);
+  const style = {
+    position: 'absolute',
+    top: '50%',
+    left: '50%',
+    transform: 'translate(-50%, -50%)',
+    width: 700,
+    bgcolor: 'background.paper',
+    boxShadow: 24,
+    p: 4,
+  };
+
   const [activeStep, setActiveStep] = useState(0);
-  const [error, setError] = useState(null);
-  const [loading, setLoading] = useState(false);
 
-  // State for password visibility
-  const [showPassword, setShowPassword] = useState(false);
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    if (name.includes('.')) {
-      const [parent, child] = name.split('.');
-      setFormData((prev) => ({
-        ...prev,
-        [parent]: {
-          ...prev[parent],
-          [child]: value,
-        },
-      }));
-    } else {
-      setFormData((prev) => ({ ...prev, [name]: value }));
-    }
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-
-    // Password matching validation
-    if (formData.password !== formData.confirmPassword) {
-      setError("Passwords don't match!");
-      return;
-    }
-
-    setLoading(true);
-    setError(null);
-
-    try {
-      await onSubmit(formData);
-      Swal.fire({ 
-        title: 'Success!', 
-        text: 'The admin has been edited successfully!', 
-        icon: 'success',
-        confirmButtonColor: colors.greenAccent[600], 
-      }).then(() => {
-        onClose(); // Close the modal after success
-      });
-    } catch (error) {
-      console.error('Error updating admin:', error);
-      Swal.fire({
-        title: 'Error!',
-        text: 'An error occurred. Please try again.',
-        icon: 'error',
-        confirmButtonColor: colors.greenAccent[600], 
-      });
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleNext = () => {
-    setActiveStep((prevActiveStep) => prevActiveStep + 1);
-  };
 
   const handleBack = () => {
     setActiveStep((prevActiveStep) => prevActiveStep - 1);
   };
 
+  const validationSchema = Yup.object().shape(
+    fields.reduce((schema, field) => {
+      let validator;
+
+      if (field.nestedFields) {
+        validator = Yup.object().shape(
+          field.nestedFields.reduce((nestedSchema, nestedField) => {
+            let nestedValidator = Yup.string();
+
+            if (nestedField.required) {
+              nestedValidator = nestedValidator.required(`${nestedField.label} is required`);
+            }
+
+            return {
+              ...nestedSchema,
+              [nestedField.name]: nestedValidator,
+            };
+          }, {})
+        );
+      } else if (field.type === 'email') {
+        validator = Yup.string().email('Invalid email address');
+      } else if (field.type === 'number') {
+        validator = Yup.number().typeError('Must be a number');
+      } else if (field.type === 'date') {
+        validator = Yup.date().typeError('Invalid date');
+      } else {
+        validator = Yup.string();
+      }
+
+      if (field.required) {
+        validator = validator.required(`${field.label} is required`);
+      }
+
+      return {
+        ...schema,
+        [field.name]: validator,
+      };
+    }, {})
+  );
+
   const steps = [
     {
       label: 'Basic Information',
-      description: 'Enter the admin user\'s basic details.',
-      content: (
-        <Grid container spacing={2}>
-          <Grid item xs={12} sm={6}>
-            <TextField
-              fullWidth
-              variant="outlined"
-              label="First Name"
-              name="firstName"
-              value={formData.firstName}
-              onChange={handleChange}
-              required
-            />
-            <TextField
-              fullWidth
-              variant="outlined"
-              label="Password"
-              type={showPassword ? 'text' : 'password'}
-              name="password"
-              value={formData.password}
-              onChange={handleChange}
-              required
-              sx={{ mt: 2 }}
-              InputProps={{
-                endAdornment: (
-                  <InputAdornment position="end">
-                    <IconButton onClick={() => setShowPassword(!showPassword)} edge="end">
-                      {showPassword ? <VisibilityOff /> : <Visibility />}
-                    </IconButton>
-                  </InputAdornment>
-                )
-              }}
-            />
-            <Grid item xs={12}>
-              {/* Role Dropdown */}
-              <FormControl fullWidth variant="outlined" required sx={{ mt: 2 }}>
-                <InputLabel id="role-label" sx={{ color: colors.grey[100] }}>
-                  Role
-                </InputLabel>
-                <Select
-                  labelId="role-label"
-                  id="role"
-                  name="role"
-                  value={formData.role}
-                  onChange={handleChange}
-                  label="Role"
-                  sx={{
-                    '.MuiOutlinedInput-notchedOutline': {
-                      borderColor: colors.grey[400],
-                    },
-                    '&:hover .MuiOutlinedInput-notchedOutline': {
-                      borderColor: colors.grey[500],
-                    },
-                    '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
-                      borderColor: colors.greenAccent[700],
-                    },
-                    '.MuiSvgIcon-root': {
-                      color: colors.grey[400],
-                    },
-                  }}
-                >
-                  <MenuItem value="admin">Admin</MenuItem>
-                  <MenuItem value="superadmin">Super Admin</MenuItem>
-                </Select>
-              </FormControl>
-            </Grid>
-          </Grid>
-          <Grid item xs={12} sm={6}>
-            <TextField
-              fullWidth
-              variant="outlined"
-              label="Last Name"
-              name="lastName"
-              value={formData.lastName}
-              onChange={handleChange}
-              required
-            />
-            <TextField
-              fullWidth
-              variant="outlined"
-              label="Confirm Password"
-              type={showConfirmPassword ? 'text' : 'password'}
-              name="confirmPassword"
-              value={formData.confirmPassword}
-              onChange={handleChange}
-              required
-              sx={{ mt: 2 }}
-              InputProps={{
-                endAdornment: (
-                  <InputAdornment position="end">
-                    <IconButton onClick={() => setShowConfirmPassword(!showConfirmPassword)} edge="end">
-                      {showConfirmPassword ? <VisibilityOff /> : <Visibility />}
-                    </IconButton>
-                  </InputAdornment>
-                )
-              }}
-            />
-          </Grid>
-        </Grid>
-      ),
-    },
-    {
-      label: 'Contact Information',
-      description: 'Enter the admin user\'s contact details.',
-      content: (
-        <Grid container spacing={2}>
-          <Grid item xs={12} sm={6}>
-            <TextField
-              fullWidth
-              variant="outlined"
-              label="Phone Number"
-              name="phoneNumber"
-              value={formData.phoneNumber}
-              onChange={handleChange}
-              required
-            />
-            <TextField
-              fullWidth
-              variant="outlined"
-              label="User Name"
-              name="userName"
-              value={formData.userName}
-              onChange={handleChange}
-              required
-              sx={{ mt: 2 }}
-            />
-            <TextField
-              fullWidth
-              variant="outlined"
-              label="Address"
-              name="address"
-              value={formData.address}
-              onChange={handleChange}
-              required
-              sx={{ mt: 2 }}
-            />
-            <TextField
-              fullWidth
-              variant="outlined"
-              label="City"
-              name="city"
-              value={formData.city}
-              onChange={handleChange}
-              required
-              sx={{ mt: 2 }}
-            />
-          </Grid>
-
-          <Grid item xs={12} sm={6}>
-            <TextField
-              fullWidth
-              variant="outlined"
-              label="Email"
-              name="emailAddress"
-              value={formData.emailAddress}
-              onChange={handleChange}
-              required
-            />
-            <TextField
-              fullWidth
-              variant="outlined"
-              label="Profile Image"
-              name="profileImage"
-              value={formData.profileImage}
-              onChange={handleChange}
-              required
-              sx={{ mt: 2 }}
-            />
-            <TextField
-              fullWidth
-              variant="outlined"
-              label="Country"
-              name="country"
-              value={formData.country}
-              onChange={handleChange}
-              required
-              sx={{ mt: 2 }}
-            />
-          </Grid>
-        </Grid>
-      ),
+      description: "Update the team member's core details.",
+      fields: fields.filter((field) => !field.nestedFields),
     },
     {
       label: 'Next of Kin',
       description: 'Provide emergency contact information.',
-      content: (
-        <Grid container spacing={2}>
-          <Grid item xs={12} sm={6}>
-            <TextField
-              fullWidth
-              variant="outlined"
-              label="Full Name"
-              name="nextOfKin.fullName"
-              value={formData.nextOfKin.fullName}
-              onChange={handleChange}
-              required
-            />
-            <TextField
-              fullWidth
-              variant="outlined"
-              label="Email"
-              name="nextOfKin.email"
-              value={formData.nextOfKin.email}
-              onChange={handleChange}
-              required
-              sx={{ mt: 2 }}
-            />
-          </Grid>
-          <Grid item xs={12} sm={6}>
-            <TextField
-              fullWidth
-              variant="outlined"
-              label="Phone Number"
-              name="nextOfKin.phoneNumber"
-              value={formData.nextOfKin.phoneNumber}
-              onChange={handleChange}
-              required
-            />
-            <TextField
-              fullWidth
-              variant="outlined"
-              label="Address"
-              name="nextOfKin.address"
-              value={formData.nextOfKin.address}
-              onChange={handleChange}
-              required
-              sx={{ mt: 2 }}
-            />
-          </Grid>
-        </Grid>
-      ),
+      fields: fields.filter((field) => field.name === 'nextOfKin'),
     },
   ];
 
   return (
     <Modal open={open} onClose={onClose}>
-      <Box className="add-modal" bgcolor={colors.primary[400]}>
-        <Typography variant="h4" fontWeight="bold" mb={1} color={colors.grey[100]}>
-          {title}
+      <Box sx={style}>
+        <Typography variant="h5" fontWeight="bold" mb={3}>
+          Edit Details
         </Typography>
 
-        <Typography variant="body1" mb={2} color={colors.grey[100]}>
-          Edit the Admin User's Details
-        </Typography>
+        <Stepper activeStep={activeStep} orientation="vertical">
+          {steps.map((step, index) => (
+            <Step key={step.label}>
+              <StepLabel>{step.label}</StepLabel>
+              <StepContent>
+                <Typography>{step.description}</Typography>
 
-        {error && (
-          <Typography variant="body1" color="error" mb={2}>
-            {error}
-          </Typography>
-        )}
+                <Formik
+                  initialValues={initialValues}
+                  validationSchema={validationSchema}
+                  onSubmit={(values) => {
+                    onSubmit(values);
+                    setActiveStep(0); // Reset to the first step after submission 
+                  }}
+                >
+                  {({ isSubmitting, values, setFieldValue, touched, errors }) => (
+                    <Form>
+                      <Grid container spacing={2} sx={{ marginTop: 2 }}>
+                        {step.fields.map((field) => {
+                          // Handle nested fields
+                          if (field.nestedFields) {
+                            return field.nestedFields.map((nestedField) => (
+                              <Grid item xs={6} key={nestedField.name}>
+                                <Field
+                                  as={TextField}
+                                  label={nestedField.label}
+                                  name={`${field.name}.${nestedField.name}`}
+                                  type={nestedField.type || 'text'}
+                                  fullWidth
+                                  error={touched[field.name]?.[nestedField.name] && !!errors[field.name]?.[nestedField.name]}
+                                  helperText={touched[field.name]?.[nestedField.name] && errors[field.name]?.[nestedField.name]}
+                                />
+                                <ErrorMessage name={`${field.name}.${nestedField.name}`} component="div" className="error" />
+                              </Grid>
+                            ));
+                          }
+                          // Handle select fields
+                          else if (field.type === 'select') {
+                            return (
+                              <Grid item xs={6} key={field.name}>
+                                <FormControl fullWidth error={touched[field.name] && !!errors[field.name]}>
+                                  <InputLabel id={`${field.name}-label`}>{field.label}</InputLabel>
+                                  <Field
+                                    as={Select}
+                                    labelId={`${field.name}-label`}
+                                    id={field.name}
+                                    name={field.name}
+                                    value={values[field.name] || ''}
+                                  >
+                                    {field.options.map((option) => (
+                                      <MenuItem key={option.value} value={option.value}>
+                                        {option.label}
+                                      </MenuItem>
+                                    ))}
+                                  </Field>
+                                  <FormHelperText>{touched[field.name] && errors[field.name]}</FormHelperText>
+                                </FormControl>
+                              </Grid>
+                            );
+                          }
+                          // Handle date picker fields
+                          else if (field.type === 'date') {
+                            return (
+                              <Grid item xs={6} key={field.name}>
+                                <LocalizationProvider dateAdapter={AdapterDayjs}>
+                                  <DatePicker
+                                    label={field.label}
+                                    value={dayjs(values[field.name])}
+                                    onChange={(date) => setFieldValue(field.name, date.format('YYYY-MM-DD'))}
+                                    renderInput={(params) => <TextField {...params} fullWidth />}
+                                  />
+                                </LocalizationProvider>
+                              </Grid>
+                            );
+                          }
+                          // Default to TextField
+                          else {
+                            return (
+                              <Grid item xs={6} key={field.name}>
+                                <Field
+                                  as={TextField}
+                                  label={field.label}
+                                  name={field.name}
+                                  type={field.type || 'text'}
+                                  fullWidth
+                                  error={touched[field.name] && !!errors[field.name]}
+                                  helperText={touched[field.name] && errors[field.name]}
+                                />
+                                <ErrorMessage name={field.name} component="div" className="error" />
+                              </Grid>
+                            );
+                          }
+                        })}
+                      </Grid>
 
-        <Paper elevation={3} sx={{ padding: 3, marginTop: 2, bgcolor: colors.primary[400] }}>
-          <form onSubmit={handleSubmit}>
-            <Stepper activeStep={activeStep} orientation="vertical">
-              {steps.map((step, index) => (
-                <Step key={step.label}>
-                  <StepLabel>{step.label}</StepLabel>
-                  <StepContent>
-                    <Typography>{step.description}</Typography>
-                    {step.content} {/* Render the content for each step */}
-                    <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 2 }}>
-                      {index > 0 && (
-                        <Button onClick={handleBack} sx={{ mr: 2 }}>
+                      {/* Button Controls */}
+                      <Box sx={{ display: 'flex', justifyContent: 'space-between', marginTop: 3 }}>
+                        <Button
+                          disabled={activeStep === 0}
+                          onClick={handleBack}
+                          sx={{ mt: 1, mr: 1 }}
+                        >
                           Back
                         </Button>
-                      )}
 
-                      <Button
-                        type={index === steps.length - 1 ? 'submit' : 'button'}
-                        onClick={index === steps.length - 1 ? handleSubmit : handleNext}
-                        disabled={loading}
-                        variant="contained"
-                        sx={{ backgroundColor: colors.greenAccent[600], color: 'white' }}
-                      >
-                        {index === steps.length - 1 ? 'Save Changes' : 'Next'}
-                      </Button>
-                    </Box>
-                  </StepContent>
-                </Step>
-              ))}
-            </Stepper>
-          </form>
-        </Paper>
+                        <Box>
+                          <Button
+                            type="button"
+                            variant="outlined"
+                            color="secondary"
+                            sx={{ marginRight: 2, color: 'grey' }}
+                            onClick={onClose}
+                          >
+                            Cancel
+                          </Button>
+                          <Button
+                            type="submit"
+                            disabled={isSubmitting}
+                            variant="contained"
+                            color="primary"
+                            sx={{ backgroundColor: colors.greenAccent[600] }}
+                          >
+                            {activeStep === steps.length - 1 ? 'Save Changes' : 'Next'}
+                          </Button>
+                        </Box>
+                      </Box>
+                    </Form>
+                  )}
+                </Formik>
+              </StepContent>
+            </Step>
+          ))}
+        </Stepper>
       </Box>
     </Modal>
   );
