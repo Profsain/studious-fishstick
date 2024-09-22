@@ -11,7 +11,13 @@ import {
   FormControl,
   InputLabel,
   CircularProgress,
+  Alert,
+  AlertTitle,
+  IconButton,
+  InputAdornment,
 } from "@mui/material";
+import Visibility from "@mui/icons-material/Visibility";
+import VisibilityOff from "@mui/icons-material/VisibilityOff";
 import { useTheme } from "@mui/material/styles";
 import { tokens } from "../../theme"; // Adjust this import as necessary
 import AuthContext from "../../context/AuthContext";
@@ -41,9 +47,11 @@ const CreateNewAdmin = ({ handleCancel }) => {
     },
     role: "", // Role field for the selector
   });
+
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -69,6 +77,7 @@ const CreateNewAdmin = ({ handleCancel }) => {
       address: "",
       city: "",
       country: "",
+      profileImage: "",
       nextOfKin: {
         fullName: "",
         phoneNumber: "",
@@ -80,9 +89,38 @@ const CreateNewAdmin = ({ handleCancel }) => {
   };
 
   const handleSubmit = async (e) => {
-    setLoading(true);
     e.preventDefault();
-    // Implement API call to create new admin
+
+    // Basic validation (you can add more complex validation as needed)
+    if (
+      !formData.firstName ||
+      !formData.lastName ||
+      !formData.emailAddress ||
+      !formData.password ||
+      !formData.phoneNumber ||
+      !formData.userName ||
+      !formData.address ||
+      !formData.city ||
+      !formData.country ||
+      !formData.profileImage ||
+      !formData.nextOfKin.fullName ||
+      !formData.nextOfKin.phoneNumber ||
+      !formData.nextOfKin.email ||
+      !formData.nextOfKin.address ||
+      !formData.role
+    ) {
+      setError("Please fill in all required fields.");
+      return;
+    }
+
+    // Email validation (add more robust validation if needed)
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.emailAddress)) {
+      setError("Please enter a valid email address.");
+      return;
+    }
+
+    setLoading(true);
+
     try {
       const response = await fetch(`${apiUrl}/admin/admin-create`, {
         method: "POST",
@@ -94,15 +132,15 @@ const CreateNewAdmin = ({ handleCancel }) => {
       });
 
       if (!response.ok) {
-        setError("An Internet error occurred. Please try again.");
+        const errorData = await response.json();
+        setError(errorData.message || "An error occurred. Please try again.");
         throw new Error("An error occurred while creating the admin.");
       }
 
-      // Clear the form fields
       clearForm();
-      const data = await response.json();
       setSuccess("Admin created successfully. Click Cancel to close form.");
-      // set the success message " " after 3 seconds
+
+      // Move success message to the top and clear after 3 seconds
       setTimeout(() => {
         setSuccess("");
       }, 3000);
@@ -110,44 +148,56 @@ const CreateNewAdmin = ({ handleCancel }) => {
       setLoading(false);
     } catch (error) {
       console.error("Error creating new admin:", error);
-      setError("An catch error occurred. Please try again.");
+      setError("An error occurred. Please try again.");
       setLoading(false);
-      return;
     }
   };
 
+  const handleTogglePasswordVisibility = () => {
+    setShowPassword((prevShowPassword) => !prevShowPassword);
+  };
   return (
     <Box m="20px">
-      <Typography variant="h4" fontWeight="600" color={colors.grey[100]}>
-        Create New Admin
-      </Typography>
-      <Button
-        variant="outlined"
-        onClick={handleCancel}
-        sx={{
-          mb: 2,
-          color: colors.grey[100],
-          borderColor: colors.grey[400],
-          "&:hover": {
-            borderColor: colors.grey[500],
-          },
-        }}
+      <Grid
+        item
+        xs={12}
+        sx={{ display: "flex", justifyContent: "space-between", gap: 2 }}
       >
-        Cancel
-      </Button>
+        <Typography variant="h4" fontWeight="600" color={colors.grey[100]}>
+          Create New Admin
+        </Typography>
+        <Button
+          variant="outlined"
+          onClick={handleCancel}
+          sx={{
+            mb: 2,
+            color: colors.grey[100],
+            borderColor: colors.grey[400],
+            "&:hover": {
+              borderColor: colors.grey[500],
+            },
+          }}
+        >
+          Cancel
+        </Button>
+      </Grid>
+
       <Typography variant="body1" color={colors.grey[100]}>
         Fill in the form below to create a new admin.
       </Typography>
-      {error && (
-        <Typography variant="body1" color="error">
-          {error}
-        </Typography>
-      )}
 
+      {/* Display success or error messages */}
       {success && (
-        <Typography variant="body1" color="success">
+        <Alert severity="success" sx={{ mt: 2 }}>
+          <AlertTitle>Success</AlertTitle>
           {success}
-        </Typography>
+        </Alert>
+      )}
+      {error && (
+        <Alert severity="error" sx={{ mt: 2 }}>
+          <AlertTitle>Error</AlertTitle>
+          {error}
+        </Alert>
       )}
 
       <Paper elevation={3} sx={{ padding: 3, marginTop: 2 }}>
@@ -191,11 +241,23 @@ const CreateNewAdmin = ({ handleCancel }) => {
                 fullWidth
                 variant="outlined"
                 label="Password"
-                type="password"
+                type={showPassword ? "text" : "password"}
                 name="password"
                 value={formData.password}
                 onChange={handleChange}
                 required
+                InputProps={{
+                  endAdornment: (
+                    <InputAdornment position="end">
+                      <IconButton
+                        onClick={handleTogglePasswordVisibility}
+                        edge="end"
+                      >
+                        {showPassword ? <VisibilityOff /> : <Visibility />}
+                      </IconButton>
+                    </InputAdornment>
+                  ),
+                }}
               />
             </Grid>
             <Grid item xs={12} sm={6}>

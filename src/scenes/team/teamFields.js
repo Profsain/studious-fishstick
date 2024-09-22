@@ -1,11 +1,12 @@
 // src/scenes/team/teamFields.js 
 export const teamViewFields = [
     { label: 'Staff ID', name: 'staffId' },
-    // { label: 'First Name', name: 'firstName' },
-    // { label: 'Last Name', name: 'lastName' },
-    { label: 'Email', name: 'email' },
-    { label: 'Phone Number', name: 'phone' },
-    { label: 'Profile Image', name: 'profileImage' }, // Add for Avatar
+    { label: 'First Name', name: 'firstName' },
+    { label: 'Last Name', name: 'lastName' },
+    { label: 'Email', name: 'emailAddress' },
+    { label: 'Phone Number', name: 'phoneNumber' },
+  { label: 'Profile Image', name: 'profileImage' },  
+
     { label: 'User Name', name: 'userName' },
     { label: 'Address', name: 'address' },
     { label: 'City', name: 'city' },
