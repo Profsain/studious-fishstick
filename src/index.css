@@ -41,3 +41,16 @@ body {
 ::-webkit-scrollbar-thumb:hover {
   background: #555;
 }
+
+/* index.css */ 
+
+.add-modal {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 700px; 
+  background-color: #fff; 
+  box-shadow: 24px;
+  padding: 25px;
+}
