@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import Swal from 'sweetalert2';  // Import SweetAlert
 import {
   Box,
   Typography,
@@ -24,39 +23,20 @@ import { tokens } from '../../theme';
 import '../../index.css';
 import Visibility from '@mui/icons-material/Visibility';
 import VisibilityOff from '@mui/icons-material/VisibilityOff';
+import Swal from 'sweetalert2'; 
 
-const AddModal = ({ open, onClose, onSubmit, title }) => {
+const EditModal = ({ open, onClose, initialValues, onSubmit, fields, title }) => { 
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
 
-  const [formData, setFormData] = useState({
-    firstName: '',
-    lastName: '',
-    emailAddress: '',
-    phoneNumber: '',
-    profileImage: '',
-    userName: '',
-    address: '',
-    city: '',
-    country: '',
-    role: '',
-    password: '',
-    confirmPassword: '',
-    nextOfKin: {
-      fullName: '',
-      phoneNumber: '',
-      email: '',
-      address: '',
-    },
-  });
+  const [formData, setFormData] = useState(initialValues);
+  const [activeStep, setActiveStep] = useState(0);
+  const [error, setError] = useState(null);
+  const [loading, setLoading] = useState(false);
 
   // State for password visibility
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-
-  const [activeStep, setActiveStep] = useState(0);
-  const [error, setError] = useState(null);
-  const [loading, setLoading] = useState(false);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -76,56 +56,34 @@ const AddModal = ({ open, onClose, onSubmit, title }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    // Password matching validation
     if (formData.password !== formData.confirmPassword) {
-      setError("Passwords don't match");
+      setError("Passwords don't match!");
       return;
     }
 
     setLoading(true);
-    setError(null); // Clear any previous errors
+    setError(null);
 
     try {
       await onSubmit(formData);
-
-      // Trigger SweetAlert on success
-      Swal.fire({
-        title: 'Full name has been added successfully!',
-        text: 'Do you want to add another admin?',
+      Swal.fire({ 
+        title: 'Success!', 
+        text: 'The admin has been edited successfully!', 
         icon: 'success',
-        showCancelButton: true,
-        confirmButtonText: 'Yes',
-        cancelButtonText: 'No'
-      }).then((result) => {
-        if (result.isConfirmed) {
-          // Keep the modal open for adding another admin
-          setFormData({
-            firstName: '',
-            lastName: '',
-            emailAddress: '',
-            phoneNumber: '',
-            profileImage: '',
-            userName: '',
-            address: '',
-            city: '',
-            country: '',
-            role: '',
-            password: '',
-            confirmPassword: '',
-            nextOfKin: {
-              fullName: '',
-              phoneNumber: '',
-              email: '',
-              address: '',
-            },
-          });
-        } else {
-          // Close modal if user doesn't want to add another admin
-          onClose();
-        }
+        confirmButtonColor: colors.greenAccent[600], 
+      }).then(() => {
+        onClose(); // Close the modal after success
       });
     } catch (error) {
-      console.error('Error creating item:', error);
-      setError('An error occurred. Please try again.');
+      console.error('Error updating admin:', error);
+      Swal.fire({
+        title: 'Error!',
+        text: 'An error occurred. Please try again.',
+        icon: 'error',
+        confirmButtonColor: colors.greenAccent[600], 
+      });
     } finally {
       setLoading(false);
     }
@@ -208,9 +166,7 @@ const AddModal = ({ open, onClose, onSubmit, title }) => {
                 </Select>
               </FormControl>
             </Grid>
-
           </Grid>
-
           <Grid item xs={12} sm={6}>
             <TextField
               fullWidth
@@ -378,7 +334,6 @@ const AddModal = ({ open, onClose, onSubmit, title }) => {
     },
   ];
 
-
   return (
     <Modal open={open} onClose={onClose}>
       <Box className="add-modal" bgcolor={colors.primary[400]}>
@@ -387,7 +342,7 @@ const AddModal = ({ open, onClose, onSubmit, title }) => {
         </Typography>
 
         <Typography variant="body1" mb={2} color={colors.grey[100]}>
-          Fill in the form below to create a new admin user.
+          Edit the Admin User's Details
         </Typography>
 
         {error && (
@@ -404,7 +359,7 @@ const AddModal = ({ open, onClose, onSubmit, title }) => {
                   <StepLabel>{step.label}</StepLabel>
                   <StepContent>
                     <Typography>{step.description}</Typography>
-                    {step.content}
+                    {step.content} {/* Render the content for each step */}
                     <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 2 }}>
                       {index > 0 && (
                         <Button onClick={handleBack} sx={{ mr: 2 }}>
@@ -419,7 +374,7 @@ const AddModal = ({ open, onClose, onSubmit, title }) => {
                         variant="contained"
                         sx={{ backgroundColor: colors.greenAccent[600], color: 'white' }}
                       >
-                        {index === steps.length - 1 ? 'Create' : 'Next'}
+                        {index === steps.length - 1 ? 'Save Changes' : 'Next'}
                       </Button>
                     </Box>
                   </StepContent>
@@ -428,11 +383,9 @@ const AddModal = ({ open, onClose, onSubmit, title }) => {
             </Stepper>
           </form>
         </Paper>
-
-        
       </Box>
     </Modal>
   );
 };
 
-export default AddModal;
+export default EditModal;

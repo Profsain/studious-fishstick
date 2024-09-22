@@ -1,434 +1,400 @@
-import React, { useState, useEffect, useContext, useCallback, useMemo } from 'react';
+import React, { useState } from 'react';
 import {
-  Box, Chip, Avatar, Typography, Button, Grid, Menu, MenuItem, Link, InputBase, InputAdornment, IconButton
+  Box,
+  Typography,
+  TextField,
+  Button,
+  Grid,
+  Paper,
+  Modal,
+  Select,
+  MenuItem,
+  FormControl,
+  InputLabel,
+  Stepper,
+  Step,
+  StepLabel,
+  StepContent,
+  IconButton,
+  InputAdornment,
 } from '@mui/material';
-import SearchIcon from '@mui/icons-material/Search';
-import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
-import VisibilityIcon from '@mui/icons-material/Visibility';
-import { DataGrid } from '@mui/x-data-grid';
 import { useTheme } from '@mui/material/styles';
 import { tokens } from '../../theme';
-import useMediaQuery from '@mui/material/useMediaQuery';
-import AuthContext from '../../context/AuthContext';
-import ViewModal from '../../components/Modals/ViewModal';
-import EditModal from '../../components/Modals/EditModal';
-import { teamViewFields } from './teamFields';
-import PersonAddOutlinedIcon from '@mui/icons-material/PersonAddOutlined';
-import ConfirmationDialog from './ConfirmationDialog';
-import AddModal from '../../components/Modals/AddModal'; // Update the import path
+import '../../index.css';
+import Visibility from '@mui/icons-material/Visibility';
+import VisibilityOff from '@mui/icons-material/VisibilityOff';
+import Swal from 'sweetalert2';
 
-
-
-
-const TeamManager = () => {
-  // Fetch admin data from the server
-  const apiUrl = process.env.REACT_APP_API_URL;
-  const { token } = useContext(AuthContext);
-
-  const [adminData, setAdminData] = useState([]);
-  const [isLoading, setIsLoading] = useState(true);
-
-  const fetchAdmins = useCallback(async () => {
-    setIsLoading(true);
-    try {
-      const response = await fetch(`${apiUrl}/admin/admin-get-all`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-      if (!response.ok) {
-        throw new Error('Network response was not ok');
-      }
-      const data = await response.json();
-      setAdminData(data.admins);
-    } catch (error) {
-      console.error('Error fetching admins:', error);
-    } finally {
-      setIsLoading(false);
-    }
-  }, [apiUrl, token]);
-
-  useEffect(() => {
-    fetchAdmins();
-  }, [fetchAdmins]);
-
+const EditModal = ({ open, onClose, initialValues, onSubmit, fields, title }) => {
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
-  const [openViewModal, setOpenViewModal] = useState(false);
-  const [selectedAdmin, setSelectedAdmin] = useState(null);
-  const [openEditModal, setOpenEditModal] = useState(false);
-  const [editAdminData, setEditAdminData] = useState(null);
 
-  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
-  const [searchText, setSearchText] = useState('');
-  const [anchorEl, setAnchorEl] = useState(null);
+  const [formData, setFormData] = useState(initialValues);
+  const [activeStep, setActiveStep] = useState(0);
+  const [error, setError] = useState(null);
+  const [loading, setLoading] = useState(false);
 
-  // Memoize filteredRows for performance
-  const filteredRows = useMemo(() => {
-    return adminData.filter((row) => {
-      const search = searchText.toLowerCase();
-      return (
-        row.firstName.toLowerCase().includes(search) ||
-        row.lastName.toLowerCase().includes(search) ||
-        row.phoneNumber.toLowerCase().includes(search) ||
-        row.emailAddress.toLowerCase().includes(search) ||
-        row.staffId.toLowerCase().includes(search)
-      );
-    });
-  }, [adminData, searchText]);
+  // State for password visibility
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
-  const handleClick = (event, row) => {
-    setAnchorEl(event.currentTarget);
-    setSelectedAdmin(row);
-  };
-
-  const handleClose = () => {
-    setAnchorEl(null);
-  };
-
-  const handleView = (admin) => {
-    setSelectedAdmin(admin);
-    setOpenViewModal(true);
-  };
-
-  const handleCloseModal = () => {
-    setOpenViewModal(false);
-  };
-
-  const handleEdit = (admin) => {
-    setSelectedAdmin(admin);
-    setEditAdminData(admin);
-    setOpenEditModal(true);
-  };
-  // Delete an admin (using ConfirmationDialog)
-  const [openConfirmDialog, setOpenConfirmDialog] = useState(false);
-  const [adminToDelete, setAdminToDelete] = useState(null);
-
-  const handleDelete = async (admin) => {
-    try {
-      const response = await fetch(`${apiUrl}/admin/admin-delete/${admin._id}`, {
-        method: 'DELETE',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    if (name.includes('.')) {
+      const [parent, child] = name.split('.');
+      setFormData((prev) => ({
+        ...prev,
+        [parent]: {
+          ...prev[parent],
+          [child]: value,
         },
-      });
-
-      if (response.ok) {
-        setAdminData(prevData => prevData.filter(item => item._id !== admin._id));
-        alert('Success', 'Admin deleted successfully!');
-      } else {
-        const errorData = await response.json();
-        alert('Error', errorData.message || 'Failed to delete the admin.');
-      }
-    } catch (error) {
-      alert('Error', 'Failed to delete the admin.');
+      }));
+    } else {
+      setFormData((prev) => ({ ...prev, [name]: value }));
     }
   };
 
-  // Combine handleDelete and confirmDelete into a single function 
-  const handleConfirmDelete = async () => {
-    try {
-      const response = await fetch(`${apiUrl}/admin/admin-delete/${adminToDelete._id}`, {
-        method: 'DELETE',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
-      });
+  const handleSubmit = async (e) => {
+    e.preventDefault();
 
-      if (response.ok) {
-        setAdminData(prevData => prevData.filter(item => item._id !== adminToDelete._id));
-        alert('Success', 'Admin deleted successfully!');
-      } else {
-        const errorData = await response.json();
-        alert('Error', errorData.message || 'Failed to delete the admin.');
-      }
-    } catch (error) {
-      alert('Error', 'Failed to delete the admin.');
-    } finally {
-      setOpenConfirmDialog(false);
-      setAdminToDelete(null);
+    // Password matching validation
+    if (formData.password !== formData.confirmPassword) {
+      setError("Passwords don't match!");
+      return;
     }
-  };
 
-  const handleEditSubmit = async (values) => {
-    console.log('Updating admin with values:', values);
+    setLoading(true);
+    setError(null); 
 
     try {
-      const response = await fetch(`${apiUrl}/admin/admin-update/${values._id}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify(values),
+      await onSubmit(formData);
+
+      // Success SweetAlert 
+      Swal.fire({
+        title: 'Success!',
+        text: 'The admin has been edited successfully!',
+        icon: 'success',
+        confirmButtonColor: colors.greenAccent[600], 
+      }).then(() => {
+        onClose(); 
       });
 
-      if (!response.ok) {
-        throw new Error(`HTTP error! Status: ${response.status}`);
-      }
-
-      const updatedAdminData = await response.json();
-      setAdminData(prevData =>
-        prevData.map(admin => (admin._id === updatedAdminData._id ? updatedAdminData : admin))
-      );
-
-      setOpenEditModal(false);
     } catch (error) {
       console.error('Error updating admin:', error);
-    }
-  };
-  const [openAddModal, setOpenAddModal] = useState(false);
-
-  const handleOpenAddModal = () => {
-    setOpenAddModal(true);
-  };
-
-  const handleCloseAddModal = () => {
-    setOpenAddModal(false);
-  };
-
-  const handleSubmitNewAdmin = async (formData) => {
-    try {
-      const response = await fetch(`${apiUrl}/admin/admin-create`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify(formData),
+      // Error SweetAlert
+      Swal.fire({
+        title: 'Error!',
+        text: 'An error occurred. Please try again.',
+        icon: 'error',
+        confirmButtonColor: colors.greenAccent[600], 
       });
-
-      if (!response.ok) {
-        throw new Error('Failed to create admin');
-      }
-
-      const newAdmin = await response.json();
-      setAdminData(prevData => [...prevData, newAdmin]); // Update adminData
-      handleCloseAddModal();
-    } catch (error) {
-      console.error("Error creating admin:", error);
-      // Handle error (e.g., display an error message)
+    } finally {
+      setLoading(false);
     }
   };
 
-  const columns = [
+  const handleNext = () => {
+    setActiveStep((prevActiveStep) => prevActiveStep + 1);
+  };
+
+  const handleBack = () => {
+    setActiveStep((prevActiveStep) => prevActiveStep - 1);
+  };
+
+  // Define your steps, similar to the AddModal but without staffId
+  const steps = [
     {
-      field: 'profileImage',
-      headerName: 'Avatar',
-      width: 80,
-      renderCell: (params) => (
-        <Avatar alt={params.row.firstName} src={params.row.profileImage} />
+      label: 'Basic Information',
+      description: 'Enter the admin user\'s basic details.',
+      content: (
+        <Grid container spacing={2}>
+          <Grid item xs={12} sm={6}>
+            <TextField
+              fullWidth
+              variant="outlined"
+              label="First Name"
+              name="firstName"
+              value={formData.firstName}
+              onChange={handleChange}
+              required
+            />
+            <TextField
+              fullWidth
+              variant="outlined"
+              label="Password"
+              type={showPassword ? 'text' : 'password'}
+              name="password"
+              value={formData.password}
+              onChange={handleChange}
+              required
+              sx={{ mt: 2 }}
+              InputProps={{
+                endAdornment: (
+                  <InputAdornment position="end">
+                    <IconButton onClick={() => setShowPassword(!showPassword)} edge="end">
+                      {showPassword ? <VisibilityOff /> : <Visibility />}
+                    </IconButton>
+                  </InputAdornment>
+                )
+              }}
+            />
+            <Grid item xs={12}>
+              {/* Role Dropdown */}
+              <FormControl fullWidth variant="outlined" required sx={{ mt: 2 }}>
+                <InputLabel id="role-label" sx={{ color: colors.grey[100] }}>
+                  Role
+                </InputLabel>
+                <Select
+                  labelId="role-label"
+                  id="role"
+                  name="role"
+                  value={formData.role}
+                  onChange={handleChange}
+                  label="Role"
+                  sx={{
+                    '.MuiOutlinedInput-notchedOutline': {
+                      borderColor: colors.grey[400],
+                    },
+                    '&:hover .MuiOutlinedInput-notchedOutline': {
+                      borderColor: colors.grey[500],
+                    },
+                    '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                      borderColor: colors.greenAccent[700],
+                    },
+                    '.MuiSvgIcon-root': {
+                      color: colors.grey[400],
+                    },
+                  }}
+                >
+                  <MenuItem value="admin">Admin</MenuItem>
+                  <MenuItem value="superadmin">Super Admin</MenuItem>
+                </Select>
+              </FormControl>
+            </Grid>
+
+          </Grid>
+
+          <Grid item xs={12} sm={6}>
+            <TextField
+              fullWidth
+              variant="outlined"
+              label="Last Name"
+              name="lastName"
+              value={formData.lastName}
+              onChange={handleChange}
+              required
+            />
+            <TextField
+              fullWidth
+              variant="outlined"
+              label="Confirm Password"
+              type={showConfirmPassword ? 'text' : 'password'}
+              name="confirmPassword"
+              value={formData.confirmPassword}
+              onChange={handleChange}
+              required
+              sx={{ mt: 2 }}
+              InputProps={{
+                endAdornment: (
+                  <InputAdornment position="end">
+                    <IconButton onClick={() => setShowConfirmPassword(!showConfirmPassword)} edge="end">
+                      {showConfirmPassword ? <VisibilityOff /> : <Visibility />}
+                    </IconButton>
+                  </InputAdornment>
+                )
+              }}
+            />
+          </Grid>
+        </Grid>
       ),
     },
     {
-      field: 'nameAndId', // Combine name and staffId
-      headerName: 'Full Name - Staff ID',
-      flex: 2,
-      renderCell: (params) => (
-        <Box display="flex" alignItems="center">
-          <Typography variant="h6" sx={{ fontWeight: 'bold', marginRight: '8px', }}>
-            {`${params.row.firstName} ${params.row.lastName}`}
-          </Typography>
-          <Chip
-            label={`${params.row.staffId}`}
-            sx={{
-              backgroundColor: colors.greenAccent[500],
-              color: colors.primary.contrastText,
-              padding: '41px 8px',
-            }}
-          />
-        </Box>
+      label: 'Contact Information',
+      description: 'Enter the admin user\'s contact details.',
+      content: (
+        <Grid container spacing={2}>
+          <Grid item xs={12} sm={6}>
+            <TextField
+              fullWidth
+              variant="outlined"
+              label="Phone Number"
+              name="phoneNumber"
+              value={formData.phoneNumber}
+              onChange={handleChange}
+              required
+            />
+            <TextField
+              fullWidth
+              variant="outlined"
+              label="User Name"
+              name="userName"
+              value={formData.userName}
+              onChange={handleChange}
+              required
+              sx={{ mt: 2 }}
+            />
+            <TextField
+              fullWidth
+              variant="outlined"
+              label="Address"
+              name="address"
+              value={formData.address}
+              onChange={handleChange}
+              required
+              sx={{ mt: 2 }}
+            />
+            <TextField
+              fullWidth
+              variant="outlined"
+              label="City"
+              name="city"
+              value={formData.city}
+              onChange={handleChange}
+              required
+              sx={{ mt: 2 }}
+            />
+          </Grid>
+
+          <Grid item xs={12} sm={6}>
+            <TextField
+              fullWidth
+              variant="outlined"
+              label="Email"
+              name="emailAddress"
+              value={formData.emailAddress}
+              onChange={handleChange}
+              required
+            />
+            <TextField
+              fullWidth
+              variant="outlined"
+              label="Profile Image"
+              name="profileImage"
+              value={formData.profileImage}
+              onChange={handleChange}
+              required
+              sx={{ mt: 2 }}
+            />
+            <TextField
+              fullWidth
+              variant="outlined"
+              label="Country"
+              name="country"
+              value={formData.country}
+              onChange={handleChange}
+              required
+              sx={{ mt: 2 }}
+            />
+          </Grid>
+        </Grid>
       ),
     },
-    { field: "emailAddress", headerName: "Email", flex: 2 },
-    { field: "phoneNumber", headerName: "Phone Number", flex: 1 },
-    { field: "city", headerName: "Location", flex: 1 },
-    { field: "role", headerName: "Role", flex: 1 },
     {
-      field: 'actions',
-      headerName: 'Actions',
-      width: 150,
-      renderCell: (params) => (
-        <Box display="flex" justifyContent="space-between">
-          <IconButton
-            sx={{
-              backgroundColor: colors.greenAccent[600],
-              color: "white",
-              "&:hover": { backgroundColor: "#f86a3b" },
-            }}
-            onClick={() => handleView(params.row)}
-          >
-            <VisibilityIcon />
-          </IconButton>
-          <IconButton
-            sx={{
-              backgroundColor: "#fa7c50",
-              color: "white",
-              "&:hover": { backgroundColor: "#f86a3b" },
-            }}
-            onClick={(event) => handleClick(event, params.row)}
-          >
-            <ArrowDropDownIcon />
-          </IconButton>
-          <Menu
-            anchorEl={anchorEl}
-            open={Boolean(anchorEl)}
-            onClose={handleClose}
-          >
-            <MenuItem onClick={() => { handleEdit(selectedAdmin); handleClose(); }}>Edit</MenuItem>
-            <MenuItem onClick={() => { handleDelete(selectedAdmin); handleClose(); }}>Delete</MenuItem>
-          </Menu>
-        </Box>
+      label: 'Next of Kin',
+      description: 'Provide emergency contact information.',
+      content: (
+        <Grid container spacing={2}>
+          <Grid item xs={12} sm={6}>
+            <TextField
+              fullWidth
+              variant="outlined"
+              label="Full Name"
+              name="nextOfKin.fullName"
+              value={formData.nextOfKin.fullName}
+              onChange={handleChange}
+              required
+            />
+            <TextField
+              fullWidth
+              variant="outlined"
+              label="Email"
+              name="nextOfKin.email"
+              value={formData.nextOfKin.email}
+              onChange={handleChange}
+              required
+              sx={{ mt: 2 }}
+            />
+          </Grid>
+          <Grid item xs={12} sm={6}>
+            <TextField
+              fullWidth
+              variant="outlined"
+              label="Phone Number"
+              name="nextOfKin.phoneNumber"
+              value={formData.nextOfKin.phoneNumber}
+              onChange={handleChange}
+              required
+            />
+            <TextField
+              fullWidth
+              variant="outlined"
+              label="Address"
+              name="nextOfKin.address"
+              value={formData.nextOfKin.address}
+              onChange={handleChange}
+              required
+              sx={{ mt: 2 }}
+            />
+          </Grid>
+        </Grid>
       ),
     },
   ];
 
   return (
-    <Box m="20px">
-      <Grid container spacing={2} alignItems="flex-start">
-        <Grid item xs={12}>
-          <Typography variant="h6" fontWeight="600" color={colors.grey[100]}>
-            <Link to="/" style={{ textDecoration: 'none', color: colors.grey[100] }}>
-              Home
-            </Link>{' '}
-            / Team
-          </Typography>
-          <Typography variant="h2" fontWeight="600" color={colors.grey[100]}>
-            Team Management
-          </Typography>
-          <Typography variant="subtitle2" fontSize={'16px'} color={colors.greenAccent[500]}>
-            Add, view, edit, and manage your team members
-          </Typography>
-        </Grid>
-        <Grid item xs={12} container spacing={1} justifyContent={isMobile ? "flex-start" : "flex-end"}>
-          <Grid item>
-            <InputBase
-              sx={{
-                mr: 2, flex: 3,
-                border: '1px solid white',
-                borderRadius: '4px',
-                marginBottom: '10px',
-                padding: '10px 14px',
-                '& .MuiInputBase-input': {
-                  color: 'white',
-                }
-              }}
-              value={searchText}
-              onChange={(e) => setSearchText(e.target.value)}
-              placeholder="Search Events..."
-              endAdornment={
-                <InputAdornment position="end">
-                  <IconButton type="button" sx={{ p: 1 }}>
-                    <SearchIcon />
-                  </IconButton>
-                </InputAdornment>
-              }
-            />
-            {/* Add Team Button */}
-            <Button
-              sx={{
-                backgroundColor: colors.greenAccent[600],
-                color: colors.grey[100],
-                fontSize: "16px",
-                fontWeight: "600",
-                padding: "10px 20px",
-                marginRight: isMobile ? "0" : "0px",
-                marginBottom: isMobile ? "10px" : "0",
-                '&:hover': {
-                  backgroundColor: colors.greenAccent[600],
-                },
-              }}
-              onClick={handleOpenAddModal}
-            >
-              <PersonAddOutlinedIcon sx={{ mr: "10px" }} />
-              Add Team
-            </Button>
-          </Grid>
+    <Modal open={open} onClose={onClose}>
+      <Box className="add-modal" bgcolor={colors.primary[400]}>
+        <Typography variant="h4" fontWeight="bold" mb={1} color={colors.grey[100]}>
+          {title} 
+        </Typography>
 
-        </Grid>
-        {/* DataGrid Section */}
-        <Grid item xs={12}>
-          <Box
-            m="0px 0 0 0"
-            height={isMobile ? "75vh" : "100vh"}
-            sx={{
-              "& .MuiDataGrid-root": { border: "none" },
-              "& .MuiDataGrid-cell": { borderBottom: "none" },
-              "& .name-column--cell": { color: colors.greenAccent[300] },
-              "& .MuiDataGrid-columnHeaders": {
-                backgroundColor: colors.blueAccent[700],
-                borderBottom: "none",
-              },
-              "& .MuiDataGrid-virtualScroller": {
-                backgroundColor: colors.primary[400],
-              },
-              "& .MuiDataGrid-footerContainer": {
-                borderTop: "none",
-                backgroundColor: colors.blueAccent[700],
-              },
-              "& .MuiCheckbox-root": {
-                color: `${colors.greenAccent[200]} !important`,
-              },
-            }}
-          >
-            {isLoading ? (
-              <Typography variant="h5" align="center" color="textSecondary">
-                Loading data...
-              </Typography>
-            ) : (
-              <DataGrid
-                checkboxSelection
-                hideFooterSelectedRowCount
-                rows={filteredRows}
-                getRowId={(row) => row._id}
-                columns={columns}
-                pageSize={10}
-                onRowClick={(params) => {
-                  const clickedAdmin = params.row;
-                  handleView(clickedAdmin);
-                }}
-                rowsPerPageOptions={[10, 25, 50, 100]}
-              />
-            )}
-          </Box>
-        </Grid>
+        <Typography variant="body1" mb={2} color={colors.grey[100]}>
+          Edit the Admin User's Details
+        </Typography>
 
-        {/* ViewModal */}
-        <ViewModal
-          open={openViewModal}
-          onClose={handleCloseModal}
-          recordData={selectedAdmin}
-          fields={teamViewFields}
-        />
+        {error && (
+          <Typography variant="body1" color="error" mb={2}>
+            {error}
+          </Typography>
+        )}
 
-        {/* EditModal */}
-        <EditModal
-          open={openEditModal}
-          onClose={() => setOpenEditModal(false)}
-          initialValues={editAdminData}
-          onSubmit={handleEditSubmit}
-          fields={teamViewFields}
-        />
-        {/* AddModal */}
-        <AddModal
-          open={openAddModal}
-          onClose={handleCloseAddModal}
-          fields={teamViewFields}
-          onSubmit={handleSubmitNewAdmin}
-          title="Create New Admin"
-        />
-        {/* ConfirmationDialog */}
-        <ConfirmationDialog
-          open={openConfirmDialog}
-          onClose={() => setOpenConfirmDialog(false)}
-          onConfirm={handleConfirmDelete}  // Use handleConfirmDelete here
-          admin={adminToDelete}
-        />
-      </Grid>
-    </Box>
+        {/* Conditionally render the form if initialValues are available */}
+        {initialValues && ( 
+          <Paper elevation={3} sx={{ padding: 3, marginTop: 2, bgcolor: colors.primary[400] }}>
+            <form onSubmit={handleSubmit}>
+              <Stepper activeStep={activeStep} orientation="vertical">
+                {steps.map((step, index) => (
+                  <Step key={step.label}>
+                    <StepLabel>{step.label}</StepLabel>
+                    <StepContent>
+                      <Typography>{step.description}</Typography>
+                      {step.content}
+                      <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 2 }}>
+                        {index > 0 && (
+                          <Button onClick={handleBack} sx={{ mr: 2 }}>
+                            Back
+                          </Button>
+                        )}
+                        <Button
+                          type={index === steps.length - 1 ? 'submit' : 'button'}
+                          onClick={index === steps.length - 1 ? handleSubmit : handleNext}
+                          disabled={loading}
+                          variant="contained"
+                          sx={{ backgroundColor: colors.greenAccent[600], color: 'white' }}
+                        >
+                          {index === steps.length - 1 ? 'Save Changes' : 'Next'}
+                        </Button>
+                      </Box>
+                    </StepContent>
+                  </Step>
+                ))}
+              </Stepper>
+            </form>
+          </Paper>
+        )}
+      </Box>
+    </Modal>
   );
 };
 
-export default TeamManager;
+export default EditModal;
