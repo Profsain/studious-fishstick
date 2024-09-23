@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useContext, useCallback } from 'react';
 import {
-  Box, Typography, Button, ButtonGroup, Grid, Menu, MenuItem, Link, Modal, InputBase, InputAdornment, IconButton,
+  Box, Typography, Button, ButtonGroup, Grid, Menu, MenuItem, Link, Modal, InputBase, InputAdornment, IconButton, CircularProgress,
   Divider,
 } from '@mui/material';
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
@@ -360,10 +360,19 @@ const EventManager = () => {
               },
             }}
           >
-            {isLoading ? (
-              <Typography variant="h6" align="center" sx={{ mt: 4 }}>
-                Loading events...
-              </Typography>
+             {isLoading ? (
+              <Box display="flex" justifyContent="center" alignItems="center" height="60%">
+                {/* <Box align="center" display='flex'>
+                  <Typography variant="h4" align="center" display='flex' color="colors.greenAccent[500]">
+                    Loading Team...<br />
+                  </Typography>
+                </Box> */}
+                <CircularProgress
+                  size={50}
+                  thickness={5}
+                  sx={{ color: colors.greenAccent[500] }}
+                />
+              </Box>
             ) : (
               <DataGrid
                 checkboxSelection

@@ -143,9 +143,9 @@ const EditModal = ({ open, onClose, initialValues, onSubmit, title }) => {
   const steps = [
     {
       label: 'Basic Information',
-      description: initialValues 
-        ? `Update ${initialValues?.firstName} ${initialValues?.lastName}'s Information` 
-        : "Update Team Member Information.", 
+    description: initialValues 
+      ? `Update ${initialValues.firstName} ${initialValues.lastName}'s Information` 
+      : "Update Team Member Information.",  
       content: (
         <Grid container spacing={2} style={{ marginTop: 5 }}>
           <Grid item xs={12} sm={6}>

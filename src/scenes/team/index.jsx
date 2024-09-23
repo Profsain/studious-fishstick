@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useContext, useCallback, useMemo } from 'react';
 import {
-  Box, Chip, ButtonGroup, Avatar, Typography, Button, Grid, Menu, MenuItem, Link, InputBase, InputAdornment, IconButton
+  Box, Chip, ButtonGroup, Avatar, Typography, Button, Grid, Menu, MenuItem, Link, InputBase, InputAdornment, IconButton, CircularProgress
 } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
@@ -79,7 +79,7 @@ const TeamManager = () => {
   const handleClose = () => {
     setTimeout(() => {
       setAnchorEl(null);
-    }, 100); 
+    }, 100);
   };
 
   const handleView = (admin) => {
@@ -92,6 +92,7 @@ const TeamManager = () => {
   };
 
   const handleEdit = (admin) => {
+    console.log("Admin to edit:", admin); 
     setEditAdminData(admin);
     setOpenEditModal(true);
   };
@@ -108,7 +109,7 @@ const TeamManager = () => {
     });
 
     if (result.isConfirmed) {
-      handleClose(); 
+      handleClose();
       try {
         const response = await fetch(`${apiUrl}/admin/admin-delete/${admin._id}`, {
           method: 'DELETE',
@@ -183,7 +184,7 @@ const TeamManager = () => {
       const newAdmin = await response.json();
 
       // Update adminData with a new array reference 
-      setAdminData(prevData => [...prevData, newAdmin]); 
+      setAdminData(prevData => [...prevData, newAdmin]);
       handleCloseAddModal();
 
       // Display SweetAlert for successful admin creation
@@ -416,9 +417,18 @@ const TeamManager = () => {
             }}
           >
             {isLoading ? (
-              <Typography variant="h5" align="center" color="textSecondary">
-                Loading data...
-              </Typography>
+              <Box display="flex" justifyContent="center" alignItems="center" height="60%">
+                <Box align="center" display='flex'>
+                  <Typography variant="h4" align="center" display='flex' color="colors.greenAccent[500]">
+                    Loading Team...<br />
+                  </Typography>
+                </Box>
+                <CircularProgress
+                  size={50}
+                  thickness={5}
+                  sx={{ color: colors.greenAccent[500] }}
+                />
+              </Box>
             ) : (
               <DataGrid
                 checkboxSelection

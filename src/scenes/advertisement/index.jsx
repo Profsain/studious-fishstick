@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useContext, useCallback } from 'react';
 import {
-  Box, Typography, TextField, Button, ButtonGroup, Grid, Menu, MenuItem, Link, Modal
+  Box, Typography, TextField, Button, ButtonGroup, Grid, Menu, MenuItem, Link, Modal, CircularProgress,
 } from '@mui/material';
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import VisibilityIcon from '@mui/icons-material/Visibility';
@@ -158,8 +158,8 @@ const AdvertManager = () => {
       headerName: 'Banner',
       width: 150, // Adjust width as needed
       renderCell: (params) => (
-        <img 
-          src={params.row.adsImage} 
+        <img
+          src={params.row.adsImage}
           alt="Advert Banner"
           style={{ width: '100%', height: 'auto', objectFit: 'contain' }}
         />
@@ -365,9 +365,18 @@ const AdvertManager = () => {
             }}
           >
             {isLoading ? (
-              <Typography variant="h6" align="center" sx={{ mt: 4 }}>
-                Loading adverts...
-              </Typography>
+              <Box display="flex" justifyContent="center" alignItems="center" height="60%">
+                {/* <Box align="center" display='flex'>
+                  <Typography variant="h4" align="center" display='flex' color="colors.greenAccent[500]">
+                    Loading Team...<br />
+                  </Typography>
+                </Box> */}
+                <CircularProgress
+                  size={50}
+                  thickness={5}
+                  sx={{ color: colors.greenAccent[500] }}
+                />
+              </Box>
             ) : (
               <DataGrid
                 checkboxSelection
@@ -376,7 +385,7 @@ const AdvertManager = () => {
                 columns={columns}
                 pageSize={10}
                 rowsPerPageOptions={[10, 25, 50, 100]}
-                getRowId={(row) => row._id} 
+                getRowId={(row) => row._id}
               />
             )}
             <Menu
