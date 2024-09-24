@@ -19,6 +19,7 @@ import {
   InputBase,
   InputAdornment,
   IconButton,
+  CircularProgress,
 } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
 import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
@@ -34,6 +35,9 @@ import PersonAddOutlinedIcon from "@mui/icons-material/PersonAddOutlined";
 import Swal from "sweetalert2";
 import CreateNewAdmin from "./CreateNewAdmin";
 import EditAdmin from "./EditAdmin";
+
+
+
 
 const TeamManager = () => {
   // Fetch admin data from the server
@@ -136,7 +140,7 @@ const TeamManager = () => {
           setAdminData((prevData) =>
             prevData.filter((item) => item._id !== admin._id)
           );
-          Swal.fire("Deleted!", "Admin deleted successfully!", "success");
+          Swal.fire(`Deleted!`, `${admin.firstName} ${admin.lastName} deleted successfully!`, 'success'); 
         } else {
           const errorData = await response.json();
           Swal.fire(
@@ -267,7 +271,7 @@ const TeamManager = () => {
           ></Button>
           {/* Dropdown Menu for Actions */}
           <Menu
-            anchorEl={anchorEl}
+            anchorEl={anchorEl} nts
             open={Boolean(anchorEl)}
             onClose={handleClose}
           >
@@ -320,14 +324,14 @@ const TeamManager = () => {
               <Typography
                 variant="h2"
                 fontWeight="600"
-                color={colors.grey[100]}
+                color="#ffb554"
               >
                 Team Management
               </Typography>
               <Typography
                 variant="subtitle2"
                 fontSize={"16px"}
-                color={colors.greenAccent[500]}
+                color={colors.grey[100]}
               >
                 Add, view, edit, and manage your team members
               </Typography>
@@ -354,7 +358,7 @@ const TeamManager = () => {
                   }}
                   value={searchText}
                   onChange={(e) => setSearchText(e.target.value)}
-                  placeholder="Search Events..."
+                  placeholder="Search Teams..."
                   endAdornment={
                     <InputAdornment position="end">
                       <IconButton type="button" sx={{ p: 1 }}>
@@ -410,9 +414,28 @@ const TeamManager = () => {
                 }}
               >
                 {isLoading ? (
-                  <Typography variant="h5" align="center" color="textSecondary">
-                    Loading data...
-                  </Typography>
+                  <Box display="flex" justifyContent="center" alignItems="center" height="60%">
+                    <Box
+                      display="flex"
+                      flexDirection="column"
+                      justifyContent="center"
+                      alignItems="center"
+                      minHeight="100vh" // Ensures full height if necessary to center vertically
+                    >
+                      <Typography variant="h4" align="center" color={colors.greenAccent[500]}>
+                        Loading Team...
+                      </Typography>
+                      <CircularProgress
+                        size={50}
+                        thickness={5}
+                        sx={{
+                          color: colors.greenAccent[500],
+                          mt: 2 // Adds margin between the text and the spinner
+                        }}
+                      />
+                    </Box>
+
+                  </Box>
                 ) : (
                   <DataGrid
                     checkboxSelection

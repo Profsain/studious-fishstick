@@ -7,10 +7,20 @@ import {
   Grid,
   Paper,
   CircularProgress,
+  Select,
+  MenuItem,
+  FormControl,
+  InputLabel,
+  IconButton,
+  InputAdornment
 } from "@mui/material";
+import Visibility from "@mui/icons-material/Visibility";
+import VisibilityOff from "@mui/icons-material/VisibilityOff";
 import { useTheme } from "@mui/material/styles";
-import { tokens } from "../../theme"; // Adjust this import as necessary
+import { tokens } from "../../theme";
 import AuthContext from "../../context/AuthContext";
+import { motion } from 'framer-motion';
+import Swal from 'sweetalert2';
 
 const EditAdmin = ({ adminData, handleCancel }) => {
   const apiUrl = process.env.REACT_APP_API_URL;
@@ -24,6 +34,7 @@ const EditAdmin = ({ adminData, handleCancel }) => {
     emailAddress: "",
     password: "",
     phoneNumber: "",
+    profileImage: "",
     userName: "",
     address: "",
     city: "",
@@ -38,8 +49,9 @@ const EditAdmin = ({ adminData, handleCancel }) => {
     staffId: "",
   });
   const [error, setError] = useState(null);
-  const [successMsg, setSuccessMsg] = useState(null);
+  // const [successMsg, setSuccessMsg] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false); 
 
   useEffect(() => {
     // Pre-fill the form with the existing admin data
@@ -51,6 +63,7 @@ const EditAdmin = ({ adminData, handleCancel }) => {
         emailAddress: adminData.emailAddress,
         password: null,
         phoneNumber: adminData.phoneNumber,
+        profileImage: adminData.profileImage,
         userName: adminData.userName,
         address: adminData.address,
         city: adminData.city,
@@ -81,8 +94,11 @@ const EditAdmin = ({ adminData, handleCancel }) => {
   };
 
   const handleSubmit = async (e) => {
-    setIsLoading(true);
+
     e.preventDefault();
+    setIsLoading(true);
+    setError(null);
+
     // Implement API call to update admin information
     try {
       const newAdminData = {
@@ -119,30 +135,42 @@ const EditAdmin = ({ adminData, handleCancel }) => {
       if (!response.ok) {
         throw new Error(data.message || "Failed to update admin data.");
       }
-      setSuccessMsg(
-        "Admin data updated successfully. Click cancel to return to the admin list."
-      );
-      setError(null);
-      // clear form data after successful update
-      // set success message to null after 5 seconds
-      setTimeout(() => {
-        setSuccessMsg(null);
-        // handle cancel
+      // Success SweetAlert
+      Swal.fire({
+        title: 'Success!',
+        text: `${formData.firstName} ${formData.lastName} updated successfully!`, // Template literal for name
+        icon: 'success',
+        confirmButtonColor: colors.greenAccent[600],
+      }).then(() => {
         handleCancel();
-      }, 5000);
+      });
+
     } catch (error) {
-      setError("An error occurred. Please try again.");
+      console.error('Error updating admin:', error);
+
+      // Error SweetAlert
+      Swal.fire({
+        title: 'Error!',
+        text: 'An error occurred. Please try again.',
+        icon: 'error',
+        confirmButtonColor: colors.greenAccent[600],
+      });
     } finally {
       setIsLoading(false);
     }
   };
 
+  const handleTogglePasswordVisibility = () => {
+    setShowPassword((prevShowPassword) => !prevShowPassword);
+  };
+
   return (
     <Box m="20px">
-      <Grid item xs={12} sx={{ display: "flex", justifyContent: "space-between", gap: 2 }}>
-        <Typography variant="h4" fontWeight="600" color={colors.grey[100]}>
-          Edit Admin
+     <Grid item xs={12} sx={{ display: 'flex', justifyContent: 'space-between' }}>
+        <Typography variant="h2" fontWeight="600" color={colors.greenAccent[500]}>
+          Edit {formData.firstName} {formData.lastName}
         </Typography>
+      
         <Button
           variant="outlined"
           onClick={handleCancel}
@@ -159,205 +187,508 @@ const EditAdmin = ({ adminData, handleCancel }) => {
         </Button>
       </Grid>
 
-      <Typography variant="body1" color={colors.grey[100]}>
-        Fill in the form below to create a new admin.
+<Typography variant="body1" color={colors.grey[100]}>
+Fill in the form below to edit the admin details. 
+</Typography>
+      {
+    error && (
+      <Typography variant="body1" color="error">
+        {error}
       </Typography>
-      {error && (
-        <Typography variant="body1" color="error">
-          {error}
-        </Typography>
-      )}
+    )
+  }
 
-      {successMsg && (
-        <Typography variant="body1" color="success">
-          {successMsg}
-        </Typography>
-      )}
+  <motion.div
+    initial={{ opacity: 0, y: 20 }}
+    animate={{ opacity: 1, y: 0 }}
+    transition={{ duration: 0.5 }}
+  >
+    <Paper elevation={3} sx={{ padding: 3, marginTop: 2 }}>
+      <form onSubmit={handleSubmit}>
+        <Grid container spacing={2}>
+          {/* First Name */}
+          <Grid item xs={12} sm={6}>
+            <TextField
+              fullWidth
+              variant="outlined"
+              label="First Name"
+              name="firstName"
+              value={formData.firstName}
+              onChange={handleChange}
+              required
+              InputLabelProps={{ style: { color: "#fff" } }}
+              sx={{
+                input: {
+                  color: "#fff",
+                },
+                "& .MuiOutlinedInput-root": {
+                  "& fieldset": {
+                    borderColor: "#ffb554",
+                  },
+                  "&:hover fieldset": {
+                    borderColor: "#ffb554",
+                  },
+                  "&.Mui-focused fieldset": {
+                    borderColor: "#ffb554",
+                  },
+                },
+              }}
+            />
+          </Grid>
 
-      <Paper elevation={3} sx={{ padding: 3, marginTop: 2 }}>
-        <form onSubmit={handleSubmit}>
-          <Grid container spacing={2}>
-            <Grid item xs={12} sm={6}>
-              <TextField
-                fullWidth
-                variant="outlined"
-                label="First Name"
-                name="firstName"
-                value={formData.firstName}
-                onChange={handleChange}
-                required
-              />
-            </Grid>
-            <Grid item xs={12} sm={6}>
-              <TextField
-                fullWidth
-                variant="outlined"
-                label="Last Name"
-                name="lastName"
-                value={formData.lastName}
-                onChange={handleChange}
-                required
-              />
-            </Grid>
-            <Grid item xs={12} sm={6}>
-              <TextField
-                fullWidth
-                variant="outlined"
-                label="Email Address"
-                name="emailAddress"
-                value={formData.emailAddress}
-                onChange={handleChange}
-                required
-              />
-            </Grid>
-            <Grid item xs={12} sm={6}>
-              <TextField
-                fullWidth
-                variant="outlined"
-                label="Enter new password or leave it empty"
-                type="password"
+          {/* Last Name */}
+          <Grid item xs={12} sm={6}>
+            <TextField
+              fullWidth
+              variant="outlined"
+              label="Last Name"
+              name="lastName"
+              value={formData.lastName}
+              onChange={handleChange}
+              required
+              InputLabelProps={{ style: { color: "#fff" } }}
+              sx={{
+                input: {
+                  color: "#fff",
+                },
+                "& .MuiOutlinedInput-root": {
+                  "& fieldset": {
+                    borderColor: "#ffb554",
+                  },
+                  "&:hover fieldset": {
+                    borderColor: "#ffb554",
+                  },
+                  "&.Mui-focused fieldset": {
+                    borderColor: "#ffb554",
+                  },
+                },
+              }}
+            />
+          </Grid>
+
+          {/* Email Address */}
+          <Grid item xs={12} sm={6}>
+            <TextField
+              fullWidth
+              variant="outlined"
+              label="Email Address"
+              name="emailAddress"
+              value={formData.emailAddress}
+              onChange={handleChange}
+              required
+              InputLabelProps={{ style: { color: "#fff" } }}
+              sx={{
+                input: {
+                  color: "#fff",
+                },
+                "& .MuiOutlinedInput-root": {
+                  "& fieldset": {
+                    borderColor: "#ffb554",
+                  },
+                  "&:hover fieldset": {
+                    borderColor: "#ffb554",
+                  },
+                  "&.Mui-focused fieldset": {
+                    borderColor: "#ffb554",
+                  },
+                },
+              }}
+            />
+          </Grid>
+
+          {/* Password (Optional - for updates) */}
+          <Grid item xs={12} sm={6}>
+            <TextField
+              fullWidth
+              variant="outlined"
+              label="Password (Optional)"
+              type={showPassword ? "text" : "password"} // Use showPassword state here
                 name="password"
                 value={formData.password}
                 onChange={handleChange}
+                InputProps={{
+                  style: { color: "#fff" },
+                  endAdornment: (
+                    <InputAdornment position="end">
+                      <IconButton
+                        onClick={handleTogglePasswordVisibility} // Call the toggle function
+                        edge="end"
+                      >
+                        {showPassword ? <VisibilityOff /> : <Visibility />}
+                      </IconButton>
+                    </InputAdornment>
+                  ),
+                }}
+                sx={{
+                  input: {
+                    color: "#fff",
+                  },
+                  "& .MuiOutlinedInput-root": {
+                    "& fieldset": {
+                      borderColor: "#ffb554",
+                    },
+                    "&:hover fieldset": {
+                      borderColor: "#ffb554",
+                    },
+                    "&.Mui-focused fieldset": {
+                      borderColor: "#ffb554",
+                    },
+                  },
+                }}
               />
-            </Grid>
-            <Grid item xs={12} sm={6}>
-              <TextField
-                fullWidth
-                variant="outlined"
-                label="Phone Number"
-                name="phoneNumber"
-                value={formData.phoneNumber}
-                onChange={handleChange}
-                required
-              />
-            </Grid>
-            <Grid item xs={12} sm={6}>
-              <TextField
-                fullWidth
-                variant="outlined"
-                label="User Name"
-                name="userName"
-                value={formData.userName}
-                onChange={handleChange}
-                required
-              />
-            </Grid>
-            <Grid item xs={12}>
-              <TextField
-                fullWidth
-                variant="outlined"
-                label="Address"
-                name="address"
-                value={formData.address}
-                onChange={handleChange}
-                required
-              />
-            </Grid>
-            <Grid item xs={12} sm={6}>
-              <TextField
-                fullWidth
-                variant="outlined"
-                label="City"
-                name="city"
-                value={formData.city}
-                onChange={handleChange}
-                required
-              />
-            </Grid>
-            <Grid item xs={12} sm={6}>
-              <TextField
-                fullWidth
-                variant="outlined"
-                label="Country"
-                name="country"
-                value={formData.country}
-                onChange={handleChange}
-                required
-              />
-            </Grid>
-            <Grid item xs={12}>
-              <Typography variant="h6" color={colors.grey[100]}>
-                Next of Kin
-              </Typography>
-            </Grid>
-            <Grid item xs={12} sm={6}>
-              <TextField
-                fullWidth
-                variant="outlined"
-                label="Full Name"
-                name="nextOfKin.fullName"
-                value={formData.nextOfKin.fullName}
-                onChange={handleChange}
-                required
-              />
-            </Grid>
-            <Grid item xs={12} sm={6}>
-              <TextField
-                fullWidth
-                variant="outlined"
-                label="Phone Number"
-                name="nextOfKin.phoneNumber"
-                value={formData.nextOfKin.phoneNumber}
-                onChange={handleChange}
-                required
-              />
-            </Grid>
-            <Grid item xs={12} sm={6}>
-              <TextField
-                fullWidth
-                variant="outlined"
-                label="Email"
-                name="nextOfKin.email"
-                value={formData.nextOfKin.email}
-                onChange={handleChange}
-                required
-              />
-            </Grid>
-            <Grid item xs={12} sm={6}>
-              <TextField
-                fullWidth
-                variant="outlined"
-                label="Address"
-                name="nextOfKin.address"
-                value={formData.nextOfKin.address}
-                onChange={handleChange}
-                required
-              />
-            </Grid>
-            <Grid item xs={12} sm={6}>
-              <TextField
-                fullWidth
-                variant="outlined"
+          </Grid>
+
+          {/* Phone Number */}
+          <Grid item xs={12} sm={6}>
+            <TextField
+              fullWidth
+              variant="outlined"
+              label="Phone Number"
+              name="phoneNumber"
+              value={formData.phoneNumber}
+              onChange={handleChange}
+              required
+              InputLabelProps={{ style: { color: "#fff" } }}
+              sx={{
+                input: {
+                  color: "#fff",
+                },
+                "& .MuiOutlinedInput-root": {
+                  "& fieldset": {
+                    borderColor: "#ffb554",
+                  },
+                  "&:hover fieldset": {
+                    borderColor: "#ffb554",
+                  },
+                  "&.Mui-focused fieldset": {
+                    borderColor: "#ffb554",
+                  },
+                },
+              }}
+            />
+          </Grid>
+
+          {/* Username */}
+          <Grid item xs={12} sm={6}>
+            <TextField
+              fullWidth
+              variant="outlined"
+              label="User Name"
+              name="userName"
+              value={formData.userName}
+              onChange={handleChange}
+              required
+              InputLabelProps={{ style: { color: "#fff" } }}
+              sx={{
+                input: {
+                  color: "#fff",
+                },
+                "& .MuiOutlinedInput-root": {
+                  "& fieldset": {
+                    borderColor: "#ffb554",
+                  },
+                  "&:hover fieldset": {
+                    borderColor: "#ffb554",
+                  },
+                  "&.Mui-focused fieldset": {
+                    borderColor: "#ffb554",
+                  },
+                },
+              }}
+            />
+          </Grid>
+
+          {/* Address */}
+          <Grid item xs={12}>
+            <TextField
+              fullWidth
+              variant="outlined"
+              label="Address"
+              name="address"
+              value={formData.address}
+              onChange={handleChange}
+              required
+              InputLabelProps={{ style: { color: "#fff" } }}
+              sx={{
+                input: {
+                  color: "#fff",
+                },
+                "& .MuiOutlinedInput-root": {
+                  "& fieldset": {
+                    borderColor: "#ffb554",
+                  },
+                  "&:hover fieldset": {
+                    borderColor: "#ffb554",
+                  },
+                  "&.Mui-focused fieldset": {
+                    borderColor: "#ffb554",
+                  },
+                },
+              }}
+            />
+          </Grid>
+
+          {/* City */}
+          <Grid item xs={12} sm={6}>
+            <TextField
+              fullWidth
+              variant="outlined"
+              label="City"
+              name="city"
+              value={formData.city}
+              onChange={handleChange}
+              required
+              InputLabelProps={{ style: { color: "#fff" } }}
+              sx={{
+                input: {
+                  color: "#fff",
+                },
+                "& .MuiOutlinedInput-root": {
+                  "& fieldset": {
+                    borderColor: "#ffb554",
+                  },
+                  "&:hover fieldset": {
+                    borderColor: "#ffb554",
+                  },
+                  "&.Mui-focused fieldset": {
+                    borderColor: "#ffb554",
+                  },
+                },
+              }}
+            />
+          </Grid>
+
+          {/* Country */}
+          <Grid item xs={12} sm={6}>
+            <TextField
+              fullWidth
+              variant="outlined"
+              label="Country"
+              name="country"
+              value={formData.country}
+              onChange={handleChange}
+              required
+              InputLabelProps={{ style: { color: "#fff" } }}
+              sx={{
+                input: {
+                  color: "#fff",
+                },
+                "& .MuiOutlinedInput-root": {
+                  "& fieldset": {
+                    borderColor: "#ffb554",
+                  },
+                  "&:hover fieldset": {
+                    borderColor: "#ffb554",
+                  },
+                  "&.Mui-focused fieldset": {
+                    borderColor: "#ffb554",
+                  },
+                },
+              }}
+            />
+          </Grid>
+          <Grid item xs={12} sm={6}>
+            <FormControl fullWidth variant="outlined" required>
+              <InputLabel>Role</InputLabel>
+              <Select
                 label="Role"
                 name="role"
                 value={formData.role}
                 onChange={handleChange}
-                required
-              />
-            </Grid>
-            <Grid item xs={12} sm={6}>
-              <TextField
-                fullWidth
-                variant="outlined"
-                label="Staff ID"
-                name="staffId"
-                value={formData.staffId}
-                onChange={handleChange}
-                required
-              />
-            </Grid>
+                sx={{
+                  "& .MuiOutlinedInput-notchedOutline": {
+                    borderColor: "#ffb554", // Default border color
+                  },
+                  "&:hover .MuiOutlinedInput-notchedOutline": {
+                    borderColor: "#ffb554", // Hover border color
+                  },
+                  "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
+                    borderColor: "#ffb554", // Focused border color
+                  },
+                }}
+              >
+                <MenuItem value="superadmin">Superadmin</MenuItem>
+                <MenuItem value="admin">Admin</MenuItem>
+              </Select>
+            </FormControl>
 
-            <Grid item xs={12} sx={{ display: "flex", gap: 2 }}>
+
+          </Grid>
+          <Grid item xs={12} sm={6}>
+            <TextField
+              fullWidth
+              variant="outlined"
+              label="Profile Image Url"
+              name="profileImage"
+              value={formData.profileImage}
+              onChange={handleChange}
+              required
+              InputLabelProps={{ style: { color: "#fff" } }}
+              sx={{
+                input: {
+                  color: "#fff",
+                },
+                "& .MuiOutlinedInput-root": {
+                  "& fieldset": {
+                    borderColor: "#ffb554",
+                  },
+                  "&:hover fieldset": {
+                    borderColor: "#ffb554",
+                  },
+                  "&.Mui-focused fieldset": {
+                    borderColor: "#ffb554",
+                  },
+                },
+              }}
+            />
+          </Grid>
+
+          {/* Next of Kin */}
+          <Grid item xs={12}>
+            <Typography variant="h6" color={colors.grey[100]}>
+              Next of Kin
+            </Typography>
+          </Grid>
+          {/* Next of Kin - Full Name */}
+          <Grid item xs={12} sm={6}>
+            <TextField
+              fullWidth
+              variant="outlined"
+              label="Full Name"
+              name="nextOfKin.fullName"
+              value={formData.nextOfKin.fullName}
+              onChange={handleChange}
+              required
+              InputLabelProps={{ style: { color: "#fff" } }}
+              sx={{
+                input: {
+                  color: "#fff",
+                },
+                "& .MuiOutlinedInput-root": {
+                  "& fieldset": {
+                    borderColor: "#ffb554",
+                  },
+                  "&:hover fieldset": {
+                    borderColor: "#ffb554",
+                  },
+                  "&.Mui-focused fieldset": {
+                    borderColor: "#ffb554",
+                  },
+                },
+              }}
+            />
+          </Grid>
+
+          {/* Next of Kin - Phone Number */}
+          <Grid item xs={12} sm={6}>
+            <TextField
+              fullWidth
+              variant="outlined"
+              label="Phone Number"
+              name="nextOfKin.phoneNumber"
+              value={formData.nextOfKin.phoneNumber}
+              onChange={handleChange}
+              required
+              InputLabelProps={{ style: { color: "#fff" } }}
+              sx={{
+                input: {
+                  color: "#fff",
+                },
+                "& .MuiOutlinedInput-root": {
+                  "& fieldset": {
+                    borderColor: "#ffb554",
+                  },
+                  "&:hover fieldset": {
+                    borderColor: "#ffb554",
+                  },
+                  "&.Mui-focused fieldset": {
+                    borderColor: "#ffb554",
+                  },
+                },
+              }}
+            />
+          </Grid>
+
+          {/* Next of Kin - Email */}
+          <Grid item xs={12} sm={6}>
+            <TextField
+              fullWidth
+              variant="outlined"
+              label="Email"
+              name="nextOfKin.email"
+              value={formData.nextOfKin.email}
+              onChange={handleChange}
+              required
+              InputLabelProps={{ style: { color: "#fff" } }}
+              sx={{
+                input: {
+                  color: "#fff",
+                },
+                "& .MuiOutlinedInput-root": {
+                  "& fieldset": {
+                    borderColor: "#ffb554",
+                  },
+                  "&:hover fieldset": {
+                    borderColor: "#ffb554",
+                  },
+                  "&.Mui-focused fieldset": {
+                    borderColor: "#ffb554",
+                  },
+                },
+              }}
+            />
+          </Grid>
+
+          {/* Next of Kin - Address */}
+          <Grid item xs={12} sm={6}>
+            <TextField
+              fullWidth
+              variant="outlined"
+              label="Address"
+              name="nextOfKin.address"
+              value={formData.nextOfKin.address}
+              onChange={handleChange}
+              required
+              InputLabelProps={{ style: { color: "#fff" } }}
+              sx={{
+                input: {
+                  color: "#fff",
+                },
+                "& .MuiOutlinedInput-root": {
+                  "& fieldset": {
+                    borderColor: "#ffb554",
+                  },
+                  "&:hover fieldset": {
+                    borderColor: "#ffb554",
+                  },
+                  "&.Mui-focused fieldset": {
+                    borderColor: "#ffb554",
+                  },
+                },
+              }}
+            />
+          </Grid>
+
+          {/* Submit Button (Centered) */}
+          <Grid container justifyContent="center" alignItems="center">
+            <Grid item md={4}> {/* Adjust size as needed */}
               <Button
                 type="submit"
+                fullWidth
                 variant="contained"
                 sx={{
                   backgroundColor: colors.greenAccent[600],
                   color: "white",
+                  fontSize: "16px",
+                  fontWeight: "bold",
+                  padding: "12px",
+                  textTransform: "none",
                   "&:hover": {
                     backgroundColor: colors.greenAccent[700],
+                    transform: "scale(1.02)",
+                    transition: "transform 0.2s ease-in-out",
                   },
+                  mt: 2,
                 }}
               >
                 {isLoading ? (
@@ -366,26 +697,13 @@ const EditAdmin = ({ adminData, handleCancel }) => {
                   "Update Admin"
                 )}
               </Button>
-
-              <Button
-                variant="outlined"
-                onClick={handleCancel}
-                sx={{
-                  color: colors.redAccent[400],
-                  borderColor: colors.redAccent[400],
-                  "&:hover": {
-                    backgroundColor: colors.redAccent[100],
-                    borderColor: colors.redAccent[600],
-                  },
-                }}
-              >
-                Cancel
-              </Button>
             </Grid>
           </Grid>
-        </form>
-      </Paper>
-    </Box>
+        </Grid>
+      </form>
+    </Paper>
+  </motion.div>
+    </Box >
   );
 };
 
