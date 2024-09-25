@@ -171,7 +171,11 @@ const TeamManager = () => {
     setOpenEditAdmin(false);
     setSelectedAdmin(null); // Reset selected admin
   };
+  const toSentenceCase = (str) => {
 
+
+    return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
+  };
   const columns = [
     {
       field: "profileImage",
@@ -194,6 +198,7 @@ const TeamManager = () => {
         >
           <Typography
             variant="h6"
+            color="#d66748"
             sx={{ fontWeight: "bold", marginRight: "8px" }}
           >
             {`${params.row.firstName} ${params.row.lastName}`}
@@ -228,9 +233,32 @@ const TeamManager = () => {
       headerName: "Phone Number",
       flex: 1,
       hide: isMobile,
-    },
+    },                   
+
     { field: "city", headerName: "Location", flex: 1, hide: isMobile },
-    { field: "role", headerName: "Role", flex: 1, hide: isMobile },
+    {
+      field: "role",
+      headerName: "Role",
+      flex: 1.5,
+      hide: isMobile,
+      renderCell: (params) => {
+        console.log("params.row:", params.row); // Debugging line to inspect row data
+        return (
+          <Box display="flex" alignItems="center">
+            <Typography
+              sx={{
+                color: colors.greenAccent[500],
+                fontWeight: "bold", 
+                textTransform: "capitalize",
+              }}
+            >
+              {params.row.role ? toSentenceCase(params.row.role) : "No Role"} {/* Fallback added */}
+            </Typography>
+          </Box>
+        );
+      },
+    },
+
     {
       field: "actions",
       headerName: "Actions",
@@ -324,7 +352,7 @@ const TeamManager = () => {
               <Typography
                 variant="h2"
                 fontWeight="600"
-                color="#ffb554"
+                color="#d66748"
               >
                 Team Management
               </Typography>
