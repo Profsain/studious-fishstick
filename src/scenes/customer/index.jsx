@@ -18,12 +18,15 @@ import {
 import SearchIcon from '@mui/icons-material/Search';
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import VisibilityIcon from '@mui/icons-material/Visibility';
+import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
+import PauseCircleOutlineIcon from '@mui/icons-material/PauseCircleOutline';
+import DeleteIcon from '@mui/icons-material/Delete';
 import { DataGrid } from '@mui/x-data-grid';
 import { useTheme } from '@mui/material/styles';
 import { tokens } from '../../theme';
 import useMediaQuery from '@mui/material/useMediaQuery';
 import AuthContext from '../../context/AuthContext';
-import ViewModal from '../../components/Modals/ViewModal';
+import ViewUserModal from './ViewUserModal'; // Make sure the path is correct
 import { customerViewFields } from './customerFields';
 import Swal from 'sweetalert2';
 
@@ -37,12 +40,11 @@ const CustomerManager = () => {
   const fetchCustomers = useCallback(async () => {
     setIsLoading(true);
     try {
-      const response = await fetch(`${apiUrl}/admin/get-all-users`, {
+      const response = await fetch(`${apiUrl}/user/get-all-users`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
       });
-      console.log('Fetch Customers - API Response:', response); 
 
       if (!response.ok) {
         throw new Error('Network response was not ok');
@@ -115,7 +117,7 @@ const CustomerManager = () => {
 
     if (result.isConfirmed) {
       try {
-        const response = await fetch(`${apiUrl}/admin/update-user/${customer._id}`, {
+        const response = await fetch(`${apiUrl}/user/update-user/${customer._id}`, {
           method: 'PUT',
           headers: {
             'Content-Type': 'application/json',
@@ -133,7 +135,10 @@ const CustomerManager = () => {
             'success'
           );
         } else {
-          const errorData = await response.json();
+          const errorData = await response.json(
+
+
+          );
           Swal.fire(
             'Error!',
             errorData.message || 'Failed to extend the plan.',
@@ -166,7 +171,7 @@ const CustomerManager = () => {
 
     if (result.isConfirmed) {
       try {
-        const response = await fetch(`${apiUrl}/admin/update-user/${customer._id}`, {
+        const response = await fetch(`${apiUrl}/user/update-user/${customer._id}`, {
           method: 'PUT',
           headers: {
             'Content-Type': 'application/json',
@@ -216,7 +221,7 @@ const CustomerManager = () => {
 
     if (result.isConfirmed) {
       try {
-        const response = await fetch(`${apiUrl}/admin/delete-user/${customer._id}`, {
+        const response = await fetch(`${apiUrl}/user/delete-user/${customer._id}`, {
           method: 'DELETE',
           headers: {
             'Content-Type': 'application/json',
@@ -250,7 +255,7 @@ const CustomerManager = () => {
     {
       field: 'fullName',
       headerName: 'Full Name',
-      flex: 2,
+      flex: 1.5,
       valueGetter: (params) => `${params.row.firstName} ${params.row.lastName}`, // Create fullName 
       renderCell: (params) => ( // Use params.value
         <Box
@@ -259,46 +264,70 @@ const CustomerManager = () => {
           onClick={() => handleView(params.row)}
           sx={{ cursor: 'pointer' }}
         >
-          <Typography variant="h6" sx={{ fontWeight: 'bold', marginRight: '8px' }}>
+          <Typography 
+            variant="h6" 
+            color="#f86a3b"
+            sx={{ fontWeight: 'bold', marginRight: '8px' }}>
             {params.value}
           </Typography>
         </Box>
       ),
     },
-    {
-      field: 'userId',
-      headerName: 'User ID',
-      width: 120,
-      renderCell: (params) => {
-        // Log row data to the console for debugging purposes
-        console.log('User ID Column - params.row:', params.row);
-    
-        return (
-          <Chip
-            label={params.row.phoneNumber?.slice(-10) || 'N/A'}  // Display last 10 digits of phone number
-            sx={{
-              backgroundColor: '#4caf50', // Green background color
-              color: 'white', // White text color
-            }}
-          />
-        );
-      },
-    },
-    { field: "emailAddress", headerName: "Email", flex: 2, hide: isMobile },
-    { field: "phoneNumber", headerName: "Phone Number", flex: 1, hide: isMobile },
-    { field: "city", headerName: "Location", flex: 1, hide: isMobile },
-    {
-      field: 'plan',
-      headerName: 'Plan',
-      flex: 1,
+    // {
+    //   field: 'userId',
+    //   headerName: 'User ID',
+    //   width: 120,
+    //   renderCell: (params) => {
+    //     // Log row data to the console for debugging purposes
+    //     console.log('User ID Column - params.row:', params.row);
+
+    //     return (
+    //       <Chip
+    //         label={params.row.phoneNumber?.slice(-10) || 'N/A'}  // Display last 10 digits of phone number
+    //         sx={{
+    //           backgroundColor: '#4caf50', // Green background color
+    //           color: 'white', // White text color
+    //         }}
+    //       />
+    //     );
+    //   },
+    // },
+
+    { 
+      field: "emailAddress", 
+      headerName: "Email", 
+      flex: 2, 
       hide: isMobile,
+      valueGetter: (params) => params.row.emailAddress || 'N/A', 
+    },
+    { 
+      field: "phoneNumber", 
+      headerName: "Phone Number", 
+      flex: 1, 
+      hide: isMobile, 
+      valueGetter: (params) => params.row.phoneNumber || 'N/A', 
+    },
+  
+    { 
+      field: 'location', // Use a new field name for the combined location
+      headerName: 'Location', 
+      flex: 1, 
+      hide: isMobile, 
+      valueGetter: (params) => `${params.row.city}, ${params.row.country}`, // Concatenate city and country
+    },
+    { 
+      field: 'isSubscriber', // Using isSubscriber for the Plan column
+      headerName: 'Plan', 
+      width: 120, 
+      hide: isMobile,
+      valueGetter: (params) => (params.row.isSubscriber ? 'Subscribed' : 'Free'), // Display "Subscribed" or "Free"
       renderCell: (params) => (
         <Chip
-          label={params.row.subscriptionPlan}
+          label={params.value}
           sx={{
             backgroundColor: params.row.isSubscriber
-              ? '#4caf50' // Green using hex code
-              : '#f44336',  // Red using hex code
+              ? colors.greenAccent[500] // Green for subscribed
+              : colors.grey[600],      // Grey for free
             color: 'white'
           }}
         />
@@ -310,22 +339,29 @@ const CustomerManager = () => {
       width: 200,
       renderCell: (params) => (
         <ButtonGroup variant="contained">
+          {/* View Button */}
           <Button
             sx={{
               backgroundColor: colors.greenAccent[600],
               color: 'white',
-              '&:hover': { backgroundColor: '#f86a3b' },
+              '&:hover': {
+                backgroundColor: '#f86a3b',
+              },
             }}
             onClick={() => handleView(params.row)}
             startIcon={<VisibilityIcon />}
           >
             View
           </Button>
+
+          {/* Actions Dropdown Button */}
           <Button
             sx={{
               backgroundColor: '#fa7c50',
               color: 'white',
-              '&:hover': { backgroundColor: '#f86a3b' },
+              '&:hover': {
+                backgroundColor: '#f86a3b',
+              },
             }}
             onClick={(event) => handleClick(event, params.row)}
             endIcon={<ArrowDropDownIcon />}
@@ -333,19 +369,33 @@ const CustomerManager = () => {
             Actions
           </Button>
 
-          {/* Dropdown Menu for Actions  */}
+          {/* Dropdown Menu for Actions */}
           <Menu
             anchorEl={anchorEl}
             open={Boolean(anchorEl)}
             onClose={handleClose}
           >
-            <MenuItem onClick={() => { handleExtend(selectedCustomer); }}>Extend</MenuItem>
-            <MenuItem onClick={() => { handleStopPlan(selectedCustomer); }}>Stop Plan</MenuItem>
-            <MenuItem onClick={() => { handleDelete(selectedCustomer); }}>Delete</MenuItem>
+            {/* Extend Menu Item */}
+            <MenuItem onClick={() => { handleExtend(selectedCustomer); handleClose(); }}> 
+              <CheckCircleOutlineIcon sx={{ mr: 1 }} />  {/* Extend icon */}
+              Extend
+            </MenuItem>
+
+            {/* Stop Plan Menu Item */}
+            <MenuItem onClick={() => { handleStopPlan(selectedCustomer); handleClose(); }}>
+              <PauseCircleOutlineIcon sx={{ mr: 1 }} /> {/* Pause icon */}
+              Stop Plan
+            </MenuItem>
+
+            {/* Delete Menu Item with SweetAlert Confirmation */}
+            <MenuItem onClick={() => { handleDelete(selectedCustomer); handleClose(); }}>
+              <DeleteIcon sx={{ mr: 1, color: 'red' }} />
+              Delete
+            </MenuItem>
           </Menu>
         </ButtonGroup>
       )
-    }
+    },
   ];
 
   return (
@@ -475,12 +525,15 @@ const CustomerManager = () => {
       </Grid>
 
       {/* ViewModal */}
-      <ViewModal
+      <ViewUserModal 
         open={openViewModal}
         onClose={handleCloseModal}
         recordData={selectedCustomer}
         fields={customerViewFields}
-      />
+        handleDelete={handleDelete} 
+        handleExtend={handleExtend} 
+        handleStopPlan={handleStopPlan} 
+      /> 
     </Box>
   );
 };

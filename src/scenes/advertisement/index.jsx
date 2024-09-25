@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useContext, useCallback } from 'react';
 import {
-  Box, Typography, TextField, Button, ButtonGroup, Grid, Menu, MenuItem, Link, Modal
+  Box, Typography, TextField, Button, ButtonGroup, Grid, Menu, MenuItem, Link, Modal, CircularProgress
 } from '@mui/material';
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import VisibilityIcon from '@mui/icons-material/Visibility';
@@ -365,10 +365,29 @@ const AdvertManager = () => {
             }}
           >
             {isLoading ? (
-              <Typography variant="h6" align="center" sx={{ mt: 4 }}>
-                Loading adverts...
-              </Typography>
-            ) : (
+            <Box display="flex" justifyContent="center" alignItems="center" height="60%">
+              <Box
+                display="flex"
+                flexDirection="column"
+                justifyContent="center"
+                alignItems="center"
+                minHeight="100vh" // Ensures full height if necessary to center vertically
+              >
+                <Typography variant="h4" align="center" color={colors.greenAccent[500]}>
+                  Loading Adverts...
+                </Typography>
+                <CircularProgress
+                  size={50}
+                  thickness={5}
+                  sx={{
+                    color: colors.greenAccent[500],
+                    mt: 2 // Adds margin between the text and the spinner
+                  }}
+                />
+              </Box>
+
+            </Box>
+          ) : (
               <DataGrid
                 checkboxSelection
                 hideFooterSelectedRowCount
