@@ -84,7 +84,7 @@ const ViewModal = ({
                   <Typography
                     variant="h3"
                     fontWeight="bold"
-                    color={"#ffb554"}
+                    color={"#d66748"}
                     mt={0}
                     mb={1}
                   >
