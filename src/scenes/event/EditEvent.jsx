@@ -10,6 +10,7 @@ import { motion } from 'framer-motion';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
+import { TimePicker } from '@mui/x-date-pickers/TimePicker';
 import dayjs from 'dayjs';
 import { useParams, useNavigate } from 'react-router-dom';
 import Swal from 'sweetalert2';
@@ -46,7 +47,7 @@ const EditEvent = () => {
     const fetchEvent = async () => {
       setLoading(true);
       try {
-        const response = await fetch(`${apiUrl}/events/${eventId}`, {
+        const response = await fetch(`${apiUrl}/event/${eventId}`, {
           headers: {
             'Authorization': `Bearer ${token}`
           }
@@ -70,7 +71,7 @@ const EditEvent = () => {
       fetchEvent();
     }
   }, [eventId, token, apiUrl]);
-  
+
   const handleCancel = () => {
     navigate('/events'); // Adjust the route as necessary
   };
@@ -160,7 +161,6 @@ const EditEvent = () => {
         </Alert>
       )}
 
-      {/* Form with Framer Motion Animation */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -264,48 +264,31 @@ const EditEvent = () => {
                 </LocalizationProvider>
               </Grid>
 
-              {/* Event Time */}
+               {/* Event Time - Now a TimePicker */}
               <Grid item xs={12} sm={6}>
-                <TextField
-                  fullWidth
-                  variant="outlined"
-                  label="Event Time"
-                  name="eventTime"
-                  value={formData.eventTime}
-                  onChange={handleChange}
-                  required
-                  InputLabelProps={{ style: { color: '#fff' } }}
-                  sx={{
-                    input: { color: '#fff' },
-                    '& .MuiOutlinedInput-root': {
-                      '& fieldset': { borderColor: '#ffb554' },
-                      '&:hover fieldset': { borderColor: '#ffb554' },
-                      '&.Mui-focused fieldset': { borderColor: '#ffb554' }
-                    }
-                  }}
-                />
-              </Grid>
-
-              {/* Event Location */}
-              <Grid item xs={12} sm={6}>
-                <TextField
-                  fullWidth
-                  variant="outlined"
-                  label="Event Location"
-                  name="eventLocation"
-                  value={formData.eventLocation}
-                  onChange={handleChange}
-                  required
-                  InputLabelProps={{ style: { color: '#fff' } }}
-                  sx={{
-                    input: { color: '#fff' },
-                    '& .MuiOutlinedInput-root': {
-                      '& fieldset': { borderColor: '#ffb554' },
-                      '&:hover fieldset': { borderColor: '#ffb554' },
-                      '&.Mui-focused fieldset': { borderColor: '#ffb554' }
-                    }
-                  }}
-                />
+                <LocalizationProvider dateAdapter={AdapterDayjs}>
+                  <TimePicker 
+                    label="Event Time"
+                    value={formData.eventTime ? dayjs(formData.eventTime) : null}
+                    onChange={(newTime) => setFormData({ ...formData, eventTime: newTime })}
+                    renderInput={(params) => (
+                      <TextField 
+                        {...params} 
+                        fullWidth 
+                        required
+                        InputLabelProps={{ style: { color: '#fff' } }} 
+                        sx={{
+                          input: { color: '#fff' },
+                          '& .MuiOutlinedInput-root': {
+                            '& fieldset': { borderColor: '#ffb554' },
+                            '&:hover fieldset': { borderColor: '#ffb554' },
+                            '&.Mui-focused fieldset': { borderColor: '#ffb554' }
+                          }
+                        }}
+                      />
+                    )}
+                  />
+                </LocalizationProvider>
               </Grid>
 
               {/* Event Cost */}

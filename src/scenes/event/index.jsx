@@ -35,10 +35,11 @@ const EventManager = () => {
   const [openMenuId, setOpenMenuId] = useState(null);
   const navigate = useNavigate();
 
+
   const fetchEvents = useCallback(async () => {
     setIsLoading(true);
     try {
-      const response = await fetch(`${apiUrl}/events`, {
+      const response = await fetch(`${apiUrl}/event`, {
         headers: {
           'Authorization': `Bearer ${token}`
         }
@@ -57,7 +58,22 @@ const EventManager = () => {
       }
 
       const data = await response.json();
-      setEvents(data.events || []);
+
+      if (Array.isArray(data)) {
+        setEvents(data);
+      } else if (data && Array.isArray(data.events)) {
+        setEvents(data.events);
+      } else {
+        console.error('API did not return an array of events:', data);
+
+        // Display error to user using SweetAlert
+        Swal.fire({
+          icon: 'error',
+          title: 'Error!',
+          text: 'An unexpected error occurred while fetching events. Please try again later.',
+        });
+      }
+
     } catch (error) {
       console.error('Error fetching events:', error);
       toast.error(`Failed to load events: ${error.message}`);
@@ -100,9 +116,10 @@ const EventManager = () => {
     setOpenViewModal(false);
   };
 
-  const handleEdit = (id) => {
-    navigate(`/event/EditEvent/${id}`);
+  const handleEdit = (eventId) => {
+    navigate(`/event/EditEvent/${eventId}`);
   };
+
 
   const handleSplitBudget = (id) => {
     navigate(`/event/SplitBudget/${id}`);
@@ -121,7 +138,7 @@ const EventManager = () => {
       });
 
       if (result.isConfirmed) {
-        const response = await fetch(`${apiUrl}/events/${eventId}`, {
+        const response = await fetch(`${apiUrl}/event/${eventId}`, {
           method: 'DELETE',
           headers: {
             'Authorization': `Bearer ${token}`,
@@ -151,7 +168,7 @@ const EventManager = () => {
       field: 'eventDate',
       headerName: 'Date',
       width: 120,
-      valueGetter: (params) => moment(params.row.eventDate).format('MM/DD/YYYY')
+      valueGetter: (params) => moment(params.row.eventDate).format('MM/DD/YYYY'),
     },
     {
       field: 'eventImage',
@@ -165,16 +182,43 @@ const EventManager = () => {
         />
       )
     },
-    { field: 'eventName', headerName: 'Event Name', flex: 1 },
+    {
+      field: "eventName",
+      headerName: "Event Name",
+      flex: 1,
+      renderCell: (params) => (
+        <Box
+          display="flex"
+          alignItems="center"
+          onClick={() => handleView(params.row)} // Handle row click
+          sx={{ cursor: "pointer" }} // Cursor style for visual feedback
+        >
+          <Typography
+            variant="h6"
+            color="#d66748"
+            sx={{ fontWeight: "bold", marginRight: "8px" }}
+          >
+            {params.row.eventName} {/* Display the event name */}
+          </Typography>
+        </Box>
+      ),
+    },
     { field: 'eventLocation', headerName: 'Address', flex: 1 },
-    { field: 'eventCost', headerName: 'Budget', width: 100 },
+    {
+      field: 'eventCost',
+      headerName: 'Budget',
+      width: 100,
+      renderCell: (params) => {
+        return <span>₦{params.value.toLocaleString()}</span>; // Format the value as needed
+      },
+    },
     { field: 'eventCategory', headerName: 'Category', flex: 1 },
     {
       field: 'createdBy',
       headerName: 'Created By',
       width: 150,
       valueGetter: (params) => {
-        return 'Super Admin'; 
+        return 'Super Admin';
       }
     },
     {
@@ -225,12 +269,13 @@ const EventManager = () => {
             <MenuItem
               onClick={() => {
                 handleClose();
-                handleEdit(openMenuId);
+                handleEdit(params.row._id); // Pass the event ID directly
               }}
               sx={{ color: colors.grey[100], '&:hover': { backgroundColor: colors.primary[300] } }}
             >
               Edit
             </MenuItem>
+
             <MenuItem
               onClick={() => {
                 handleClose();
@@ -255,14 +300,15 @@ const EventManager = () => {
     },
   ];
 
-  const [openCreateEventModal, setOpenCreateEventModal] = useState(false);
+  const [showCreateEventForm, setShowCreateEventForm] = useState(false); // State for form visibility
+
 
   const handleOpenCreateEventModal = () => {
-    setOpenCreateEventModal(true);
+    setShowCreateEventForm(true);
   };
 
   const handleCloseCreateEventModal = () => {
-    setOpenCreateEventModal(false);
+    setShowCreateEventForm(false);
   };
 
   const handleNewEventSubmit = (newEventData) => {
@@ -272,138 +318,151 @@ const EventManager = () => {
 
   return (
     <Box m="20px">
-      <Grid container spacing={2} alignItems="flex-start">
-        <Grid item xs={12}>
-          <Typography variant="h6" fontWeight="600" color={colors.grey[100]}>
-            <Link to="/" style={{ textDecoration: 'none', color: colors.grey[100] }}>
-              Home
-            </Link>{' '}
-            / Events
-          </Typography>
-          <Typography variant="h2" fontWeight="600" color={colors.greenAccent[500]}>
-            Event Management
-          </Typography>
-          <Typography variant="subtitle2" fontSize={'16px'} color={colors.grey[100]}>
-            Add, view, edit, and manage your events
-          </Typography>
-        </Grid>
+      {showCreateEventForm ? (
+        <CreateNewEvent
+          handleCancel={handleCloseCreateEventModal}
+          onSubmit={handleNewEventSubmit}
+        />
+      ) : (
+        <Grid container spacing={2} alignItems="flex-start">
+          <Grid item xs={12}>
+            <Typography variant="h6" fontWeight="600" color={colors.grey[100]}>
+              <Link to="/" style={{ textDecoration: 'none', color: colors.grey[100] }}>
+                Home
+              </Link>{' '}
+              / Events
+            </Typography>
+            <Typography variant="h2" fontWeight="600" color={colors.greenAccent[500]}>
+              Event Management
+            </Typography>
+            <Typography variant="subtitle2" fontSize={'16px'} color={colors.grey[100]}>
+              Add, view, edit, and manage your events
+            </Typography>
+          </Grid>
 
-        <Grid item xs={12} container spacing={1} justifyContent={isMobile ? "flex-start" : "flex-end"}>
-          <Grid item>
-            <InputBase
-              sx={{
-                mr: 2, flex: 3,
-                border: '1px solid white',
-                borderRadius: '4px',
-                marginBottom: '10px',
-                padding: '10px 14px',
-                '& .MuiInputBase-input': {
-                  color: 'white',
+          <Grid item xs={12} container spacing={1} justifyContent={isMobile ? "flex-start" : "flex-end"}>
+            <Grid item>
+              <InputBase
+                sx={{
+                  mr: 2, flex: 3,
+                  border: '1px solid white',
+                  borderRadius: '4px',
+                  marginBottom: '10px',
+                  padding: '10px 14px',
+                  '& .MuiInputBase-input': {
+                    color: 'white',
+                  }
+                }}
+                value={searchText}
+                onChange={(e) => setSearchText(e.target.value)}
+                placeholder="Search Events..."
+                endAdornment={
+                  <InputAdornment position="end">
+                    <IconButton type="button" sx={{ p: 1 }}>
+                      <SearchIcon />
+                    </IconButton>
+                  </InputAdornment>
                 }
-              }}
-              value={searchText}
-              onChange={(e) => setSearchText(e.target.value)}
-              placeholder="Search Events..."
-              endAdornment={
-                <InputAdornment position="end">
-                  <IconButton type="button" sx={{ p: 1 }}>
-                    <SearchIcon />
-                  </IconButton>
-                </InputAdornment>
-              }
-            />
-            <Button
+              />
+              <Button
+                sx={{
+                  backgroundColor: colors.greenAccent[700],
+                  color: colors.grey[100],
+                  fontSize: "16px",
+                  fontWeight: "600",
+                  padding: "10px 20px",
+                  marginRight: isMobile ? "0" : "0px",
+                  marginBottom: isMobile ? "10px" : "0",
+                  '&:hover': {
+                    backgroundColor: colors.greenAccent[600],
+                  },
+                }}
+                onClick={handleOpenCreateEventModal}
+              >
+                <CalendarTodayOutlinedIcon sx={{ mr: "10px" }} />
+                Add Event
+              </Button>
+            </Grid>
+          </Grid>
+
+          <Grid item xs={12}>
+            <Box
+              m="0px 0 0 0"
+              height={isMobile ? "75vh" : "100vh"}
               sx={{
-                backgroundColor: colors.greenAccent[700],
-                color: colors.grey[100],
-                fontSize: "16px",
-                fontWeight: "600",
-                padding: "10px 20px",
-                marginRight: isMobile ? "0" : "0px",
-                marginBottom: isMobile ? "10px" : "0",
-                '&:hover': {
-                  backgroundColor: colors.greenAccent[600],
+                "& .MuiDataGrid-root": { border: "none" },
+                "& .MuiDataGrid-cell": { borderBottom: "none" },
+                "& .name-column--cell": { color: colors.greenAccent[300] },
+                "& .MuiDataGrid-columnHeaders": {
+                  backgroundColor: colors.blueAccent[700],
+                  borderBottom: "none",
+                },
+                "& .MuiDataGrid-virtualScroller": {
+                  backgroundColor: colors.primary[400],
+                },
+                "& .MuiDataGrid-footerContainer": {
+                  borderTop: "none",
+                  backgroundColor: colors.blueAccent[700],
+                },
+                "& .MuiCheckbox-root": {
+                  color: `${colors.greenAccent[200]} !important`,
+                },
+                "& .MuiDataGrid-toolbarContainer svg": {
+                  color: theme.palette.mode === 'dark' ? 'white' : 'inherit',
                 },
               }}
-              onClick={handleOpenCreateEventModal}
             >
-              <CalendarTodayOutlinedIcon sx={{ mr: "10px" }} />
-              Add Event
-            </Button>
-          </Grid>
-        </Grid>
-
-        <Grid item xs={12}>
-          <Box
-            m="0px 0 0 0"
-            height={isMobile ? "75vh" : "100vh"}
-            sx={{
-              "& .MuiDataGrid-root": { border: "none" },
-              "& .MuiDataGrid-cell": { borderBottom: "none" },
-              "& .name-column--cell": { color: colors.greenAccent[300] },
-              "& .MuiDataGrid-columnHeaders": {
-                backgroundColor: colors.blueAccent[700],
-                borderBottom: "none",
-              },
-              "& .MuiDataGrid-virtualScroller": {
-                backgroundColor: colors.primary[400],
-              },
-              "& .MuiDataGrid-footerContainer": {
-                borderTop: "none",
-                backgroundColor: colors.blueAccent[700],
-              },
-              "& .MuiCheckbox-root": {
-                color: `${colors.greenAccent[200]} !important`,
-              },
-              "& .MuiDataGrid-toolbarContainer svg": {
-                color: theme.palette.mode === 'dark' ? 'white' : 'inherit',
-              },
-            }}
-          >
-            {isLoading ? (
-              <Box display="flex" justifyContent="center" alignItems="center" height="60%">
-                <Box align="center" display='flex'>
-                  <Typography variant="h4" align="center" display='flex' color={colors.greenAccent[500]}>
-                    Loading Events...<br></br>
-                  </Typography>
+              {isLoading ? (
+                <Box display="flex" justifyContent="center" alignItems="center" height="60%">
+                  <Box
+                    display="flex"
+                    flexDirection="column"
+                    justifyContent="center"
+                    alignItems="center"
+                    minHeight="100vh"
+                  >
+                    <Typography variant="h4" align="center" color={colors.greenAccent[500]}>
+                      Loading Events...
+                    </Typography>
+                    <CircularProgress
+                      size={50}
+                      thickness={5}
+                      sx={{
+                        color: colors.greenAccent[500],
+                        mt: 2
+                      }}
+                    />
+                  </Box>
                 </Box>
-                <CircularProgress
-                  size={50}
-                  thickness={5}
-                  sx={{ color: colors.greenAccent[500] }}
+              ) : (
+                <DataGrid
+                  checkboxSelection
+                  hideFooterSelectedRowCount
+                  rows={filteredRows}
+                  columns={columns}
+                  pageSize={10}
+                  rowsPerPageOptions={[10, 25, 50, 100]}
+                  getRowId={(row) => row._id}
+                  initialState={{
+                    sorting: {
+                      sortModel: [{ field: 'eventDate', sort: 'desc' }],
+                    },
+                  }}
                 />
-              </Box>
-            ) : (
-              <DataGrid
-                checkboxSelection
-                hideFooterSelectedRowCount
-                rows={filteredRows}
-                columns={columns}
-                pageSize={10}
-                rowsPerPageOptions={[10, 25, 50, 100]}
-                getRowId={(row) => row._id}
-              />
-            )}
-          </Box>
+              )}
+            </Box>
+          </Grid>
+
+          <ViewEventModal
+            open={openViewModal}
+            onClose={handleCloseModal}
+            recordData={selectedEvent}
+            fields={eventViewFields}
+            handleEdit={() => handleEdit(selectedEvent._id)} 
+            handleDelete={handleDelete}
+          />
         </Grid>
-
-        <ViewEventModal
-          open={openViewModal}
-          onClose={handleCloseModal}
-          recordData={selectedEvent}
-          fields={eventViewFields}
-          handleEdit={handleEdit}
-          handleDelete={handleDelete}
-        />
-
-        <CreateNewEvent
-          open={openCreateEventModal}
-          onClose={handleCloseCreateEventModal}
-          onSubmit={handleNewEventSubmit}
-          handleCancel={handleCloseCreateEventModal}
-        />
-
-      </Grid>
+      )}
     </Box>
   );
 };

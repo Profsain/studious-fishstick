@@ -72,7 +72,7 @@ const ViewEventModal = ({
                       width: 150,
                       height: 150,
                       margin: "auto",
-                      border: `2px solid ${colors.greenAccent[500]}`,
+                      border: `5px solid ${colors.greenAccent[500]}`,
                     }}
                   />
                 </Grid>
@@ -90,7 +90,7 @@ const ViewEventModal = ({
                       sx={{ fontWeight: "bold", fontSize: 16 }}
                     />
                     <Chip
-                      label={`$${recordData.eventCost}`}
+                      label={`₦${recordData.eventCost}`}
                       size="medium"
                       sx={{
                         fontWeight: "bold",
@@ -240,7 +240,7 @@ const ViewEventModal = ({
                       Hashtag:
                     </Typography>
                     <Typography sx={{ ml: 1 }}>
-                      {recordData.eventHashtag}
+                      {recordData.eventHashtag || 'N/A'}
                     </Typography>
                   </Box>
                 </Grid>
