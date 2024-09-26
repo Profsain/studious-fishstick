@@ -1,83 +1,60 @@
-import React, { useState, useEffect, useContext } from 'react';
+import React, { useState, useContext } from "react";
 import {
-  Box, Typography, TextField, Button, Grid, Paper, CircularProgress, 
-  Alert, AlertTitle, FormControlLabel, Checkbox,
-} from '@mui/material';
-import { useTheme } from '@mui/material/styles';
-import { tokens } from '../../theme';
-import AuthContext from '../../context/AuthContext';
+  Box,
+  Typography,
+  TextField,
+  Button,
+  Grid,
+  Paper,
+  CircularProgress,
+  Alert,
+  AlertTitle,
+  FormControlLabel, 
+  Checkbox, // Import Checkbox
+} from "@mui/material";
+import { useTheme } from "@mui/material/styles";
+import { tokens } from "../../theme"; 
+import AuthContext from "../../context/AuthContext";
 import { motion } from 'framer-motion';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import dayjs from 'dayjs';
-import { useParams, useNavigate } from 'react-router-dom';
 import Swal from 'sweetalert2';
+import CalendarTodayOutlinedIcon from '@mui/icons-material/CalendarTodayOutlined'; // Import the icon
 
-const EditEvent = () => {
-  const { eventId } = useParams();
-  const navigate = useNavigate();
+
+
+const CreateNewEvent = ({ handleCancel, onSubmit }) => { 
   const apiUrl = process.env.REACT_APP_API_URL;
   const { token } = useContext(AuthContext);
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
 
   const [formData, setFormData] = useState({
-    eventName: '',
-    eventDescription: '',
-    eventImage: '',
-    eventDate: dayjs(),
-    eventTime: '',
-    eventLocation: '',
-    eventUserRules: '',
-    eventCost: 0,
+    eventName: "",
+    eventDescription: "",
+    eventImage: "",
+    eventDate: dayjs(), // Initialize eventDate with current date
+    eventTime: "",
+    eventLocation: "",
+    eventUserRules: "",
+    eventCost: 0, // You might want to initialize this as a number
     isEventCostSplitted: false, 
-    eventCategory: '',
-    eventHashtag: '',
-    isPopular: false,
+    eventCategory: "",
+    eventHashtag: "",
+    isPopular: false, 
     isUpcoming: true, 
     isOpen: true,
   });
 
   const [error, setError] = useState(null);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(false); 
 
-  useEffect(() => {
-    const fetchEvent = async () => {
-      setLoading(true);
-      try {
-        const response = await fetch(`${apiUrl}/events/${eventId}`, {
-          headers: {
-            'Authorization': `Bearer ${token}`
-          }
-        });
-
-        if (!response.ok) {
-          throw new Error('Network response was not ok');
-        }
-
-        const data = await response.json();
-        setFormData(data); 
-      } catch (error) {
-        console.error('Error fetching event:', error);
-        setError('An error occurred while fetching the event details.');
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    if (eventId) {
-      fetchEvent();
-    }
-  }, [eventId, token, apiUrl]);
-  
-  const handleCancel = () => {
-    navigate('/events'); // Adjust the route as necessary
-  };
-  
   const handleChange = (e) => {
     const { name, value } = e.target;
 
+    // Handle checkbox fields 
     if (name === 'isEventCostSplitted' || name === 'isPopular' || name === 'isUpcoming' || name === 'isOpen') {
       setFormData((prev) => ({ ...prev, [name]: e.target.checked }));
     } else {
@@ -87,41 +64,61 @@ const EditEvent = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    // Add validation logic here if needed 
+
     setLoading(true);
-    setError(null); 
+    setError(null);
 
     try {
-      const response = await fetch(`${apiUrl}/events/${eventId}`, { 
-        method: 'PUT', 
+      const response = await fetch(`${apiUrl}/events`, { 
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify(formData)
+        body: JSON.stringify(formData),
       });
+
+      console.log('API Response:', response);
 
       if (!response.ok) {
         const errorData = await response.json(); 
-        setError(errorData.message || 'An error occurred. Please try again.');
-        throw new Error('An error occurred while updating the event.');
+        setError(errorData.message || "An error occurred. Please try again.");
+        throw new Error("An error occurred while creating the event."); 
       }
 
+      // Clear the form after successful submission
+      setFormData({
+        eventName: "",
+        eventDescription: "",
+        eventImage: "",
+        eventDate: dayjs(), 
+        eventTime: "",
+        eventLocation: "",
+        eventUserRules: "",
+        eventCost: 0,
+        isEventCostSplitted: false,
+        eventCategory: "",
+        eventHashtag: "",
+        isPopular: false,
+        isUpcoming: true,
+        isOpen: true, 
+      });
+
+      // SweetAlert for success
       Swal.fire({
         title: 'Success!',
-        text: `${formData.eventName} has been updated successfully!`,
+        text: `${formData.eventName} has been created successfully!`, 
         icon: 'success',
-        confirmButtonColor: colors.greenAccent[600], 
+        confirmButtonColor: colors.greenAccent[600],
       }).then(() => {
-        navigate('/events');
-      });
+        handleCancel(); 
+      }); 
+
     } catch (error) {
-      console.error('Error updating event:', error);
-      Swal.fire({
-        title: 'Error!',
-        text: 'An error occurred. Please try again.',
-        icon: 'error',
-        confirmButtonColor: colors.greenAccent[600], 
-      });
+      console.error("Error creating event:", error);
+      setError("An error occurred. Please try again."); 
     } finally {
       setLoading(false);
     }
@@ -131,16 +128,16 @@ const EditEvent = () => {
     <Box m="20px">
       <Grid item xs={12} sx={{ display: 'flex', justifyContent: 'space-between', gap: 2 }}>
         <Typography variant="h2" fontWeight="600" color={colors.greenAccent[500]}>
-          Edit Event
+          Create New Event
         </Typography>
         <Button
           variant="outlined"
-          onClick={handleCancel} 
+          onClick={handleCancel}
           sx={{
             mb: 2,
             color: colors.grey[100],
             borderColor: colors.grey[400],
-            '&:hover': {
+            "&:hover": {
               borderColor: colors.grey[500],
             },
           }}
@@ -150,9 +147,10 @@ const EditEvent = () => {
       </Grid>
 
       <Typography variant="body1" color={colors.grey[100]}>
-        Edit the event details below.
+        Fill in the form below to create a new event.
       </Typography>
 
+      {/* Error Display */}
       {error && (
         <Alert severity="error" sx={{ mt: 2 }}>
           <AlertTitle>Error</AlertTitle>
@@ -169,6 +167,7 @@ const EditEvent = () => {
         <Paper elevation={3} sx={{ padding: 3, marginTop: 2 }}>
           <form onSubmit={handleSubmit}>
             <Grid container spacing={2}>
+
               {/* Event Name */}
               <Grid item xs={12} sm={6}>
                 <TextField
@@ -179,14 +178,14 @@ const EditEvent = () => {
                   value={formData.eventName}
                   onChange={handleChange}
                   required
-                  InputLabelProps={{ style: { color: '#fff' } }}
+                  InputLabelProps={{ style: { color: "#fff" } }}
                   sx={{
-                    input: { color: '#fff' },
-                    '& .MuiOutlinedInput-root': {
-                      '& fieldset': { borderColor: '#ffb554' },
-                      '&:hover fieldset': { borderColor: '#ffb554' },
-                      '&.Mui-focused fieldset': { borderColor: '#ffb554' }
-                    }
+                    input: { color: "#fff" },
+                    "& .MuiOutlinedInput-root": {
+                      "& fieldset": { borderColor: "#ffb554" },
+                      "&:hover fieldset": { borderColor: "#ffb554" },
+                      "&.Mui-focused fieldset": { borderColor: "#ffb554" },
+                    },
                   }}
                 />
               </Grid>
@@ -202,15 +201,15 @@ const EditEvent = () => {
                   onChange={handleChange}
                   required
                   multiline
-                  rows={4} 
-                  InputLabelProps={{ style: { color: '#fff' } }}
+                  rows={4}
+                  InputLabelProps={{ style: { color: "#fff" } }}
                   sx={{
-                    input: { color: '#fff' },
-                    '& .MuiOutlinedInput-root': {
-                      '& fieldset': { borderColor: '#ffb554' },
-                      '&:hover fieldset': { borderColor: '#ffb554' },
-                      '&.Mui-focused fieldset': { borderColor: '#ffb554' }
-                    }
+                    input: { color: "#fff" },
+                    "& .MuiOutlinedInput-root": {
+                      "& fieldset": { borderColor: "#ffb554" },
+                      "&:hover fieldset": { borderColor: "#ffb554" },
+                      "&.Mui-focused fieldset": { borderColor: "#ffb554" },
+                    },
                   }}
                 />
               </Grid>
@@ -225,14 +224,14 @@ const EditEvent = () => {
                   value={formData.eventImage}
                   onChange={handleChange}
                   required
-                  InputLabelProps={{ style: { color: '#fff' } }}
+                  InputLabelProps={{ style: { color: "#fff" } }}
                   sx={{
-                    input: { color: '#fff' },
-                    '& .MuiOutlinedInput-root': {
-                      '& fieldset': { borderColor: '#ffb554' },
-                      '&:hover fieldset': { borderColor: '#ffb554' },
-                      '&.Mui-focused fieldset': { borderColor: '#ffb554' }
-                    }
+                    input: { color: "#fff" },
+                    "& .MuiOutlinedInput-root": {
+                      "& fieldset": { borderColor: "#ffb554" },
+                      "&:hover fieldset": { borderColor: "#ffb554" },
+                      "&.Mui-focused fieldset": { borderColor: "#ffb554" },
+                    },
                   }}
                 />
               </Grid>
@@ -240,23 +239,25 @@ const EditEvent = () => {
               {/* Event Date Picker */}
               <Grid item xs={12} sm={6}>
                 <LocalizationProvider dateAdapter={AdapterDayjs}>
-                  <DatePicker 
+                  <DatePicker
                     label="Event Date"
-                    value={formData.eventDate} 
+                    value={formData.eventDate}
                     onChange={(newDate) => setFormData({ ...formData, eventDate: newDate })}
                     renderInput={(params) => (
-                      <TextField 
-                        {...params} 
-                        fullWidth 
+                      <TextField
+                        {...params}
+                        fullWidth
                         required
-                        InputLabelProps={{ style: { color: '#fff' } }} 
+                        InputLabelProps={{ style: { color: "#fff" } }}
                         sx={{
-                          input: { color: '#fff' },
-                          '& .MuiOutlinedInput-root': {
-                            '& fieldset': { borderColor: '#ffb554' },
-                            '&:hover fieldset': { borderColor: '#ffb554' },
-                            '&.Mui-focused fieldset': { borderColor: '#ffb554' }
-                          }
+                          input: { color: "#fff" },
+                          "& .MuiOutlinedInput-root": {
+                            "& fieldset": { borderColor: "#ffb554" },
+                            "&:hover fieldset": { borderColor: "#ffb554" },
+                            "&.Mui-focused fieldset": {
+                              borderColor: "#ffb554",
+                            },
+                          },
                         }}
                       />
                     )}
@@ -274,14 +275,14 @@ const EditEvent = () => {
                   value={formData.eventTime}
                   onChange={handleChange}
                   required
-                  InputLabelProps={{ style: { color: '#fff' } }}
+                  InputLabelProps={{ style: { color: "#fff" } }}
                   sx={{
-                    input: { color: '#fff' },
-                    '& .MuiOutlinedInput-root': {
-                      '& fieldset': { borderColor: '#ffb554' },
-                      '&:hover fieldset': { borderColor: '#ffb554' },
-                      '&.Mui-focused fieldset': { borderColor: '#ffb554' }
-                    }
+                    input: { color: "#fff" },
+                    "& .MuiOutlinedInput-root": {
+                      "& fieldset": { borderColor: "#ffb554" },
+                      "&:hover fieldset": { borderColor: "#ffb554" },
+                      "&.Mui-focused fieldset": { borderColor: "#ffb554" },
+                    },
                   }}
                 />
               </Grid>
@@ -296,14 +297,14 @@ const EditEvent = () => {
                   value={formData.eventLocation}
                   onChange={handleChange}
                   required
-                  InputLabelProps={{ style: { color: '#fff' } }}
+                  InputLabelProps={{ style: { color: "#fff" } }}
                   sx={{
-                    input: { color: '#fff' },
-                    '& .MuiOutlinedInput-root': {
-                      '& fieldset': { borderColor: '#ffb554' },
-                      '&:hover fieldset': { borderColor: '#ffb554' },
-                      '&.Mui-focused fieldset': { borderColor: '#ffb554' }
-                    }
+                    input: { color: "#fff" },
+                    "& .MuiOutlinedInput-root": {
+                      "& fieldset": { borderColor: "#ffb554" },
+                      "&:hover fieldset": { borderColor: "#ffb554" },
+                      "&.Mui-focused fieldset": { borderColor: "#ffb554" },
+                    },
                   }}
                 />
               </Grid>
@@ -315,17 +316,17 @@ const EditEvent = () => {
                   variant="outlined"
                   label="Event Cost"
                   name="eventCost"
-                  type="number"
+                  type="number" // Set input type to number
                   value={formData.eventCost}
                   onChange={handleChange}
-                  InputLabelProps={{ style: { color: '#fff' } }}
+                  InputLabelProps={{ style: { color: "#fff" } }}
                   sx={{
-                    input: { color: '#fff' },
-                    '& .MuiOutlinedInput-root': {
-                      '& fieldset': { borderColor: '#ffb554' },
-                      '&:hover fieldset': { borderColor: '#ffb554' },
-                      '&.Mui-focused fieldset': { borderColor: '#ffb554' }
-                    }
+                    input: { color: "#fff" },
+                    "& .MuiOutlinedInput-root": {
+                      "& fieldset": { borderColor: "#ffb554" },
+                      "&:hover fieldset": { borderColor: "#ffb554" },
+                      "&.Mui-focused fieldset": { borderColor: "#ffb554" },
+                    },
                   }}
                 />
               </Grid>
@@ -340,14 +341,14 @@ const EditEvent = () => {
                   value={formData.eventCategory}
                   onChange={handleChange}
                   required
-                  InputLabelProps={{ style: { color: '#fff' } }}
+                  InputLabelProps={{ style: { color: "#fff" } }}
                   sx={{
-                    input: { color: '#fff' },
-                    '& .MuiOutlinedInput-root': {
-                      '& fieldset': { borderColor: '#ffb554' },
-                      '&:hover fieldset': { borderColor: '#ffb554' },
-                      '&.Mui-focused fieldset': { borderColor: '#ffb554' }
-                    }
+                    input: { color: "#fff" },
+                    "& .MuiOutlinedInput-root": {
+                      "& fieldset": { borderColor: "#ffb554" },
+                      "&:hover fieldset": { borderColor: "#ffb554" },
+                      "&.Mui-focused fieldset": { borderColor: "#ffb554" },
+                    },
                   }}
                 />
               </Grid>
@@ -361,14 +362,14 @@ const EditEvent = () => {
                   name="eventHashtag"
                   value={formData.eventHashtag}
                   onChange={handleChange}
-                  InputLabelProps={{ style: { color: '#fff' } }}
+                  InputLabelProps={{ style: { color: "#fff" } }}
                   sx={{
-                    input: { color: '#fff' },
-                    '& .MuiOutlinedInput-root': {
-                      '& fieldset': { borderColor: '#ffb554' },
-                      '&:hover fieldset': { borderColor: '#ffb554' },
-                      '&.Mui-focused fieldset': { borderColor: '#ffb554' }
-                    }
+                    input: { color: "#fff" },
+                    "& .MuiOutlinedInput-root": {
+                      "& fieldset": { borderColor: "#ffb554" },
+                      "&:hover fieldset": { borderColor: "#ffb554" },
+                      "&.Mui-focused fieldset": { borderColor: "#ffb554" },
+                    },
                   }}
                 />
               </Grid>
@@ -382,14 +383,14 @@ const EditEvent = () => {
                   name="eventUserRules"
                   value={formData.eventUserRules}
                   onChange={handleChange}
-                  InputLabelProps={{ style: { color: '#fff' } }}
+                  InputLabelProps={{ style: { color: "#fff" } }}
                   sx={{
-                    input: { color: '#fff' },
-                    '& .MuiOutlinedInput-root': {
-                      '& fieldset': { borderColor: '#ffb554' },
-                      '&:hover fieldset': { borderColor: '#ffb554' },
-                      '&.Mui-focused fieldset': { borderColor: '#ffb554' }
-                    }
+                    input: { color: "#fff" },
+                    "& .MuiOutlinedInput-root": {
+                      "& fieldset": { borderColor: "#ffb554" },
+                      "&:hover fieldset": { borderColor: "#ffb554" },
+                      "&.Mui-focused fieldset": { borderColor: "#ffb554" },
+                    },
                   }}
                 />
               </Grid>
@@ -507,4 +508,4 @@ const EditEvent = () => {
   );
 };
 
-export default EditEvent;
+export default CreateNewEvent;

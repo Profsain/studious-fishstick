@@ -1,7 +1,6 @@
-import React, { useState, useEffect, useContext, useCallback } from 'react';
+import React, { useState, useEffect, useContext, useCallback, useMemo } from 'react';
 import {
-  Box, Typography, Button, ButtonGroup, Grid, Menu, MenuItem, Link, Modal, InputBase, InputAdornment, IconButton,
-  Divider,
+  Box, Typography, Button, ButtonGroup, Grid, Menu, MenuItem, Link, InputBase, InputAdornment, IconButton,
   CircularProgress,
 } from '@mui/material';
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
@@ -17,6 +16,9 @@ import AuthContext from '../../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import Swal from 'sweetalert2';
 import moment from 'moment';
+import ViewEventModal from './ViewEventModal';
+import CreateNewEvent from './CreateNewEvent';
+import { eventViewFields } from './eventFields';
 
 const EventManager = () => {
   const apiUrl = process.env.REACT_APP_API_URL;
@@ -34,25 +36,20 @@ const EventManager = () => {
   const navigate = useNavigate();
 
   const fetchEvents = useCallback(async () => {
-    console.log("API URL:", `${apiUrl}/events`); // Add this line
-
     setIsLoading(true);
     try {
-      const response = await fetch(`${apiUrl}/event`, {
+      const response = await fetch(`${apiUrl}/events`, {
         headers: {
           'Authorization': `Bearer ${token}`
-        },
+        }
       });
 
       if (!response.ok) {
-        // More informative error handling
         if (response.status === 404) {
           throw new Error('Events endpoint not found! Check API URL.');
         } else if (response.status === 401) {
-          // Handle token expiration or invalidation (e.g., redirect to login)
           throw new Error('Unauthorized: Token might be invalid or expired.');
         } else {
-          // Try to parse the error response for a message from the backend
           const errorData = await response.json();
           const errorMessage = errorData.message || 'Server error!';
           throw new Error(errorMessage);
@@ -60,11 +57,9 @@ const EventManager = () => {
       }
 
       const data = await response.json();
-      setEvents(Array.isArray(data.events) ? data.events : []);
+      setEvents(data.events || []);
     } catch (error) {
       console.error('Error fetching events:', error);
-
-      // Consider a more user-friendly error display (e.g., a toast notification)
       toast.error(`Failed to load events: ${error.message}`);
     } finally {
       setIsLoading(false);
@@ -75,26 +70,16 @@ const EventManager = () => {
     fetchEvents();
   }, [fetchEvents]);
 
-  const filteredRows = events.filter((row) => {
-    const search = searchText.toLowerCase();
-    return (
-      (row.eventName?.toLowerCase() ?? '').includes(search) ||
-      (row.eventLocation?.toLowerCase() ?? '').includes(search) ||
-      (row.eventCategory?.toLowerCase() ?? '').includes(search)
-    );
-  });
-
-  const style = {
-    position: 'absolute',
-    top: '50%',
-    left: '50%',
-    transform: 'translate(-50%, -50%)',
-    width: isMobile ? '90%' : '50%',
-    bgcolor: 'background.paper',
-    boxShadow: 24,
-    p: 4,
-    outline: 'none'
-  };
+  const filteredRows = useMemo(() => {
+    return events.filter((row) => {
+      const search = searchText.toLowerCase();
+      return (
+        (row.eventName?.toLowerCase() ?? '').includes(search) ||
+        (row.eventLocation?.toLowerCase() ?? '').includes(search) ||
+        (row.eventCategory?.toLowerCase() ?? '').includes(search)
+      );
+    });
+  }, [events, searchText]);
 
   const handleClick = (event, id) => {
     setAnchorEl(event.currentTarget);
@@ -122,6 +107,7 @@ const EventManager = () => {
   const handleSplitBudget = (id) => {
     navigate(`/event/SplitBudget/${id}`);
   };
+
   const handleDelete = async (eventId) => {
     try {
       const result = await Swal.fire({
@@ -144,7 +130,7 @@ const EventManager = () => {
         });
 
         if (response.ok) {
-          setEvents(prevEvents => prevEvents.filter(event => event.id !== eventId)); // Updated to use eventId
+          setEvents(prevEvents => prevEvents.filter(event => event._id !== eventId));
           Swal.fire('Deleted!', 'The event has been deleted.', 'success');
         } else {
           try {
@@ -160,24 +146,20 @@ const EventManager = () => {
     }
   };
 
-
   const columns = [
     {
       field: 'eventDate',
       headerName: 'Date',
       width: 120,
-      valueGetter: (params) => {
-        const date = new Date(params.row.eventDate);
-        return moment(date).format('MM/DD/YYYY');
-      }
+      valueGetter: (params) => moment(params.row.eventDate).format('MM/DD/YYYY')
     },
-    { // New image banner column
-      field: 'eventImage', // Assuming this is the field name in your API data
+    {
+      field: 'eventImage',
       headerName: 'Event Banner',
-      width: 150, // Adjust width as needed
+      width: 150,
       renderCell: (params) => (
-        <img 
-          src={params.row.eventImage} 
+        <img
+          src={params.row.eventImage}
           alt="Event Banner"
           style={{ width: '100%', height: 'auto', objectFit: 'contain' }}
         />
@@ -187,7 +169,14 @@ const EventManager = () => {
     { field: 'eventLocation', headerName: 'Address', flex: 1 },
     { field: 'eventCost', headerName: 'Budget', width: 100 },
     { field: 'eventCategory', headerName: 'Category', flex: 1 },
-    { field: 'createdBy', headerName: 'Created By', width: 150 },
+    {
+      field: 'createdBy',
+      headerName: 'Created By',
+      width: 150,
+      valueGetter: (params) => {
+        return 'Super Admin'; 
+      }
+    },
     {
       field: 'actions',
       headerName: 'Actions',
@@ -207,7 +196,6 @@ const EventManager = () => {
           >
             View
           </Button>
-
           <Button
             sx={{
               backgroundColor: '#fa7c50',
@@ -220,7 +208,6 @@ const EventManager = () => {
             endIcon={<ArrowDropDownIcon />}
           >
           </Button>
-
           <Menu
             id={`actions-menu-${openMenuId}`}
             anchorEl={anchorEl}
@@ -268,6 +255,21 @@ const EventManager = () => {
     },
   ];
 
+  const [openCreateEventModal, setOpenCreateEventModal] = useState(false);
+
+  const handleOpenCreateEventModal = () => {
+    setOpenCreateEventModal(true);
+  };
+
+  const handleCloseCreateEventModal = () => {
+    setOpenCreateEventModal(false);
+  };
+
+  const handleNewEventSubmit = (newEventData) => {
+    setEvents(prevEvents => [...prevEvents, newEventData]);
+    handleCloseCreateEventModal();
+  };
+
   return (
     <Box m="20px">
       <Grid container spacing={2} alignItems="flex-start">
@@ -278,10 +280,10 @@ const EventManager = () => {
             </Link>{' '}
             / Events
           </Typography>
-          <Typography variant="h2" fontWeight="600" color={colors.grey[100]}>
+          <Typography variant="h2" fontWeight="600" color={colors.greenAccent[500]}>
             Event Management
           </Typography>
-          <Typography variant="subtitle2" fontSize={'16px'} color={colors.greenAccent[500]}>
+          <Typography variant="subtitle2" fontSize={'16px'} color={colors.grey[100]}>
             Add, view, edit, and manage your events
           </Typography>
         </Grid>
@@ -323,7 +325,7 @@ const EventManager = () => {
                   backgroundColor: colors.greenAccent[600],
                 },
               }}
-              onClick={() => navigate(`/event/CreateEvent`)}
+              onClick={handleOpenCreateEventModal}
             >
               <CalendarTodayOutlinedIcon sx={{ mr: "10px" }} />
               Add Event
@@ -336,12 +338,9 @@ const EventManager = () => {
             m="0px 0 0 0"
             height={isMobile ? "75vh" : "100vh"}
             sx={{
-              "& .MuiDataGrid-root": {
-                border: "none",
-              },
-              "& .MuiDataGrid-cell": {
-                borderBottom: "none",
-              },
+              "& .MuiDataGrid-root": { border: "none" },
+              "& .MuiDataGrid-cell": { borderBottom: "none" },
+              "& .name-column--cell": { color: colors.greenAccent[300] },
               "& .MuiDataGrid-columnHeaders": {
                 backgroundColor: colors.blueAccent[700],
                 borderBottom: "none",
@@ -362,29 +361,19 @@ const EventManager = () => {
             }}
           >
             {isLoading ? (
-            <Box display="flex" justifyContent="center" alignItems="center" height="60%">
-              <Box
-                display="flex"
-                flexDirection="column"
-                justifyContent="center"
-                alignItems="center"
-                minHeight="100vh" // Ensures full height if necessary to center vertically
-              >
-                <Typography variant="h4" align="center" color={colors.greenAccent[500]}>
-                  Loading Events...
-                </Typography>
+              <Box display="flex" justifyContent="center" alignItems="center" height="60%">
+                <Box align="center" display='flex'>
+                  <Typography variant="h4" align="center" display='flex' color={colors.greenAccent[500]}>
+                    Loading Events...<br></br>
+                  </Typography>
+                </Box>
                 <CircularProgress
                   size={50}
                   thickness={5}
-                  sx={{
-                    color: colors.greenAccent[500],
-                    mt: 2 // Adds margin between the text and the spinner
-                  }}
+                  sx={{ color: colors.greenAccent[500] }}
                 />
               </Box>
-
-            </Box>
-          ) : (
+            ) : (
               <DataGrid
                 checkboxSelection
                 hideFooterSelectedRowCount
@@ -395,51 +384,25 @@ const EventManager = () => {
                 getRowId={(row) => row._id}
               />
             )}
-
-            {/* View Modal */}
-            <Modal
-              open={openViewModal}
-              onClose={handleCloseModal}
-              aria-labelledby="modal-modal-title"
-              aria-describedby="modal-modal-description"
-            >
-              <Box sx={style}>
-                {selectedEvent && (
-                  <div>
-                    <Typography variant="h6" component="h2" sx={{ mb: 2 }}>
-                      {selectedEvent.eventName}
-                    </Typography>
-                    <Divider sx={{ mb: 2 }} />
-                    <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
-                      <strong>Date:</strong> {moment(selectedEvent.eventDate).format('MMMM Do YYYY')}
-                    </Typography>
-                    <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
-                      <strong>Location:</strong> {selectedEvent.eventLocation}
-                    </Typography>
-                    <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
-                      <strong>Budget:</strong> ${selectedEvent.eventCost}
-                    </Typography>
-                    <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
-                      <strong>Category:</strong> {selectedEvent.eventCategory}
-                    </Typography>
-                    <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
-                      <strong>Created By:</strong> {selectedEvent.createdBy}
-                    </Typography>
-                    <Divider sx={{ my: 2 }} /> {/* Divider between details and buttons */}
-                    <Button
-                      variant="contained"
-                      onClick={handleCloseModal}
-                      sx={{ mt: 2, mr: 2, backgroundColor: colors.greenAccent[700] }}
-                    >
-                      Close
-                    </Button>
-                    {/* Add Edit and Split Budget buttons here if needed */}
-                  </div>
-                )}
-              </Box>
-            </Modal>
           </Box>
         </Grid>
+
+        <ViewEventModal
+          open={openViewModal}
+          onClose={handleCloseModal}
+          recordData={selectedEvent}
+          fields={eventViewFields}
+          handleEdit={handleEdit}
+          handleDelete={handleDelete}
+        />
+
+        <CreateNewEvent
+          open={openCreateEventModal}
+          onClose={handleCloseCreateEventModal}
+          onSubmit={handleNewEventSubmit}
+          handleCancel={handleCloseCreateEventModal}
+        />
+
       </Grid>
     </Box>
   );
