@@ -16,6 +16,9 @@ import AuthContext from '../../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import Swal from 'sweetalert2';
 import moment from 'moment';
+import EditIcon from "@mui/icons-material/Edit";
+import DeleteIcon from "@mui/icons-material/Delete";
+import { PieChartOutline } from '@mui/icons-material';
 import ViewEventModal from './ViewEventModal';
 import CreateNewEvent from './CreateNewEvent';
 import { eventViewFields } from './eventFields';
@@ -167,13 +170,13 @@ const EventManager = () => {
     {
       field: 'eventDate',
       headerName: 'Date',
-      width: 120,
+      width: 100,
       valueGetter: (params) => moment(params.row.eventDate).format('MM/DD/YYYY'),
     },
     {
       field: 'eventImage',
       headerName: 'Event Banner',
-      width: 150,
+      width: 100,
       renderCell: (params) => (
         <img
           src={params.row.eventImage}
@@ -185,7 +188,7 @@ const EventManager = () => {
     {
       field: "eventName",
       headerName: "Event Name",
-      flex: 1,
+      flex: 1.5,
       renderCell: (params) => (
         <Box
           display="flex"
@@ -203,11 +206,11 @@ const EventManager = () => {
         </Box>
       ),
     },
-    { field: 'eventLocation', headerName: 'Address', flex: 1 },
+    { field: 'eventLocation', headerName: 'Location', flex: 1 },
     {
       field: 'eventCost',
       headerName: 'Budget',
-      width: 100,
+      width: 70,
       renderCell: (params) => {
         return <span>₦{params.value.toLocaleString()}</span>; // Format the value as needed
       },
@@ -216,7 +219,7 @@ const EventManager = () => {
     {
       field: 'createdBy',
       headerName: 'Created By',
-      width: 150,
+      flex: 1,
       valueGetter: (params) => {
         return 'Super Admin';
       }
@@ -224,7 +227,7 @@ const EventManager = () => {
     {
       field: 'actions',
       headerName: 'Actions',
-      width: 200,
+      flex: 1.5,
       renderCell: (params) => (
         <ButtonGroup variant="contained">
           <Button
@@ -273,6 +276,7 @@ const EventManager = () => {
               }}
               sx={{ color: colors.grey[100], '&:hover': { backgroundColor: colors.primary[300] } }}
             >
+            <EditIcon sx={{ mr: 1 }} />
               Edit
             </MenuItem>
 
@@ -283,15 +287,17 @@ const EventManager = () => {
               }}
               sx={{ color: colors.grey[100], '&:hover': { backgroundColor: colors.primary[300] } }}
             >
+            <PieChartOutline sx={{ mr: 1 }} />
               Split Budget
             </MenuItem>
             <MenuItem
               onClick={() => {
                 handleClose();
-                handleDelete(openMenuId);
+                handleDelete(params.row._id);
               }}
               sx={{ color: colors.grey[100], '&:hover': { backgroundColor: colors.primary[300] } }}
             >
+              <DeleteIcon sx={{ mr: 1 }} />
               Delete
             </MenuItem>
           </Menu>
