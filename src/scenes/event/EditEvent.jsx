@@ -119,7 +119,7 @@ const EditEvent = () => {
     setError(null);
 
     try {
-      const response = await fetch(`${apiUrl}/events/${eventId}`, {
+      const response = await fetch(`${apiUrl}/event/${eventId}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",

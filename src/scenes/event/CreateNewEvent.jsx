@@ -1,7 +1,7 @@
 import React, { useState, useContext } from "react";
 import {
     Box,
-    InputAdornment, 
+    InputAdornment,
     Typography,
     TextField,
     Button,
@@ -19,7 +19,7 @@ import AuthContext from "../../context/AuthContext";
 import { motion } from 'framer-motion';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
-import { DatePicker  } from '@mui/x-date-pickers/DatePicker';
+import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { TimePicker } from '@mui/x-date-pickers/TimePicker';
 import dayjs from 'dayjs';
 import Swal from 'sweetalert2';
@@ -40,7 +40,7 @@ const CreateNewEvent = ({ handleCancel, onSubmit }) => {
         eventDescription: "",
         eventImage: "",
         eventDate: dayjs(),
-        eventTime: dayjs(), 
+        eventTime: dayjs(),
         eventLocation: "",
         eventUserRules: "",
         eventCost: 0,
@@ -71,13 +71,13 @@ const CreateNewEvent = ({ handleCancel, onSubmit }) => {
     };
 
     const handleSubmit = async (e) => {
-        e.preventDefault(); 
-    
+        e.preventDefault();
+
         setLoading(true);
         setError(null);
-    
+
         try {
-            const response = await fetch(`${apiUrl}/event`, {
+            const response = await fetch(`${apiUrl}/event/`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
@@ -85,7 +85,7 @@ const CreateNewEvent = ({ handleCancel, onSubmit }) => {
                 },
                 body: JSON.stringify(formData),
             });
-    
+
             if (!response.ok) {
                 const errorData = await response.json();
                 setError(errorData.message || "An error occurred. Please try again.");
@@ -97,7 +97,7 @@ const CreateNewEvent = ({ handleCancel, onSubmit }) => {
                 eventDescription: "",
                 eventImage: "",
                 eventDate: dayjs(),
-                eventTime: "",
+                eventTime: dayjs(),
                 eventLocation: "",
                 eventUserRules: "",
                 eventCost: 0,
@@ -265,31 +265,36 @@ const CreateNewEvent = ({ handleCancel, onSubmit }) => {
                         </Grid>
 
                         <Grid item xs={12} sm={6}>
-                        <LocalizationProvider dateAdapter={AdapterDayjs}>
-                                <TimePicker
-                                    label="Event Time"
-                                    value={formData.eventTime}
-                                    onChange={(newTime) => setFormData({ ...formData, eventTime: newTime })}
-                                    required
-                                    slotProps={{
-                                        textField: {
-                                            fullWidth: true,
-                                            required: true,
-                                            InputLabelProps: { style: { color: "#fff" } },
-                                            sx: {
-                                                input: { color: "#fff" },
-                                                "& .MuiOutlinedInput-root": {
-                                                    "& fieldset": {
-                                                        borderColor: "#ffb554",
-                                                        borderWidth: "1px",
-                                                        "&:hover": { borderColor: "#ffb554" },
-                                                        "&.Mui-focused": { borderColor: "#ffb554" },
+                            <LocalizationProvider dateAdapter={AdapterDayjs}>
+                                {/* Conditionally render TimePicker - Choose Solution 1 or 2 */}
+                                {formData.eventTime && formData.eventTime.isValid() && (
+                                    <TimePicker
+                                        label="Event Time"
+                                        value={formData.eventTime}
+                                        onChange={(newTime) =>
+                                            setFormData({ ...formData, eventTime: newTime })
+                                        }
+                                        required
+                                        slotProps={{
+                                            textField: {
+                                                fullWidth: true,
+                                                required: true,
+                                                InputLabelProps: { style: { color: "#fff" } },
+                                                sx: {
+                                                    input: { color: "#fff" },
+                                                    "& .MuiOutlinedInput-root": {
+                                                        "& fieldset": {
+                                                            borderColor: "#ffb554",
+                                                            borderWidth: "1px",
+                                                            "&:hover": { borderColor: "#ffb554" },
+                                                            "&.Mui-focused": { borderColor: "#ffb554" },
+                                                        },
                                                     },
                                                 },
                                             },
-                                        },
-                                    }}
-                                />
+                                        }}
+                                    />
+                                )}
                             </LocalizationProvider>
                         </Grid>
 
@@ -315,31 +320,31 @@ const CreateNewEvent = ({ handleCancel, onSubmit }) => {
                         </Grid>
 
                         <Grid item xs={12} sm={6}>
-                        <TextField
-    fullWidth
-    variant="outlined"
-    label="Event Cost"
-    name="eventCost"
-    type="number"
-    value={formData.eventCost}
-    onChange={handleChange}
-    InputLabelProps={{ style: { color: "#fff" } }}
-    InputProps={{
-        startAdornment: (
-            <InputAdornment position="start">
-                ₦
-            </InputAdornment>
-        ),
-    }}
-    sx={{
-        input: { color: "#fff" },
-        "& .MuiOutlinedInput-root": {
-            "& fieldset": { borderColor: "#ffb554" },
-            "&:hover fieldset": { borderColor: "#ffb554" },
-            "&.Mui-focused fieldset": { borderColor: "#ffb554" },
-        },
-    }}
-/>
+                            <TextField
+                                fullWidth
+                                variant="outlined"
+                                label="Event Cost"
+                                name="eventCost"
+                                type="number"
+                                value={formData.eventCost}
+                                onChange={handleChange}
+                                InputLabelProps={{ style: { color: "#fff" } }}
+                                InputProps={{
+                                    startAdornment: (
+                                        <InputAdornment position="start">
+                                            ₦
+                                        </InputAdornment>
+                                    ),
+                                }}
+                                sx={{
+                                    input: { color: "#fff" },
+                                    "& .MuiOutlinedInput-root": {
+                                        "& fieldset": { borderColor: "#ffb554" },
+                                        "&:hover fieldset": { borderColor: "#ffb554" },
+                                        "&.Mui-focused fieldset": { borderColor: "#ffb554" },
+                                    },
+                                }}
+                            />
                         </Grid>
 
                         <Grid item xs={12} sm={6}>
