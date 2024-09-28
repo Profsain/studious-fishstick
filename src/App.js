@@ -26,6 +26,7 @@ import ForgotPassword from './scenes/forgotpassword';
 import { CssBaseline, ThemeProvider } from '@mui/material';
 import { ColorModeContext, useMode } from './theme';
 import OtpVerify from './scenes/otpverify';
+import EditEvent from './scenes/event/EditEvent';
 
 function App() {
   const [theme, colorMode] = useMode();
@@ -69,6 +70,7 @@ function App() {
                       <Route path="/faq" element={<FAQ />} />
                       {/* <Route path="/calendar" element={<Calendar />} /> */}
                       {/* <Route path="/geography" element={<Geography />} /> */}
+                      <Route path="/event/EditEvent/:eventId" element={<EditEvent />} />
                     </Routes>
                   </main>
                 </>
