@@ -401,7 +401,7 @@ const EmailNotification = () => {
                         align="center"
                         color={colors.greenAccent[500]}
                       >
-                        Loading Team...
+                        Loading Emails...
                       </Typography>
                       <CircularProgress
                         size={50}
