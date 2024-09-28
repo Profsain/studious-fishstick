@@ -1,5 +1,5 @@
 /* eslint-disable import/no-unresolved */
-import React, { useState} from "react";
+import React, { useState } from "react";
 import {
   Box,
   TextField,
@@ -11,7 +11,6 @@ import {
 } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import { useTheme } from "@mui/material/styles";
-import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
 
 
 const ForgotPassword = () => {
@@ -152,13 +151,26 @@ const ForgotPassword = () => {
           maxWidth: "90%",
         }}
       >
-        <Avatar sx={{ m: 1, bgcolor: "secondary.main", width: 56, height: 56 }}>
-          <LockOutlinedIcon />
+        <Avatar
+          sx={{
+            m: 1,
+            bgcolor: "secondary.main",
+            width: 56,
+            height: 56,
+          }}
+        >
+          <img
+            src={`${process.env.PUBLIC_URL}/splinxfav.ico`}
+            alt="Logo"
+            style={{ width: "40px", height: "40px" }}
+          />
         </Avatar>
-        <Typography variant="h2" fontWeight="bold" mb={4} color="#262a31">
-          Splinx Planet Password Recovery
+        <Typography align="center" variant="h2" fontWeight="bold" color="#262a31">
+          Splinx Planet
         </Typography>
-
+        <Typography align="center" variant="h5" fontWeight="normal" mb={4} color="#ffb554">
+          Password Recovery
+        </Typography>
         {error && (
           <Typography variant="body2" color="error" mb={2}>
             {error}
@@ -246,8 +258,11 @@ const ForgotPassword = () => {
 
         {/* Forgot Password Link */}
         <Box mt={2}>
-          <Link href="/login" underline="hover" color="primary">
-            Remembered your password? Login
+          <Typography align="center" variant="p" fontWeight="notmal" color="#262a31">
+            Remember your password? &nbsp;
+          </Typography>
+          <Link href="/login" underline="hover" fontWeight="bold" color="#ffb554">
+            Login
           </Link>
         </Box>
       </Box>

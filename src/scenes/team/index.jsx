@@ -19,6 +19,7 @@ import {
   InputBase,
   InputAdornment,
   IconButton,
+  CircularProgress,
 } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
 import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
@@ -26,14 +27,17 @@ import VisibilityIcon from "@mui/icons-material/Visibility";
 import { DataGrid } from "@mui/x-data-grid";
 import { useTheme } from "@mui/material/styles";
 import { tokens } from "../../theme";
-import useMediaQuery from "@mui/material/useMediaQuery";
 import AuthContext from "../../context/AuthContext";
+import useMediaQuery from "@mui/material/useMediaQuery";
 import ViewModal from "./ViewModal";
 import { teamViewFields } from "./teamFields";
 import PersonAddOutlinedIcon from "@mui/icons-material/PersonAddOutlined";
 import Swal from "sweetalert2";
 import CreateNewAdmin from "./CreateNewAdmin";
 import EditAdmin from "./EditAdmin";
+
+
+
 
 const TeamManager = () => {
   // Fetch admin data from the server
@@ -136,7 +140,7 @@ const TeamManager = () => {
           setAdminData((prevData) =>
             prevData.filter((item) => item._id !== admin._id)
           );
-          Swal.fire("Deleted!", "Admin deleted successfully!", "success");
+          Swal.fire(`Deleted!`, `${admin.firstName} ${admin.lastName} deleted successfully!`, 'success'); 
         } else {
           const errorData = await response.json();
           Swal.fire(
@@ -167,7 +171,11 @@ const TeamManager = () => {
     setOpenEditAdmin(false);
     setSelectedAdmin(null); // Reset selected admin
   };
+  const toSentenceCase = (str) => {
 
+
+    return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
+  };
   const columns = [
     {
       field: "profileImage",
@@ -190,6 +198,7 @@ const TeamManager = () => {
         >
           <Typography
             variant="h6"
+            color="#d66748"
             sx={{ fontWeight: "bold", marginRight: "8px" }}
           >
             {`${params.row.firstName} ${params.row.lastName}`}
@@ -224,9 +233,32 @@ const TeamManager = () => {
       headerName: "Phone Number",
       flex: 1,
       hide: isMobile,
-    },
+    },                   
+
     { field: "city", headerName: "Location", flex: 1, hide: isMobile },
-    { field: "role", headerName: "Role", flex: 1, hide: isMobile },
+    {
+      field: "role",
+      headerName: "Role",
+      flex: 1.5,
+      hide: isMobile,
+      renderCell: (params) => {
+        
+        return (
+          <Box display="flex" alignItems="center">
+            <Typography
+              sx={{
+                color: colors.greenAccent[500],
+                fontWeight: "bold", 
+                textTransform: "capitalize",
+              }}
+            >
+              {params.row.role ? toSentenceCase(params.row.role) : "No Role"} {/* Fallback added */}
+            </Typography>
+          </Box>
+        );
+      },
+    },
+
     {
       field: "actions",
       headerName: "Actions",
@@ -267,7 +299,7 @@ const TeamManager = () => {
           ></Button>
           {/* Dropdown Menu for Actions */}
           <Menu
-            anchorEl={anchorEl}
+            anchorEl={anchorEl} nts
             open={Boolean(anchorEl)}
             onClose={handleClose}
           >
@@ -320,14 +352,14 @@ const TeamManager = () => {
               <Typography
                 variant="h2"
                 fontWeight="600"
-                color={colors.grey[100]}
+                color="#d66748"
               >
                 Team Management
               </Typography>
               <Typography
                 variant="subtitle2"
                 fontSize={"16px"}
-                color={colors.greenAccent[500]}
+                color={colors.grey[100]}
               >
                 Add, view, edit, and manage your team members
               </Typography>
@@ -354,7 +386,7 @@ const TeamManager = () => {
                   }}
                   value={searchText}
                   onChange={(e) => setSearchText(e.target.value)}
-                  placeholder="Search Events..."
+                  placeholder="Search Teams..."
                   endAdornment={
                     <InputAdornment position="end">
                       <IconButton type="button" sx={{ p: 1 }}>
@@ -410,9 +442,28 @@ const TeamManager = () => {
                 }}
               >
                 {isLoading ? (
-                  <Typography variant="h5" align="center" color="textSecondary">
-                    Loading data...
-                  </Typography>
+                  <Box display="flex" justifyContent="center" alignItems="center" height="60%">
+                    <Box
+                      display="flex"
+                      flexDirection="column"
+                      justifyContent="center"
+                      alignItems="center"
+                      minHeight="100vh" // Ensures full height if necessary to center vertically
+                    >
+                      <Typography variant="h4" align="center" color={colors.greenAccent[500]}>
+                        Loading Team...
+                      </Typography>
+                      <CircularProgress
+                        size={50}
+                        thickness={5}
+                        sx={{
+                          color: colors.greenAccent[500],
+                          mt: 2 // Adds margin between the text and the spinner
+                        }}
+                      />
+                    </Box>
+
+                  </Box>
                 ) : (
                   <DataGrid
                     checkboxSelection
@@ -421,10 +472,6 @@ const TeamManager = () => {
                     getRowId={(row) => row._id}
                     columns={columns}
                     pageSize={10}
-                    // onRowClick={(params) => {
-                    //   const clickedAdmin = params.row;
-                    //   handleView(clickedAdmin);
-                    // }}
                     rowsPerPageOptions={[10, 25, 50, 100]}
                   />
                 )}

@@ -486,6 +486,7 @@ const AdvertManager = () => {
               handleDelete={handleDelete}
             />
           </Grid>
+
         </Box>
       )}
     </>
