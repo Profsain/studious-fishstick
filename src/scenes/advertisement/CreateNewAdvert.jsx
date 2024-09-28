@@ -42,7 +42,7 @@ const CreateNewAdvert = ({ handleCancel, onSubmit }) => {
         endDate: dayjs(),
         adsStatus: "active",
         adsPosition: "homeTop",
-        createdBy: "", // You might need to fetch the actual logged-in admin name
+        createdBy: "", 
         adsCost: 0,
     });
 
