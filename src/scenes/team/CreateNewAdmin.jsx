@@ -22,6 +22,7 @@ import { useTheme } from "@mui/material/styles";
 import { tokens } from "../../theme"; // Adjust this import as necessary
 import AuthContext from "../../context/AuthContext";
 import { motion } from 'framer-motion'
+import Swal from "sweetalert2";
 
 
 const CreateNewAdmin = ({ handleCancel }) => {
@@ -142,16 +143,24 @@ const CreateNewAdmin = ({ handleCancel }) => {
       clearForm();
       setSuccess(`${formData.firstName} ${formData.lastName} has been added successfully! Click Cancel to close form.`);
 
-      // Move success message to the top and clear after 3 seconds
+      // Move success message clear after 3 seconds
       setTimeout(() => {
         setSuccess("");
       }, 3000);
 
       setLoading(false);
+
+      // Display success message popup
+       Swal.fire(
+         `Success!`,
+         `${formData.firstName} ${formData.lastName} has been added successfully!`,
+         "success"
+       );
     } catch (error) {
       console.error("Error creating new admin:", error);
       setError("An error occurred. Please try again.");
       setLoading(false);
+      Swal.fire(`Error!`, `An error occurred. Please try again.`, "error");
     }
   };
 

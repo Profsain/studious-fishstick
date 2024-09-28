@@ -25,6 +25,7 @@ import useFetchData from "../../hooks/useFetchData";
 import { motion } from "framer-motion";
 import ReactQuill from "react-quill"; // Rich Text Editor
 import "react-quill/dist/quill.snow.css"; // Quill editor styles
+import Swal from "sweetalert2";
 
 const CreateEmail = ({ handleCancel }) => {
   const {
@@ -117,10 +118,10 @@ const CreateEmail = ({ handleCancel }) => {
 
     try {
       const submitData = {
-        createdBy: `${user.firstName} ${user.lastName}`, 
-        subject: formData.subject, 
-        recipients: formData.recipients, 
-        html: formData.message
+        createdBy: `${user.firstName} ${user.lastName}`,
+        subject: formData.subject,
+        recipients: formData.recipients,
+        html: formData.message,
       };
       const response = await fetch(`${apiUrl}/email-notification/send`, {
         method: "POST",
@@ -145,10 +146,22 @@ const CreateEmail = ({ handleCancel }) => {
       );
       setLoading(false);
       setFormError("");
+
+      // Display success message popup
+      Swal.fire(
+        `Success!`,
+        `Email sent successfully to ${formData.recipients.length} recipients.`,
+        "success"
+      );
     } catch (error) {
       console.error("Error sending email:", error);
       setFormError("An error occurred. Please try again.");
       setLoading(false);
+      Swal.fire(
+        `Error!`,
+        `Email not sent to ${formData.recipients.length} recipients. Try again!`,
+        "error"
+      );
     }
   };
 
