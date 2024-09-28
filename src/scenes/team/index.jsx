@@ -27,8 +27,8 @@ import VisibilityIcon from "@mui/icons-material/Visibility";
 import { DataGrid } from "@mui/x-data-grid";
 import { useTheme } from "@mui/material/styles";
 import { tokens } from "../../theme";
-import useMediaQuery from "@mui/material/useMediaQuery";
 import AuthContext from "../../context/AuthContext";
+import useMediaQuery from "@mui/material/useMediaQuery";
 import ViewModal from "./ViewModal";
 import { teamViewFields } from "./teamFields";
 import PersonAddOutlinedIcon from "@mui/icons-material/PersonAddOutlined";
@@ -242,7 +242,7 @@ const TeamManager = () => {
       flex: 1.5,
       hide: isMobile,
       renderCell: (params) => {
-        console.log("params.row:", params.row); // Debugging line to inspect row data
+        
         return (
           <Box display="flex" alignItems="center">
             <Typography
@@ -472,10 +472,6 @@ const TeamManager = () => {
                     getRowId={(row) => row._id}
                     columns={columns}
                     pageSize={10}
-                    // onRowClick={(params) => {
-                    //   const clickedAdmin = params.row;
-                    //   handleView(clickedAdmin);
-                    // }}
                     rowsPerPageOptions={[10, 25, 50, 100]}
                   />
                 )}
