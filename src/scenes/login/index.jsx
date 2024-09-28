@@ -35,7 +35,6 @@ const Login = () => {
 
     try {
       const data = await loginAdmin(email, password);
-      console.log("Login API response:", data);
 
       if (data.success) {
         setToken(data.token);
