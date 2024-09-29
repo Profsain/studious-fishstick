@@ -54,3 +54,7 @@ body {
   box-shadow: 24px;
   padding: 25px;
 }
+
+.swal-top {
+  z-index: 9999 !important; 
+}
