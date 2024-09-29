@@ -215,7 +215,6 @@ const SubscriptionManager = () => {
 
   const handleDelete = async (customer) => {
     handleClose();
-    // ... Your existing SweetAlert confirmation and delete logic ...
     const result = await Swal.fire({
       title: `Are you sure you want to delete ${customer.firstName} ${customer.lastName}?`,
       text: "This action cannot be undone.",
