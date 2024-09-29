@@ -212,7 +212,7 @@ const Sidebar = () => {
               selected={selected}
               setSelected={setSelected}
             />
-            <Item
+            {/* <Item
               title="Withdrawal Request"
               to="/withdrawal"
               icon={
@@ -220,7 +220,7 @@ const Sidebar = () => {
               }
               selected={selected}
               setSelected={setSelected}
-            />
+            /> */}
             <Item
               title="Subscriptions Manager"
               to="/subscriptions"
