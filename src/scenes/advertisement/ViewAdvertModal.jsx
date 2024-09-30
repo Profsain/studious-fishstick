@@ -1,5 +1,3 @@
-// src/scenes/advertisement/ViewAdvertModal.js
-import React from "react";
 import {
   Modal,
   Box,
@@ -18,14 +16,17 @@ import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import { motion } from "framer-motion";
 import moment from "moment";
+// import Swal from "sweetalert2";
+// import PauseCircleOutlineIcon from "@mui/icons-material/PauseCircleOutline";
+// import PlayCircleOutlineIcon from "@mui/icons-material/PlayCircleOutline";
 
 const ViewAdvertModal = ({
   open,
   onClose,
   recordData,
-  fields,
   handleEdit,
   handleDelete,
+  handlePauseToggle,
 }) => {
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
@@ -54,7 +55,6 @@ const ViewAdvertModal = ({
             transition={{ duration: 0.3, ease: "easeInOut" }}
           >
             <Box sx={{ position: "relative" }}>
-              {/* Close Button */}
               <IconButton
                 aria-label="close"
                 onClick={onClose}
@@ -77,16 +77,14 @@ const ViewAdvertModal = ({
                     }}
                   />
                 </Grid>
-
-                {/* Business Name, Status */}
                 <Grid item xs={12} textAlign="center">
                   <Typography variant="h3" fontWeight="bold" mb={1} color={"#ffb554"}>
                     {recordData.businessName}
                   </Typography>
                   <Box display="flex" justifyContent="center" gap={2}>
                     <Chip
-                      label={recordData.adsStatus}
-                      color={recordData.adsStatus === "active" ? "success" : "error"}
+                      label={recordData.adsStatus.charAt(0).toUpperCase() + recordData.adsStatus.slice(1)} 
+                      color={recordData.adsStatus === "active" ? "success" : "error"} 
                       size="medium"
                       sx={{ fontWeight: "bold", fontSize: 16 }}
                     />
@@ -94,22 +92,63 @@ const ViewAdvertModal = ({
                 </Grid>
               </Grid>
 
-              {/* Advert Details Section */}
-              <Typography variant="h6" color={colors.grey[100]}>
-                Advert Details
+              {/* Business Information Section */}
+              <Typography variant="h6" color={colors.grey[100]} sx={{ mb: 1 }}>
+                Business Information
               </Typography>
-              <Divider sx={{ my: 2 }} />
+              <Divider sx={{ my: 1 }} />
               <Grid container spacing={2} rowSpacing={1}>
-
-                {/* Start Date */}
-                <Grid item xs={12} sm={6} key="startDate">
+                {/* Business Name */}
+                <Grid item xs={12} sm={6}>
                   <Box display="flex" alignItems="center" mb={1}>
-                    <Typography
-                      sx={{
-                        fontWeight: "bold",
-                        color: colors.greenAccent[500],
-                      }}
-                    >
+                    <Typography sx={{ fontWeight: "bold", color: colors.greenAccent[500] }}>
+                      Name:
+                    </Typography>
+                    <Typography sx={{ ml: 1 }}>{recordData.businessName}</Typography>
+                  </Box>
+                </Grid>
+
+                {/* Business Phone */}
+                <Grid item xs={12} sm={6}>
+                  <Box display="flex" alignItems="center" mb={1}>
+                    <Typography sx={{ fontWeight: "bold", color: colors.greenAccent[500] }}>
+                      Phone:
+                    </Typography>
+                    <Typography sx={{ ml: 1 }}>{recordData.businessPhone}</Typography>
+                  </Box>
+                </Grid>
+
+                {/* Business Address */}
+                <Grid item xs={12} sm={6}>
+                  <Box display="flex" alignItems="center" mb={1}>
+                    <Typography sx={{ fontWeight: "bold", color: colors.greenAccent[500] }}>
+                      Address:
+                    </Typography>
+                    <Typography sx={{ ml: 1 }}>{recordData.businessAddress}</Typography>
+                  </Box>
+                </Grid>
+
+                {/* Ads Text (Full Row) */}
+                <Grid item xs={12} sm={6}>
+                  <Box display="flex" alignItems="center" mb={1}>
+                    <Typography sx={{ fontWeight: "bold", color: colors.greenAccent[500] }}>
+                      Ads Text:
+                    </Typography>
+                    <Typography sx={{ ml: 1 }}>{recordData.adsText}</Typography>
+                  </Box>
+                </Grid>
+              </Grid>
+
+              {/* Advert Information Section */}
+              <Typography variant="h6" color={colors.grey[100]} sx={{ mb: 1, mt: 2 }}>
+                Advert Information
+              </Typography>
+              <Divider sx={{ my: 1 }} />
+              <Grid container spacing={2} rowSpacing={1}>
+                {/* Start Date */}
+                <Grid item xs={12} sm={6}>
+                  <Box display="flex" alignItems="center" mb={1}>
+                    <Typography sx={{ fontWeight: "bold", color: colors.greenAccent[500] }}>
                       Start Date:
                     </Typography>
                     <Typography sx={{ ml: 1 }}>
@@ -119,14 +158,9 @@ const ViewAdvertModal = ({
                 </Grid>
 
                 {/* End Date */}
-                <Grid item xs={12} sm={6} key="endDate">
+                <Grid item xs={12} sm={6}>
                   <Box display="flex" alignItems="center" mb={1}>
-                    <Typography
-                      sx={{
-                        fontWeight: "bold",
-                        color: colors.greenAccent[500],
-                      }}
-                    >
+                    <Typography sx={{ fontWeight: "bold", color: colors.greenAccent[500] }}>
                       End Date:
                     </Typography>
                     <Typography sx={{ ml: 1 }}>
@@ -135,37 +169,45 @@ const ViewAdvertModal = ({
                   </Box>
                 </Grid>
 
-                {/* Business Address */}
-                <Grid item xs={12} sm={6} key="businessAddress">
+                {/* Advert Position */}
+                <Grid item xs={12} sm={6}>
                   <Box display="flex" alignItems="center" mb={1}>
-                    <Typography
-                      sx={{
-                        fontWeight: "bold",
-                        color: colors.greenAccent[500],
-                      }}
-                    >
-                      Address:
+                    <Typography sx={{ fontWeight: "bold", color: colors.greenAccent[500] }}>
+                      Position:
+                    </Typography>
+                    <Typography sx={{ ml: 1 }}>{recordData.adsPosition}</Typography>
+                  </Box>
+                </Grid>
+
+                {/* Created By */}
+                <Grid item xs={12} sm={6}>
+                  <Box display="flex" alignItems="center" mb={1}>
+                    <Typography sx={{ fontWeight: "bold", color: colors.greenAccent[500] }}>
+                      Created By:
+                    </Typography>
+                    <Typography sx={{ ml: 1 }}>{recordData.createdBy}</Typography>
+                  </Box>
+                </Grid>
+
+                {/* Created Date */}
+                <Grid item xs={12} sm={6}>
+                  <Box display="flex" alignItems="center" mb={1}>
+                    <Typography sx={{ fontWeight: "bold", color: colors.greenAccent[500] }}>
+                      Created Date:
                     </Typography>
                     <Typography sx={{ ml: 1 }}>
-                      {recordData.businessAddress}
+                      {moment(recordData.createdDate).format("MMMM Do YYYY")}
                     </Typography>
                   </Box>
                 </Grid>
 
-                {/* Business Phone */}
-                <Grid item xs={12} sm={6} key="businessPhone">
+                {/* Ads Cost */}
+                <Grid item xs={12} sm={6}>
                   <Box display="flex" alignItems="center" mb={1}>
-                    <Typography
-                      sx={{
-                        fontWeight: "bold",
-                        color: colors.greenAccent[500],
-                      }}
-                    >
-                      Phone:
+                    <Typography sx={{ fontWeight: "bold", color: colors.greenAccent[500] }}>
+                      Cost:
                     </Typography>
-                    <Typography sx={{ ml: 1 }}>
-                      {recordData.businessPhone}
-                    </Typography>
+                    <Typography sx={{ ml: 1 }}>₦{recordData.adsCost.toLocaleString()}</Typography>
                   </Box>
                 </Grid>
               </Grid>
@@ -185,7 +227,6 @@ const ViewAdvertModal = ({
                 >
                   Return to Dashboard
                 </Button>
-                {/* Edit Button */}
                 <IconButton
                   onClick={() => {
                     handleEdit(recordData);
@@ -196,7 +237,29 @@ const ViewAdvertModal = ({
                 >
                   <EditIcon />
                 </IconButton>
-                {/* Delete Button */}
+                {/* Pause/Unpause Button */}
+                {/* <IconButton
+                  onClick={async () => {
+                    // Confirmation dialog using SweetAlert
+                    const result = await Swal.fire({
+                      title: `Are you sure you want to ${recordData.adsStatus === 'pause' ? 'reactivate' : 'pause'} this advert?`,
+                      icon: 'warning',
+                      showCancelButton: true,
+                      confirmButtonColor: '#3085d6',
+                      cancelButtonColor: '#d33',
+                      confirmButtonText: `Yes, ${recordData.adsStatus === 'pause' ? 'reactivate' : 'pause'} it!`
+                    });
+
+                    if (result.isConfirmed) {
+                      handlePauseToggle(recordData);
+                      onClose(); 
+                    }
+                  }}
+                  aria-label="pause/unpause"
+                  sx={{ ml: 2, color: recordData.adsStatus === 'pause' ? 'green' : 'orange'  }} // Conditional color
+                >
+                  {recordData.adsStatus === 'pause' ? <PlayCircleOutlineIcon /> : <PauseCircleOutlineIcon />} 
+                </IconButton> */}
                 <IconButton
                   onClick={() => {
                     handleDelete(recordData);

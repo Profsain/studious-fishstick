@@ -6,6 +6,8 @@ import {
   Button,
   Grid,
   Paper,
+  FormControl,
+  InputLabel,
   CircularProgress,
   Alert,
   AlertTitle,
@@ -25,7 +27,7 @@ import dayjs from "dayjs";
 import Swal from "sweetalert2";
 import CalendarTodayOutlinedIcon from "@mui/icons-material/CalendarTodayOutlined";
 
-const EditAdvert = ({ advertData, handleCancel, onSubmit }) => { 
+const EditAdvert = ({ advertData, handleCancel, onSubmit }) => {
   // const navigate = useNavigate();
   const apiUrl = process.env.REACT_APP_API_URL;
   const { token } = useContext(AuthContext);
@@ -36,14 +38,14 @@ const EditAdvert = ({ advertData, handleCancel, onSubmit }) => {
     businessName: "",
     businessAddress: "",
     businessPhone: "",
-    adsText: "", 
+    adsText: "",
     adsImage: "",
     startDate: dayjs(),
     endDate: dayjs(),
     adsStatus: "active",
-    adsPosition: "homeTop", 
-    createdBy: "Super Admin", 
-    adsCost: 0, 
+    adsPosition: "homeTop",
+    createdBy: "",
+    adsCost: 0,
   });
 
   const [error, setError] = useState(null);
@@ -57,13 +59,13 @@ const EditAdvert = ({ advertData, handleCancel, onSubmit }) => {
         startDate: dayjs(advertData.startDate),
         endDate: dayjs(advertData.endDate),
       };
-      setFormData(formattedData); 
+      setFormData(formattedData);
     }
-  }, [advertData]); 
+  }, [advertData]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value })); 
+    setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleSubmit = async (e) => {
@@ -73,7 +75,7 @@ const EditAdvert = ({ advertData, handleCancel, onSubmit }) => {
 
     try {
       const response = await fetch(`${apiUrl}/advert/${advertData._id}`, {
-        method: "PUT", 
+        method: "PUT",
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
@@ -89,11 +91,11 @@ const EditAdvert = ({ advertData, handleCancel, onSubmit }) => {
 
       Swal.fire({
         title: "Success!",
-        text: "The advert has been updated successfully!",
+        text: `${formData.businessName} has been updated successfully!`,
         icon: "success",
         confirmButtonColor: colors.greenAccent[600],
       }).then(() => {
-        onSubmit(formData); 
+        onSubmit(formData);
       });
     } catch (error) {
       console.error("Error updating advert:", error);
@@ -117,10 +119,11 @@ const EditAdvert = ({ advertData, handleCancel, onSubmit }) => {
       <Box m="20px" component={Paper} elevation={3} sx={{ padding: 3 }}>
         <Grid container spacing={2} alignItems="center" justifyContent="space-between">
           <Grid item>
-            <Typography variant="h4" fontWeight="600" color={colors.greenAccent[500]}>
-              Edit Advert
+            <Typography variant="h2" fontWeight="600" color={colors.greenAccent[500]}>
+              {`Edit ${formData.businessName}'s Advert`}
             </Typography>
           </Grid>
+
           <Grid item>
             <Button
               variant="outlined"
@@ -140,10 +143,10 @@ const EditAdvert = ({ advertData, handleCancel, onSubmit }) => {
         </Grid>
 
         <Typography variant="body1" color={colors.grey[100]} sx={{ mb: 2 }}>
-          Edit the advert details below. 
+          Edit the advert details below. Click Cancel to go back.
         </Typography>
-                {/* Error Display */}
-                {error && (
+        {/* Error Display */}
+        {error && (
           <Alert severity="error" sx={{ mt: 2 }}>
             <AlertTitle>Error</AlertTitle>
             {error}
@@ -219,17 +222,17 @@ const EditAdvert = ({ advertData, handleCancel, onSubmit }) => {
             </Grid>
 
             {/* Ads Text (Full Row) */}
+            {/* Ads Text (Full Row) */}
             <Grid item xs={12}>
               <TextField
                 fullWidth
-                variant="outlined"
+                multiline
+                rows={4} // Number of rows for the textarea
                 label="Ads Text"
                 name="adsText"
                 value={formData.adsText}
                 onChange={handleChange}
                 required
-                multiline
-                rows={4}
                 InputLabelProps={{ style: { color: "#fff" } }}
                 sx={{
                   input: { color: "#fff" },
@@ -269,57 +272,53 @@ const EditAdvert = ({ advertData, handleCancel, onSubmit }) => {
                 <DatePicker
                   label="Start Date"
                   value={formData.startDate}
-                  onChange={(newDate) =>
-                    setFormData({ ...formData, startDate: newDate })
-                  }
-                  renderInput={(params) => (
-                    <TextField
-                      {...params}
-                      fullWidth
-                      required
-                      InputLabelProps={{ style: { color: "#fff" } }}
-                      sx={{
+                  onChange={(newDate) => setFormData({ ...formData, startDate: newDate })}
+                  required
+                  slotProps={{
+                    textField: {
+                      fullWidth: true,
+                      required: true,
+                      InputLabelProps: { style: { color: "#fff" } },
+                      sx: {
                         input: { color: "#fff" },
                         "& .MuiOutlinedInput-root": {
-                          "& fieldset": { borderColor: "#ffb554" },
-                          "&:hover fieldset": { borderColor: "#ffb554" },
-                          "&.Mui-focused fieldset": {
+                          "& fieldset": {
                             borderColor: "#ffb554",
+                            borderWidth: "1px",
+                            "&:hover": { borderColor: "#ffb554" },
+                            "&.Mui-focused": { borderColor: "#ffb554" },
                           },
                         },
-                      }}
-                    />
-                  )}
+                      },
+                    },
+                  }}
                 />
               </LocalizationProvider>
             </Grid>
+
 
             <Grid item xs={12} sm={6}>
               <LocalizationProvider dateAdapter={AdapterDayjs}>
                 <DatePicker
                   label="End Date"
                   value={formData.endDate}
-                  onChange={(newDate) =>
-                    setFormData({ ...formData, endDate: newDate })
-                  }
-                  renderInput={(params) => (
-                    <TextField
-                      {...params}
-                      fullWidth
-                      required
-                      InputLabelProps={{ style: { color: "#fff" } }}
-                      sx={{
+                  onChange={(newDate) => setFormData({ ...formData, endDate: newDate })}
+                  required
+                  slotProps={{
+                    textField: {
+                      fullWidth: true,
+                      required: true,
+                      InputLabelProps: { style: { color: "#fff" } },
+                      sx: {
                         input: { color: "#fff" },
                         "& .MuiOutlinedInput-root": {
                           "& fieldset": { borderColor: "#ffb554" },
                           "&:hover fieldset": { borderColor: "#ffb554" },
-                          "&.Mui-focused fieldset": {
-                            borderColor: "#ffb554",
-                          },
+                          "&.Mui-focused fieldset": { borderColor: "#ffb554" },
                         },
-                      }}
-                    />
-                  )}
+                      },
+                    },
+                  }}
                 />
               </LocalizationProvider>
             </Grid>
@@ -351,31 +350,53 @@ const EditAdvert = ({ advertData, handleCancel, onSubmit }) => {
               />
             </Grid>
 
+            {/* Advert Position (Full Row) */}
             <Grid item xs={12} sm={6}>
-              <Select
-                fullWidth
-                variant="outlined"
-                label="Advert Position"
-                name="adsPosition"
-                value={formData.adsPosition}
-                onChange={handleChange}
-                required
-                InputLabelProps={{ style: { color: "#fff" } }}
-                sx={{
-                  input: { color: "#fff" },
-                  "& .MuiOutlinedInput-root": {
-                    "& fieldset": { borderColor: "#ffb554" },
-                    "&:hover fieldset": { borderColor: "#ffb554" },
-                    "&.Mui-focused fieldset": { borderColor: "#ffb554" },
-                  },
-                }}
-              >
-                <MenuItem value="homeTop">Home Top</MenuItem>
-                <MenuItem value="eventsCard">Events Card</MenuItem>
-                <MenuItem value="footer">Footer</MenuItem>
-              </Select>
+              <FormControl fullWidth variant="outlined" required>
+                <InputLabel id="adsPosition-label" sx={{ color: "#fff" }}>
+                  Advert Position
+                </InputLabel>
+                <Select
+                  labelId="adsPosition-label"
+                  id="adsPosition"
+                  name="adsPosition"
+                  value={formData.adsPosition}
+                  onChange={handleChange}
+                  label="Advert Position"
+                  sx={{
+                    input: { color: "#fff" },
+                    "& .MuiOutlinedInput-notchedOutline": { // Target the correct class
+                      borderColor: "#ffb554",
+                      "&:hover": {
+                        borderColor: "#ffb554",
+                      },
+                      "&.Mui-focused": {
+                        borderColor: "#ffb554",
+                      },
+                    },
+                  }}
+                >
+                  <MenuItem value="homeTop">Home Top</MenuItem>
+                  <MenuItem value="eventsCard">Events Card</MenuItem>
+                  <MenuItem value="footer">Footer</MenuItem>
+                </Select>
+              </FormControl>
             </Grid>
 
+            {/* Created By (Disabled and Populated) */}
+            <Grid item xs={12} sm={6}>
+              <Typography
+                variant="subtitle1"
+                sx={{
+                  color: "#fff",
+                  border: "1px solid #ffb554", // Add the border
+                  padding: "14px 16px", // Add padding to match TextField
+                  borderRadius: "4px" // Add rounded corners
+                }}
+              >
+                Created By: {formData.createdBy}
+              </Typography>
+            </Grid>
             {/* Submit Button (Centered) */}
             <Grid
               item
@@ -401,7 +422,7 @@ const EditAdvert = ({ advertData, handleCancel, onSubmit }) => {
                 {loading ? (
                   <CircularProgress color="inherit" size={24} />
                 ) : (
-                  "Update Advert" 
+                  "Update Advert"
                 )}
               </Button>
             </Grid>

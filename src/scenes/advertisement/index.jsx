@@ -31,10 +31,13 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import ViewAdvertModal from "./ViewAdvertModal";
 import CreateNewAdvert from "./CreateNewAdvert";
 import EditAdvert from "./EditAdvert";
+import PauseCircleOutlineIcon from "@mui/icons-material/PauseCircleOutline";
+import PlayCircleOutlineIcon from "@mui/icons-material/PlayCircleOutline";
+import RefreshIcon from "@mui/icons-material/Refresh";
 
 const AdvertManager = () => {
   const apiUrl = process.env.REACT_APP_API_URL;
-  const { token } = useContext(AuthContext);
+  const { token, id } = useContext(AuthContext);
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
   const [openViewModal, setOpenViewModal] = useState(false);
@@ -44,8 +47,6 @@ const AdvertManager = () => {
   const [adverts, setAdverts] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [anchorEl, setAnchorEl] = useState(null);
-  // const navigate = useNavigate();
-  // State to control visibility of the create and edit forms
   const [openCreateAdvert, setOpenCreateAdvert] = useState(false);
   const [openEditAdvert, setOpenEditAdvert] = useState(false);
 
@@ -166,10 +167,10 @@ const AdvertManager = () => {
     setSelectedAdvert(advert); // Set the selected advert to edit
     setOpenEditAdvert(true); // Open the edit modal
   };
- // Handle canceling form creation (from CreateNewAdvert and EditAdvert)
- const handleCloseCreateAdvert = () => {
-  setOpenCreateAdvert(false); 
-};
+  // Handle canceling form creation (from CreateNewAdvert and EditAdvert)
+  const handleCloseCreateAdvert = () => {
+    setOpenCreateAdvert(false);
+  };
 
   const handleCloseEditModal = () => {
     setOpenEditAdvert(false);
@@ -180,7 +181,7 @@ const AdvertManager = () => {
   const handleNewAdvertSubmit = (newAdvertData) => {
     setAdverts(prevAdverts => [...prevAdverts, newAdvertData]);
     handleCloseCreateAdvert();
-    fetchAdverts(); 
+    fetchAdverts();
   };
 
   // Handle edit advert submission
@@ -194,33 +195,120 @@ const AdvertManager = () => {
       setAdverts(updatedAdverts);
     }
     handleCloseEditModal();
-    fetchAdverts(); 
+    fetchAdverts();
+  };
+  const handlePauseToggle = async (advert) => {
+    try {
+      const newStatus = advert.adsStatus === "pause" ? "active" : "pause";
+      const actionText = newStatus === "pause" ? "pause" : "reactivate";
+
+      const result = await Swal.fire({
+        title: `Are you sure you want to ${actionText} ${advert.businessName}'s Advert?`, // Use advert.businessName
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#3085d6",
+        cancelButtonColor: "#d33",
+        confirmButtonText: `Yes, ${actionText} it!`,
+      });
+
+      if (result.isConfirmed) {
+        const response = await fetch(`${apiUrl}/advert/${advert._id}`, {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({ ...advert, adsStatus: newStatus }),
+        });
+
+        if (response.ok) {
+          fetchAdverts();
+          Swal.fire({
+            title: "Success!",
+            text: `${advert.businessName}'s Advert ${actionText}d successfully!`,
+            icon: "success",
+            confirmButtonColor: colors.greenAccent[600],
+          });
+        } else {
+          const errorData = await response.json();
+          Swal.fire({ // Use Swal for error as well
+            title: "Error!",
+            text: errorData.message || "Failed to update advert status.",
+            icon: "error",
+            confirmButtonColor: colors.redAccent[600], 
+          });
+        }
+      }
+      
+    } catch (error) {
+      console.error("Error toggling advert status:", error);
+      Swal.fire({
+        title: "Error!",
+        text: "An error occurred while updating the advert status.",
+        icon: "error",
+        confirmButtonColor: colors.redAccent[600],
+      });
+    }
   };
 
+  const handleRenew = async (advert) => {
+    try {
+      const result = await Swal.fire({
+        title: `Are you sure you want to renew ${advert.businessName}'s Advert?`, // Use advert.businessName
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#3085d6",
+        cancelButtonColor: "#d33",
+        confirmButtonText: "Yes, renew it!",
+        customClass: {  // Add the customClass option here
+          popup: 'swal-top', 
+        },
+      });
+
+      if (result.isConfirmed) {
+        const response = await fetch(`${apiUrl}/advert/${advert._id}`, {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({ ...advert, adsStatus: "active" }),
+        });
+
+        if (response.ok) {
+          fetchAdverts();
+          Swal.fire({
+            title: "Success!",
+            text: `${advert.businessName} renewed successfully!`,
+            icon: "success",
+            confirmButtonColor: colors.greenAccent[600],
+          });
+        } else {
+          const errorData = await response.json();
+          Swal.fire({ // Use Swal for error 
+            title: "Error!",
+            text: errorData.message || "Failed to renew advert.",
+            icon: "error",
+            confirmButtonColor: colors.redAccent[600],
+          });
+        }
+      }
+    } catch (error) {
+      console.error("Error renewing advert:", error);
+      Swal.fire({
+        title: "Error!",
+        text: "An error occurred while renewing the advert.",
+        icon: "error",
+        confirmButtonColor: colors.redAccent[600],
+      });
+    }
+  };
   const columns = [
-    {
-      field: "startDate",
-      headerName: "Start Date",
-      width: 130,
-      valueGetter: (params) => {
-        const date = new Date(params.row.startDate);
-        return moment(date).format("MM/DD/YYYY");
-      },
-    },
-    {
-      field: "endDate",
-      headerName: "End Date",
-      width: 130,
-      valueGetter: (params) => {
-        const date = new Date(params.row.endDate);
-        return moment(date).format("MM/DD/YYYY");
-      },
-    },
     {
       // New image banner column
       field: "adsImage", // Assuming this is the field name in your API data
       headerName: "Banner",
-      width: 150, // Adjust width as needed
+      width: 100, // Adjust width as needed
       renderCell: (params) => (
         <img
           src={params.row.adsImage}
@@ -229,24 +317,61 @@ const AdvertManager = () => {
         />
       ),
     },
+    {
+      field: "startDate",
+      headerName: "Start Date",
+      width: 90,
+      valueGetter: (params) => {
+        const date = new Date(params.row.startDate);
+        return moment(date).format("MM/DD/YYYY");
+      },
+    },
+    {
+      field: "endDate",
+      headerName: "End Date",
+      width: 90,
+      valueGetter: (params) => {
+        const date = new Date(params.row.endDate);
+        return moment(date).format("MM/DD/YYYY");
+      },
+    },
     { field: "businessName", headerName: "Business Name", flex: 2 },
-    { field: "businessAddress", headerName: "Address", flex: 2 },
+    { field: "businessAddress", headerName: "Address", flex: 2.5 },
     { field: "businessPhone", headerName: "Phone", flex: 1 },
     {
       field: "adsStatus",
       headerName: "Ads Status",
-      width: 150,
-      renderCell: ({ row: { adsStatus } }) => (
-        <Chip
-          label={adsStatus}
-          color={adsStatus === "active" ? "success" : "error"}
-        />
-      ),
+      width: 90,
+      renderCell: ({ row: { adsStatus } }) => {
+        // Convert adsStatus to sentence case
+        const capitalizeStatus = adsStatus.charAt(0).toUpperCase() + adsStatus.slice(1);
+
+        // Define color coding for each status
+        const getColor = (status) => {
+          switch (status) {
+            case 'active':
+              return 'success'; // Green for active
+            case 'pause':
+              return 'warning'; // Orange for pause
+            case 'expired':
+              return 'error';   // Red for expired
+            default:
+              return 'default'; // Default color
+          }
+        };
+
+        return (
+          <Chip
+            label={capitalizeStatus}
+            color={getColor(adsStatus)}
+          />
+        );
+      },
     },
     {
       field: "actions",
       headerName: "Actions",
-      width: 200, // Adjust width as needed
+      width: 150,
       renderCell: (params) => (
         <ButtonGroup
           variant="contained"
@@ -256,7 +381,7 @@ const AdvertManager = () => {
             overflow: "hidden",
           }}
         >
-          {" "}
+          {/* View Button */}
           <Button
             sx={{
               backgroundColor: colors.greenAccent[600],
@@ -266,10 +391,11 @@ const AdvertManager = () => {
               },
             }}
             onClick={() => handleView(params.row)}
-            startIcon={<VisibilityIcon />} // Add the VisibilityIcon (eye)
+            startIcon={<VisibilityIcon />}
           >
             View
           </Button>
+
           {/* Action Button  */}
           <Button
             sx={{
@@ -282,6 +408,7 @@ const AdvertManager = () => {
             onClick={(event) => handleClick(event, params.row)}
             endIcon={<ArrowDropDownIcon />}
           ></Button>
+
           {/* Dropdown Menu for Actions */}
           <Menu
             anchorEl={anchorEl}
@@ -298,8 +425,44 @@ const AdvertManager = () => {
               <EditIcon sx={{ mr: 1 }} />
               Edit
             </MenuItem>
+
+            {/* Pause/Unpause Menu Item */}
+            <MenuItem
+              onClick={() => {
+                if (selectedAdvert) {
+                  handlePauseToggle(selectedAdvert);
+                  handleClose();
+                }
+              }}
+            >
+              {selectedAdvert && selectedAdvert.adsStatus === "pause" ? (
+                <><PlayCircleOutlineIcon sx={{ mr: 1, color: "green" }} />Reactivate</>
+              ) : (
+                <><PauseCircleOutlineIcon sx={{ mr: 1, color: "orange" }} />Pause</>
+              )}
+            </MenuItem>
+
+            {/* Renew Menu Item (only show if expired) */}
+            {selectedAdvert && selectedAdvert.adsStatus === "expired" && (
+              <MenuItem
+                onClick={() => {
+                  handleRenew(selectedAdvert);
+                  handleClose();
+                }}
+              >
+                <><RefreshIcon sx={{ mr: 1, color: "blue" }} />Renew</>
+              </MenuItem>
+            )}
+
             {/* Delete Menu Item with SweetAlert Confirmation */}
-            <MenuItem onClick={() => handleDelete(selectedAdvert._id)}>
+            <MenuItem
+              onClick={() => {
+                if (selectedAdvert) {
+                  handleDelete(selectedAdvert._id);
+                  handleClose();
+                }
+              }}
+            >
               <DeleteIcon sx={{ mr: 1 }} />
               Delete
             </MenuItem>
@@ -316,6 +479,7 @@ const AdvertManager = () => {
         <CreateNewAdvert
           handleCancel={handleCreateAdvert}
           onSubmit={handleNewAdvertSubmit}
+          id={id}
         />
       ) : openEditAdvert ? (
         <EditAdvert
@@ -482,8 +646,9 @@ const AdvertManager = () => {
               open={openViewModal}
               onClose={handleCloseModal}
               recordData={selectedAdvert}
-              handleEdit={handleEdit} 
+              handleEdit={handleEdit}
               handleDelete={handleDelete}
+              handlePauseToggle={handlePauseToggle} 
             />
           </Grid>
 

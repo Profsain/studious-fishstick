@@ -28,68 +28,74 @@ import CalendarTodayOutlinedIcon from "@mui/icons-material/CalendarTodayOutlined
 
 const CreateNewAdvert = ({ handleCancel, onSubmit }) => {
     const apiUrl = process.env.REACT_APP_API_URL;
-    const { token, userId } = useContext(AuthContext);
+    const { token, user } = useContext(AuthContext);
     const theme = useTheme();
     const colors = tokens(theme.palette.mode);
 
     const [formData, setFormData] = useState({
-        businessName: "",
-        businessAddress: "",
-        businessPhone: "",
-        adsText: "",
-        adsImage: "",
+        businessName: '',
+        businessAddress: '',
+        businessPhone: '',
+        adsText: '',
+        adsImage: '',
         startDate: dayjs(),
         endDate: dayjs(),
-        adsStatus: "active",
-        adsPosition: "homeTop",
-        createdBy: "", // You might need to fetch the actual logged-in admin name
+        adsStatus: 'active',
+        adsPosition: 'homeTop',
+        createdBy: '',
         adsCost: 0,
     });
 
     const [error, setError] = useState(null);
     const [loading, setLoading] = useState(false);
-    const [adminName, setAdminName] = useState(""); // State for admin name
+    // const [adminName, setAdminName] = useState(""); // State for admin name
 
     // Fetch admin name using the correct endpoint
+    // useEffect(() => {
+    //     const fetchAdminDetails = async () => {
+    //         try {
+    //             const response = await fetch(`${apiUrl}/get-admin/${id}`, {
+    //                 headers: {
+    //                     Authorization: `Bearer ${token}`,
+    //                 },
+    //             });
+
+    //             if (!response.ok) {
+    //                 throw new Error("Failed to fetch admin details");
+    //             }
+
+    //             const data = await response.json();
+    //             console.log("Response:", response);
+    //             console.log("Data:", data);
+
+    //             if (data.firstName) {
+    //                 setAdminName(data.firstName);
+    //             } else {
+    //                 console.error("Admin name not found in response:", data);
+    //                 setError("Could not retrieve admin name. Please try again.");
+    //             }
+    //         } catch (error) {
+    //             console.error("Error fetching admin details:", error);
+    //             setError("An error occurred while fetching admin details.");
+    //         }
+    //     };
+
+    //     if (id) { 
+    //         fetchAdminDetails();
+    //       }
+    //     }, [apiUrl, token, id]);
+
+    // useEffect(() => {
+    //     // Update formData with admin name when it's fetched
+    //     setFormData((prevData) => ({ ...prevData, createdBy: adminName }));
+    // }, [adminName]);
+
+    // Set 'createdBy' when the component mounts and the user is available 
     useEffect(() => {
-        const fetchAdminDetails = async () => {
-            try {
-                const response = await fetch(`${apiUrl}/get-admin/${userId}`, {
-                    headers: {
-                        Authorization: `Bearer ${token}`,
-                    },
-                });
-
-                if (!response.ok) {
-                    throw new Error("Failed to fetch admin details");
-                }
-
-                const data = await response.json();
-                console.log("Response:", response);
-                console.log("Data:", data);
-
-                if (data.firstName) {
-                    setAdminName(data.firstName);
-                } else {
-                    console.error("Admin name not found in response:", data);
-                    setError("Could not retrieve admin name. Please try again.");
-                }
-            } catch (error) {
-                console.error("Error fetching admin details:", error);
-                setError("An error occurred while fetching admin details.");
-            }
-        };
-
-        // Only fetch if userId is not null
-        if (userId) {
-            fetchAdminDetails();
+        if (user) {
+            setFormData((prevData) => ({ ...prevData, createdBy: `${user.firstName} ${user.lastName}` }));
         }
-    }, [apiUrl, token, userId]);
-
-    useEffect(() => {
-        // Update formData with admin name when it's fetched
-        setFormData((prevData) => ({ ...prevData, createdBy: adminName }));
-    }, [adminName]);
+    }, [user]);
 
 
     const handleChange = (e) => {
@@ -105,12 +111,12 @@ const CreateNewAdvert = ({ handleCancel, onSubmit }) => {
 
         try {
             const response = await fetch(`${apiUrl}/advert/create`, {
-              method: "POST",
-              headers: {
-                "Content-Type": "application/json",
-                Authorization: `Bearer ${token}`,
-              },
-              body: JSON.stringify(formData),
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${token}`,
+                },
+                body: JSON.stringify(formData),
             });
 
             if (!response.ok) {
@@ -131,7 +137,7 @@ const CreateNewAdvert = ({ handleCancel, onSubmit }) => {
                 endDate: dayjs(),
                 adsStatus: "active",
                 adsPosition: "homeTop",
-                createdBy: "Super Admin",
+                // createdBy: "",
                 adsCost: 0,
             });
 
@@ -401,10 +407,14 @@ const CreateNewAdvert = ({ handleCancel, onSubmit }) => {
                                     InputLabelProps={{ style: { color: "#fff" } }}
                                     sx={{
                                         input: { color: "#fff" },
-                                        "& .MuiOutlinedInput-root": {
-                                            "& fieldset": { borderColor: "#ffb554" },
-                                            "&:hover fieldset": { borderColor: "#ffb554" },
-                                            "&.Mui-focused fieldset": { borderColor: "#ffb554" },
+                                        "& .MuiOutlinedInput-notchedOutline": {
+                                            borderColor: "#ffb554",
+                                            "&:hover": {
+                                                borderColor: "#ffb554",
+                                            },
+                                            "&.Mui-focused": {
+                                                borderColor: "#ffb554",
+                                            },
                                         },
                                     }}
                                 >
@@ -415,24 +425,19 @@ const CreateNewAdvert = ({ handleCancel, onSubmit }) => {
                             </FormControl>
                         </Grid>
 
+                        {/* Created By (Displayed with Typography and border) */}
                         <Grid item xs={12} sm={6}>
-                            <TextField
-                                fullWidth
-                                variant="outlined"
-                                label="Created By"
-                                name="createdBy"
-                                value={formData.createdBy}
-                                disabled
-                                InputLabelProps={{ style: { color: "#fff" } }}
+                            <Typography
+                                variant="subtitle1"
                                 sx={{
-                                    input: { color: "#fff" },
-                                    "& .MuiOutlinedInput-root": {
-                                        "& fieldset": { borderColor: "#ffb554" },
-                                        "&:hover fieldset": { borderColor: "#ffb554" },
-                                        "&.Mui-focused fieldset": { borderColor: "#ffb554" },
-                                    },
+                                    color: "#fff",
+                                    border: "1px solid #ffb554",
+                                    padding: "14px 16px",
+                                    borderRadius: "4px",
                                 }}
-                            />
+                            >
+                                Created By: {formData.createdBy}
+                            </Typography>
                         </Grid>
 
 
