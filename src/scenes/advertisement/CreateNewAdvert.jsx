@@ -48,47 +48,6 @@ const CreateNewAdvert = ({ handleCancel, onSubmit }) => {
 
     const [error, setError] = useState(null);
     const [loading, setLoading] = useState(false);
-    // const [adminName, setAdminName] = useState(""); // State for admin name
-
-    // Fetch admin name using the correct endpoint
-    // useEffect(() => {
-    //     const fetchAdminDetails = async () => {
-    //         try {
-    //             const response = await fetch(`${apiUrl}/get-admin/${id}`, {
-    //                 headers: {
-    //                     Authorization: `Bearer ${token}`,
-    //                 },
-    //             });
-
-    //             if (!response.ok) {
-    //                 throw new Error("Failed to fetch admin details");
-    //             }
-
-    //             const data = await response.json();
-    //             console.log("Response:", response);
-    //             console.log("Data:", data);
-
-    //             if (data.firstName) {
-    //                 setAdminName(data.firstName);
-    //             } else {
-    //                 console.error("Admin name not found in response:", data);
-    //                 setError("Could not retrieve admin name. Please try again.");
-    //             }
-    //         } catch (error) {
-    //             console.error("Error fetching admin details:", error);
-    //             setError("An error occurred while fetching admin details.");
-    //         }
-    //     };
-
-    //     if (id) { 
-    //         fetchAdminDetails();
-    //       }
-    //     }, [apiUrl, token, id]);
-
-    // useEffect(() => {
-    //     // Update formData with admin name when it's fetched
-    //     setFormData((prevData) => ({ ...prevData, createdBy: adminName }));
-    // }, [adminName]);
 
     // Set 'createdBy' when the component mounts and the user is available 
     useEffect(() => {
@@ -381,7 +340,7 @@ const CreateNewAdvert = ({ handleCancel, onSubmit }) => {
                                 InputLabelProps={{ style: { color: "#fff" } }}
                                 InputProps={{
                                     startAdornment: (
-                                        <InputAdornment position="start">₦</InputAdornment>
+                                        <InputAdornment position="start">$</InputAdornment>
                                     ),
                                 }}
                                 sx={{

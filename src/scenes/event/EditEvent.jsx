@@ -42,13 +42,9 @@ const EditEvent = () => {
     eventTime: dayjs(),
     eventLocation: "",
     eventUserRules: "",
-    eventCost: 0,
-    isEventCostSplitted: false,
+    eventCost: "",
     eventCategory: "",
     eventHashtag: "",
-    isPopular: false,
-    isUpcoming: true,
-    isOpen: true,
   });
 
   const [error, setError] = useState(null);
@@ -59,8 +55,10 @@ const EditEvent = () => {
       setLoading(true);
       try {
         const response = await fetch(`${apiUrl}/event/${eventId}`, {
+          method: "GET",
           headers: {
             Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
           },
         });
 
@@ -69,18 +67,28 @@ const EditEvent = () => {
         }
 
         const data = await response.json();
-
-        // Assuming eventDate and eventTime are coming as strings from the API
-        const formattedData = {
-          ...data,
-          eventDate: dayjs(data.eventDate), // Convert date string to Dayjs object
-          eventTime: dayjs(data.eventTime), // Convert time string to Dayjs object
-        };
-
-        setFormData({
-          ...formattedData,
-          eventName: data.eventName // Set the eventName 
-        });
+        console.log("Single data", data);
+        // destructure event data
+        // setFormData to the data received from the API
+        if (data.event) {
+          const { event } = data;
+          setFormData({
+            eventName: event.eventName,
+            eventDescription: event.eventDescription,
+            eventImage: event.eventImage,
+            eventDate: dayjs(event.eventDate),
+            eventTime: dayjs(event.eventTime),
+            eventLocation: event.eventLocation,
+            eventUserRules: event.eventUserRules,
+            eventCost: event.eventCost,
+            eventCategory: event.eventCategory,
+            eventHashtag: event.eventHashtag,
+            isEventCostSplitted: event.isEventCostSplitted,
+            isPopular: event.isPopular,
+            isUpcoming: event.isUpcoming,
+            isOpen: event.isOpen,
+          });
+        }
       } catch (error) {
         console.error("Error fetching event:", error);
         setError("An error occurred while fetching the event details.");
@@ -167,7 +175,7 @@ const EditEvent = () => {
         <Grid container spacing={2} alignItems="center" justifyContent="space-between">
           <Grid item>
           <Typography variant="h4" fontWeight="600" color={colors.greenAccent[500]}>
-            Edit {formData.eventName} {/* Display event name here */} 
+            Edit {formData.eventName} 
           </Typography>
           </Grid>
           <Grid item>
@@ -269,6 +277,7 @@ const EditEvent = () => {
                 }}
               />
             </Grid>
+
             {/* Event Date (Half Row) */}
             <Grid item xs={12} sm={6}>
               <LocalizationProvider dateAdapter={AdapterDayjs}>
@@ -357,7 +366,7 @@ const EditEvent = () => {
                 InputLabelProps={{ style: { color: "#fff" } }}
                 InputProps={{
                   startAdornment: (
-                    <InputAdornment position="start">₦</InputAdornment>
+                    <InputAdornment position="start">$</InputAdornment>
                   ),
                 }}
                 sx={{
@@ -437,76 +446,6 @@ const EditEvent = () => {
               />
             </Grid>
 
-            {/* Checkboxes (Two Columns) */}
-            <Grid item xs={12} sm={6}>
-              <FormControlLabel
-                control={
-                  <Checkbox
-                    checked={formData.isEventCostSplitted}
-                    onChange={handleChange}
-                    name="isEventCostSplitted"
-                  />
-                }
-                label="Is Event Cost Splitted?"
-                sx={{
-                  "& .MuiFormControlLabel-label": {
-                    color: colors.grey[100],
-                  },
-                }}
-              />
-            </Grid>
-            <Grid item xs={12} sm={6}>
-              <FormControlLabel
-                control={
-                  <Checkbox
-                    checked={formData.isPopular}
-                    onChange={handleChange}
-                    name="isPopular"
-                  />
-                }
-                label="Is Popular?"
-                sx={{
-                  "& .MuiFormControlLabel-label": {
-                    color: colors.grey[100],
-                  },
-                }}
-              />
-            </Grid>
-            <Grid item xs={12} sm={6}>
-              <FormControlLabel
-                control={
-                  <Checkbox
-                    checked={formData.isUpcoming}
-                    onChange={handleChange}
-                    name="isUpcoming"
-                  />
-                }
-                label="Is Upcoming?"
-                sx={{
-                  "& .MuiFormControlLabel-label": {
-                    color: colors.grey[100],
-                  },
-                }}
-              />
-            </Grid>
-
-            <Grid item xs={12} sm={6}>
-              <FormControlLabel
-                control={
-                  <Checkbox
-                    checked={formData.isOpen}
-                    onChange={handleChange}
-                    name="isOpen"
-                  />
-                }
-                label="Is Open?"
-                sx={{
-                  "& .MuiFormControlLabel-label": {
-                    color: colors.grey[100],
-                  },
-                }}
-              />
-            </Grid>
             {/* Submit Button (Centered and Styled) */}
             <Grid item xs={12} sx={{ display: "flex", justifyContent: "center", mt: 3 }}>
               <Button

@@ -14,19 +14,16 @@ import Sidebar from './scenes/global/Sidebar';
 import Dashboard from './scenes/dashboard';
 import Team from './scenes/team';
 import Invoices from './scenes/invoices';
-// import Bar from './scenes/bar';
 import Form from './scenes/form';
-// import Line from './scenes/line';
 import Pie from './scenes/pie';
 import FAQ from './scenes/faq';
-// import Geography from './scenes/geography';
-// import Calendar from './scenes/calendar/calendar';
 import Login from './scenes/login';
 import ForgotPassword from './scenes/forgotpassword';
 import { CssBaseline, ThemeProvider } from '@mui/material';
 import { ColorModeContext, useMode } from './theme';
 import OtpVerify from './scenes/otpverify';
 import EditEvent from './scenes/event/EditEvent';
+import Unauthorized from './components/Unauthorized'; // Add an Unauthorized component
 
 function App() {
   const [theme, colorMode] = useMode();
@@ -43,6 +40,7 @@ function App() {
             <Route path="/login" element={<Login />} />
             <Route path="/forgot-password" element={<ForgotPassword />} />
             <Route path="/verify" element={<OtpVerify />} />
+            <Route path="/unauthorized" element={<Unauthorized />} /> 
 
             {/* Protected Routes */}
             <Route path="*" element={
@@ -53,23 +51,39 @@ function App() {
                     <Topbar setIsSidebar={setIsSidebar} />
                     <Routes>
                       <Route path="/dashboard" element={<Dashboard />} />
-                      <Route path="/team" element={<Team />} />
-                      <Route path="/customer-manager" element={<CustomerManager />} />
+
+                      {/* Only superadmin can access these routes */}
+                      <Route path="/team" element={
+                        <ProtectedRoute allowedRoles={['superadmin']}>
+                          <Team />
+                        </ProtectedRoute>
+                      } />
+                      <Route path="/customer-manager" element={
+                        <ProtectedRoute allowedRoles={['superadmin']}>
+                          <CustomerManager />
+                        </ProtectedRoute>
+                      } />
+                      <Route path="/advert-manager" element={
+                        <ProtectedRoute allowedRoles={['superadmin']}>
+                          <AdvertManager />
+                        </ProtectedRoute>
+                      } />
+                      <Route path="/subscriptions" element={
+                        <ProtectedRoute allowedRoles={['superadmin']}>
+                          <SubscriptionManager />
+                        </ProtectedRoute>
+                      } />
+
+                      {/* Routes accessible by both superadmin and admin */}
                       <Route path="/events" element={<EventManager />} />
-                      <Route path="/advert-manager" element={<AdvertManager />} />
                       <Route path="/withdrawal" element={<WithdrawalRequest />} />
-                      <Route path="/subscriptions" element={<SubscriptionManager />} />
                       <Route path="/promo-code" element={<PromoCodeManager />} />
                       <Route path="/push-notification" element={<PushNotificationManager />} />
                       <Route path="/email-notification" element={<EmailNotification />} />
                       <Route path="/invoices" element={<Invoices />} />
                       <Route path="/form" element={<Form />} />
-                      {/* <Route path="/bar" element={<Bar />} /> */}
                       <Route path="/pie" element={<Pie />} />
-                      {/* <Route path="/line" element={<Line />} /> */}
                       <Route path="/faq" element={<FAQ />} />
-                      {/* <Route path="/calendar" element={<Calendar />} /> */}
-                      {/* <Route path="/geography" element={<Geography />} /> */}
                       <Route path="/event/EditEvent/:eventId" element={<EditEvent />} />
                     </Routes>
                   </main>
