@@ -50,7 +50,6 @@ const CustomerManager = () => {
         throw new Error('Network response was not ok');
       }
       const data = await response.json();
-      console.log('Fetch Customers - Data:', data); // Log the parsed data 
       setCustomerData(data);
     } catch (error) {
       console.error('Error fetching customers:', error);

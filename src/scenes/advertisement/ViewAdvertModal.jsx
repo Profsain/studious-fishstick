@@ -16,9 +16,6 @@ import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import { motion } from "framer-motion";
 import moment from "moment";
-// import Swal from "sweetalert2";
-// import PauseCircleOutlineIcon from "@mui/icons-material/PauseCircleOutline";
-// import PlayCircleOutlineIcon from "@mui/icons-material/PlayCircleOutline";
 
 const ViewAdvertModal = ({
   open,
@@ -207,7 +204,7 @@ const ViewAdvertModal = ({
                     <Typography sx={{ fontWeight: "bold", color: colors.greenAccent[500] }}>
                       Cost:
                     </Typography>
-                    <Typography sx={{ ml: 1 }}>₦{recordData.adsCost.toLocaleString()}</Typography>
+                    <Typography sx={{ ml: 1 }}>${recordData.adsCost.toLocaleString()}</Typography>
                   </Box>
                 </Grid>
               </Grid>

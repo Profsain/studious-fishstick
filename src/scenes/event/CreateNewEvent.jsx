@@ -29,13 +29,13 @@ import CalendarTodayOutlinedIcon from '@mui/icons-material/CalendarTodayOutlined
 
 
 
-const CreateNewEvent = ({ handleCancel, onSubmit }) => {
+const CreateNewEvent = ({ handleCancel }) => {
     const apiUrl = process.env.REACT_APP_API_URL;
-    const { token } = useContext(AuthContext);
+    const { token, user } = useContext(AuthContext);
     const theme = useTheme();
     const colors = tokens(theme.palette.mode);
-
     const [formData, setFormData] = useState({
+        eventCreator: user._id,
         eventName: "",
         eventDescription: "",
         eventImage: "",
@@ -43,13 +43,9 @@ const CreateNewEvent = ({ handleCancel, onSubmit }) => {
         eventTime: dayjs(),
         eventLocation: "",
         eventUserRules: "",
-        eventCost: 0,
-        isEventCostSplitted: false,
+        eventCost: "",
         eventCategory: "",
         eventHashtag: "",
-        isPopular: false,
-        isUpcoming: true,
-        isOpen: true,
     });
 
     const [error, setError] = useState(null);
@@ -57,19 +53,10 @@ const CreateNewEvent = ({ handleCancel, onSubmit }) => {
 
     const handleChange = (e) => {
         const { name, value } = e.target;
-
-        if (
-            name === "isEventCostSplitted" ||
-            name === "isPopular" ||
-            name === "isUpcoming" ||
-            name === "isOpen"
-        ) {
-            setFormData((prev) => ({ ...prev, [name]: e.target.checked }));
-        } else {
-            setFormData((prev) => ({ ...prev, [name]: value }));
-        }
+        setFormData((prev) => ({ ...prev, [name]: value }));
     };
 
+    // handle submit new event
     const handleSubmit = async (e) => {
         e.preventDefault();
 
@@ -93,6 +80,7 @@ const CreateNewEvent = ({ handleCancel, onSubmit }) => {
             }
 
             setFormData({
+                eventCreator: "",
                 eventName: "",
                 eventDescription: "",
                 eventImage: "",
@@ -100,13 +88,9 @@ const CreateNewEvent = ({ handleCancel, onSubmit }) => {
                 eventTime: dayjs(),
                 eventLocation: "",
                 eventUserRules: "",
-                eventCost: 0,
-                isEventCostSplitted: false,
+                eventCost: "",
                 eventCategory: "",
                 eventHashtag: "",
-                isPopular: false,
-                isUpcoming: true,
-                isOpen: true,
             });
 
             Swal.fire({
@@ -114,8 +98,6 @@ const CreateNewEvent = ({ handleCancel, onSubmit }) => {
                 text: `${formData.eventName} has been created successfully!`,
                 icon: 'success',
                 confirmButtonColor: colors.greenAccent[600],
-            }).then(() => {
-                onSubmit(formData);
             });
 
         } catch (error) {
@@ -266,7 +248,6 @@ const CreateNewEvent = ({ handleCancel, onSubmit }) => {
 
                         <Grid item xs={12} sm={6}>
                             <LocalizationProvider dateAdapter={AdapterDayjs}>
-                                {/* Conditionally render TimePicker - Choose Solution 1 or 2 */}
                                 {formData.eventTime && formData.eventTime.isValid() && (
                                     <TimePicker
                                         label="Event Time"
@@ -332,7 +313,7 @@ const CreateNewEvent = ({ handleCancel, onSubmit }) => {
                                 InputProps={{
                                     startAdornment: (
                                         <InputAdornment position="start">
-                                            ₦
+                                            $
                                         </InputAdornment>
                                     ),
                                 }}
@@ -403,78 +384,6 @@ const CreateNewEvent = ({ handleCancel, onSubmit }) => {
                                         "& fieldset": { borderColor: "#ffb554" },
                                         "&:hover fieldset": { borderColor: "#ffb554" },
                                         "&.Mui-focused fieldset": { borderColor: "#ffb554" },
-                                    },
-                                }}
-                            />
-                        </Grid>
-
-                        <Grid item xs={12} sm={6}>
-                            <FormControlLabel
-                                control={
-                                    <Checkbox
-                                        checked={formData.isEventCostSplitted}
-                                        onChange={handleChange}
-                                        name="isEventCostSplitted"
-                                    />
-                                }
-                                label="Is Event Cost Splitted?"
-                                sx={{
-                                    "& .MuiFormControlLabel-label": {
-                                        color: colors.grey[100],
-                                    },
-                                }}
-                            />
-                        </Grid>
-
-                        <Grid item xs={12} sm={6}>
-                            <FormControlLabel
-                                control={
-                                    <Checkbox
-                                        checked={formData.isPopular}
-                                        onChange={handleChange}
-                                        name="isPopular"
-                                    />
-                                }
-                                label="Is Popular?"
-                                sx={{
-                                    "& .MuiFormControlLabel-label": {
-                                        color: colors.grey[100],
-                                    },
-                                }}
-                            />
-                        </Grid>
-
-                        <Grid item xs={12} sm={6}>
-                            <FormControlLabel
-                                control={
-                                    <Checkbox
-                                        checked={formData.isUpcoming}
-                                        onChange={handleChange}
-                                        name="isUpcoming"
-                                    />
-                                }
-                                label="Is Upcoming?"
-                                sx={{
-                                    "& .MuiFormControlLabel-label": {
-                                        color: colors.grey[100],
-                                    },
-                                }}
-                            />
-                        </Grid>
-
-                        <Grid item xs={12} sm={6}>
-                            <FormControlLabel
-                                control={
-                                    <Checkbox
-                                        checked={formData.isOpen}
-                                        onChange={handleChange}
-                                        name="isOpen"
-                                    />
-                                }
-                                label="Is Open?"
-                                sx={{
-                                    "& .MuiFormControlLabel-label": {
-                                        color: colors.grey[100],
                                     },
                                 }}
                             />
