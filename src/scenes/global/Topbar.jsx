@@ -1,7 +1,6 @@
 import React, { useState, useContext } from 'react';
-import { Box, IconButton, useTheme, Badge, Avatar, Menu, MenuItem, Divider, ListItemIcon } from '@mui/material';
+import { Box, IconButton, useTheme, Badge, Avatar, Menu, MenuItem, Divider, ListItemIcon, InputBase } from '@mui/material';
 import { ColorModeContext, tokens } from "../../theme";
-import InputBase from "@mui/material/InputBase";
 import LightModeOutlinedIcon from "@mui/icons-material/LightModeOutlined";
 import DarkModeOutlinedIcon from "@mui/icons-material/DarkModeOutlined";
 import NotificationsOutlinedIcon from "@mui/icons-material/NotificationsOutlined";
@@ -9,14 +8,14 @@ import SettingsOutlinedIcon from "@mui/icons-material/SettingsOutlined";
 import SearchIcon from "@mui/icons-material/Search";
 import Logout from '@mui/icons-material/Logout';
 import { useNavigate } from 'react-router-dom';
-import AuthContext from '../../context/AuthContext'; // Import AuthContext
+import AuthContext from '../../context/AuthContext'; 
 
 const Topbar = () => {
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
   const colorMode = useContext(ColorModeContext);
   const navigate = useNavigate(); // Add this line
-  const { setUser } = useContext(AuthContext); // Get setUser from context
+  const { setUser, setToken } = useContext(AuthContext); // Get setUser from context
 
   const [anchorEl, setAnchorEl] = useState(null);
   const open = Boolean(anchorEl);
@@ -32,7 +31,9 @@ const Topbar = () => {
   // Handle logout and redirect to login page
   const handleLogout = () => {
     setUser(null); // Clear user data from the AuthContext
-    localStorage.removeItem('user'); 
+    setToken(null); // Clear token from the AuthContext
+  
+    // Redirect to login page
     navigate('/login');
   };
 
@@ -40,15 +41,15 @@ const Topbar = () => {
     <Box display="flex" justifyContent="space-between" p={2}>
       {/* SEARCH BAR */}
       <Box
-        display="flex"
-        backgroundColor={colors.primary[400]}
+      visibility='hidden'        
+      backgroundColor={colors.primary[400]}
         borderRadius="3px"
       >
         <InputBase sx={{ ml: 2, flex: 1 }} placeholder="Search" />
         <IconButton type="button" sx={{ p: 1 }}>
           <SearchIcon />
         </IconButton>
-      </Box>
+      </Box> 
 
       {/* ICONS */}
       <Box display="flex">

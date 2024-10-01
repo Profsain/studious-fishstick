@@ -1,19 +1,13 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useContext } from 'react';
+import AuthContext from '../../context/AuthContext';
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
-import PersonOutlinedIcon from '@mui/icons-material/PersonOutlined';
-import CalendarTodayOutlinedIcon from '@mui/icons-material/CalendarTodayOutlined';
-import BarChartOutlinedIcon from '@mui/icons-material/BarChartOutlined';
-import PieChartOutlineOutlinedIcon from '@mui/icons-material/PieChartOutlineOutlined';
-import TimelineOutlinedIcon from '@mui/icons-material/TimelineOutlined';
-import MapOutlinedIcon from '@mui/icons-material/MapOutlined';
 import { ProSidebar, Menu, MenuItem } from "react-pro-sidebar";
 import { Box, IconButton, Typography, useTheme } from "@mui/material";
 import { Link } from "react-router-dom";
+import { tokens } from '../../theme';
 import "react-pro-sidebar/dist/css/styles.css";
-import { tokens } from "../../theme";
-import PeopleOutlinedIcon from "@mui/icons-material/PeopleOutlined";
-import HelpOutlineOutlinedIcon from "@mui/icons-material/HelpOutlineOutlined";
 import MenuOutlinedIcon from "@mui/icons-material/MenuOutlined";
+import PeopleOutlinedIcon from '@mui/icons-material/PeopleOutlined';
 
 const Item = ({ title, to, icon, selected, setSelected }) => {
   const theme = useTheme();
@@ -34,10 +28,12 @@ const Item = ({ title, to, icon, selected, setSelected }) => {
 };
 
 const Sidebar = () => {
+  const { user } = useContext(AuthContext);
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [selected, setSelected] = useState("Dashboard");
+
   const [profileImage, setProfileImage] = useState("../../assets/user.png");
   const fileInputRef = useRef(null);
   const [isHovered, setIsHovered] = useState(false);
@@ -52,28 +48,29 @@ const Sidebar = () => {
       const reader = new FileReader();
       reader.onloadend = () => {
         setProfileImage(reader.result);
-        localStorage.setItem("profileImage", reader.result);
+        localStorage.setItem('profileImage', reader.result);
       };
       reader.readAsDataURL(file);
     }
   };
+
   return (
     <Box
       sx={{
-        "& .pro-sidebar-inner": {
+        '& .pro-sidebar-inner': {
           background: `${colors.primary[400]} !important`,
         },
-        "& .pro-icon-wrapper": {
-          backgroundColor: "transparent !important",
+        '& .pro-icon-wrapper': {
+          backgroundColor: 'transparent !important',
         },
-        "& .pro-inner-item": {
-          padding: "5px 35px 5px 20px !important",
+        '& .pro-inner-item': {
+          padding: '5px 35px 5px 20px !important',
         },
-        "& .pro-inner-item:hover": {
-          color: "#868dfb !important",
+        '& .pro-inner-item:hover': {
+          color: '#868dfb !important',
         },
-        "& .pro-menu-item.active": {
-          color: "#6870fa !important",
+        '& .pro-menu-item.active': {
+          color: '#6870fa !important',
         },
       }}
     >
@@ -84,19 +81,18 @@ const Sidebar = () => {
             onClick={() => setIsCollapsed(!isCollapsed)}
             icon={isCollapsed ? <MenuOutlinedIcon /> : undefined}
             style={{
-              margin: "10px 0 20px 0",
+              margin: '10px 0 20px 0',
               color: colors.grey[100],
             }}
           >
             {!isCollapsed && (
-              <Box
-                display="flex"
-                justifyContent="space-between"
-                alignItems="center"
-                ml="15px"
-              >
+              <Box display="flex" justifyContent="space-between" alignItems="center" ml="15px">
                 <Typography variant="h3" color={colors.grey[100]}>
-                  ADMIN
+                  <img
+                    src={`${process.env.PUBLIC_URL}/splinxfav.ico`}
+                    alt="Logo"
+                    style={{ width: "40px", height: "40px" }}
+                  />
                 </Typography>
                 <IconButton onClick={() => setIsCollapsed(!isCollapsed)}>
                   <MenuOutlinedIcon />
@@ -105,6 +101,7 @@ const Sidebar = () => {
             )}
           </MenuItem>
 
+          {/* USER PROFILE */}
           {!isCollapsed && (
             <Box mb="25px">
               <Box
@@ -119,55 +116,58 @@ const Sidebar = () => {
                   alt="profile-user"
                   width="100px"
                   height="100px"
-                  src={profileImage}
+                  src={user?.profileImage ? user.profileImage : profileImage}
                   style={{ cursor: "pointer", borderRadius: "50%" }}
                   onClick={handleImageClick}
                 />
                 {isHovered && (
                   <IconButton
                     sx={{
-                      position: "absolute",
-                      top: "50%",
-                      left: "50%",
-                      transform: "translate(-50%, -50%)",
-                      backgroundColor: "rgba(0, 0, 0, 0.5)",
-                      "&:hover": { backgroundColor: "rgba(0, 0, 0, 0.7)" },
+                      position: 'absolute',
+                      top: '50%',
+                      left: '50%',
+                      transform: 'translate(-50%, -50%)',
+                      backgroundColor: 'rgba(0, 0, 0, 0.5)',
+                      '&:hover': { backgroundColor: 'rgba(0, 0, 0, 0.7)' },
                     }}
                     onClick={handleImageClick}
                   >
-                    <AddCircleOutlineIcon
-                      sx={{ color: "white", fontSize: 30 }}
-                    />
+                    <AddCircleOutlineIcon sx={{ color: 'white', fontSize: 30 }} />
                   </IconButton>
                 )}
                 <input
                   type="file"
                   accept="image/*"
                   ref={fileInputRef}
-                  style={{ display: "none" }}
+                  style={{ display: 'none' }}
                   onChange={handleImageChange}
                 />
               </Box>
               <Box textAlign="center">
-                <Typography
-                  variant="h2"
-                  color={colors.grey[100]}
-                  fontWeight="bold"
-                  sx={{ m: "10px 0 0 0" }}
-                >
-                  John Does
-                </Typography>
-                <Typography variant="h5" color={colors.greenAccent[500]}>
-                  Super Admin
-                </Typography>
+                {user && (
+                  <>
+                    <Typography
+                      variant="h2"
+                      color={colors.grey[100]}
+                      fontWeight="bold"
+                      sx={{ m: "10px 0 0 0" }}
+                    >
+                      {user.firstName} {user.lastName}
+                    </Typography>
+                    <Typography variant="h5" color={colors.greenAccent[500]}>
+                      {user.role}
+                    </Typography>
+                  </>
+                )}
               </Box>
             </Box>
           )}
 
-          <Box paddingLeft={isCollapsed ? undefined : "10%"}>
+          {/* MENU ITEMS */}
+          <Box paddingLeft={isCollapsed ? undefined : '10%'}>
             <Item
               title="Dashboard"
-              to="/"
+              to="/dashboard"
               icon={<PeopleOutlinedIcon />}
               selected={selected}
               setSelected={setSelected}
@@ -175,152 +175,63 @@ const Sidebar = () => {
             <Typography
               variant="h6"
               color={colors.grey[300]}
-              sx={{ m: "15px 0 5px 20px" }}
+              sx={{ m: '15px 0 5px 20px' }}
             >
               Manager
             </Typography>
 
-            <Item
-              title="Manage Team"
-              to="/team"
-              icon={<PeopleOutlinedIcon />}
-              selected={selected}
-              setSelected={setSelected}
-            />
-
-            <Item
-              title="Manage Customer"
-              to="/customer-manager"
-              icon={<span class="material-symbols-outlined">groups</span>}
-              selected={selected}
-              setSelected={setSelected}
-            />
-
-            <Item
-              title="Event Manager"
-              to="/events"
-              icon={
-                <span class="material-symbols-outlined">event_available</span>
-              }
-              selected={selected}
-              setSelected={setSelected}
-            />
-
-            <Item
-              title="Advert Manager"
-              to="/advert-manager"
-              icon={<span class="material-symbols-outlined">campaign</span>}
-              selected={selected}
-              setSelected={setSelected}
-            />
-
-            <Item
-              title="Withdrawal Request"
-              to="/withdrawal"
-              icon={<span class="material-symbols-outlined">attach_money</span>}
-              selected={selected}
-              setSelected={setSelected}
-            />
-
-            <Item
-              title="Subscriptions Manager"
-              to="/subscriptions"
-              icon={
-                <span class="material-symbols-outlined">subscriptions</span>
-              }
-              selected={selected}
-              setSelected={setSelected}
-            />
-
+            {/* Conditionally Render Team, Customer, Advert, and Subscriptions Managers for Superadmin */}
+            {user?.role === 'superadmin' && (
+              <>
+                <Item
+                  title="Manage Team"
+                  to="/team"
+                  icon={<PeopleOutlinedIcon />}
+                  selected={selected}
+                  setSelected={setSelected}
+                />
+                <Item
+                  title="Manage Customer"
+                  to="/customer-manager"
+                  icon={<span className="material-symbols-outlined">groups</span>}
+                  selected={selected}
+                  setSelected={setSelected}
+                />
+                <Item
+                  title="Advert Manager"
+                  to="/advert-manager"
+                  icon={<span className="material-symbols-outlined">campaign</span>}
+                  selected={selected}
+                  setSelected={setSelected}
+                />
+                <Item
+                  title="Subscriptions Manager"
+                  to="/subscriptions"
+                  icon={<span className="material-symbols-outlined">subscriptions</span>}
+                  selected={selected}
+                  setSelected={setSelected}
+                />
+              </>
+            )}
+            {/* Other items for all users */}
             <Item
               title="Promo Code"
               to="/promo-code"
-              icon={<span class="material-symbols-outlined">app_promo</span>}
+              icon={<span className="material-symbols-outlined">app_promo</span>}
               selected={selected}
               setSelected={setSelected}
             />
-
             <Item
               title="Push Notification"
               to="/push-notification"
-              icon={
-                <span class="material-symbols-outlined">notifications</span>
-              }
+              icon={<span className="material-symbols-outlined">notifications</span>}
               selected={selected}
               setSelected={setSelected}
             />
-
             <Item
               title="Email Notification"
               to="/email-notification"
-              icon={
-                <span class="material-symbols-outlined">mark_email_unread</span>
-              }
-              selected={selected}
-              setSelected={setSelected}
-            />
-
-            <Typography
-              variant="h6"
-              color={colors.grey[300]}
-              sx={{ m: "15px 0 5px 20px" }}
-            >
-              More
-            </Typography>
-            <Item
-              title="Profile Form"
-              to="/form"
-              icon={<PersonOutlinedIcon />}
-              selected={selected}
-              setSelected={setSelected}
-            />
-            <Item
-              title="Calendar"
-              to="/calendar"
-              icon={<CalendarTodayOutlinedIcon />}
-              selected={selected}
-              setSelected={setSelected}
-            />
-            <Item
-              title="FAQ Page"
-              to="/faq"
-              icon={<HelpOutlineOutlinedIcon />}
-              selected={selected}
-              setSelected={setSelected}
-            />
-
-            <Typography
-              variant="h6"
-              color={colors.grey[300]}
-              sx={{ m: "15px 0 5px 20px" }}
-            >
-              Charts
-            </Typography>
-            <Item
-              title="Bar Chart"
-              to="/bar"
-              icon={<BarChartOutlinedIcon />}
-              selected={selected}
-              setSelected={setSelected}
-            />
-            <Item
-              title="Pie Chart"
-              to="/pie"
-              icon={<PieChartOutlineOutlinedIcon />}
-              selected={selected}
-              setSelected={setSelected}
-            />
-            <Item
-              title="Line Chart"
-              to="/line"
-              icon={<TimelineOutlinedIcon />}
-              selected={selected}
-              setSelected={setSelected}
-            />
-            <Item
-              title="Geography Chart"
-              to="/geography"
-              icon={<MapOutlinedIcon />}
+              icon={<span className="material-symbols-outlined">mark_email_unread</span>}
               selected={selected}
               setSelected={setSelected}
             />
