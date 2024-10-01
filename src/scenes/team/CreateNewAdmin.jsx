@@ -155,7 +155,8 @@ const CreateNewAdmin = ({ handleCancel }) => {
          `Success!`,
          `${formData.firstName} ${formData.lastName} has been added successfully!`,
          "success"
-       );
+      );
+      setError("");
     } catch (error) {
       console.error("Error creating new admin:", error);
       setError("An error occurred. Please try again.");

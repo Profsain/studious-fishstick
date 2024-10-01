@@ -180,60 +180,44 @@ const Sidebar = () => {
               Manager
             </Typography>
 
-            <Item
-              title="Manage Team"
-              to="/team"
-              icon={<PeopleOutlinedIcon />}
-              selected={selected}
-              setSelected={setSelected}
-            />
-            <Item
-              title="Manage Customer"
-              to="/customer-manager"
-              icon={<span className="material-symbols-outlined">groups</span>}
-              selected={selected}
-              setSelected={setSelected}
-            />
-            <Item
-              title="Event Manager"
-              to="/events"
-              icon={
-                <span className="material-symbols-outlined">
-                  event_available
-                </span>
-              }
-              selected={selected}
-              setSelected={setSelected}
-            />
-            <Item
-              title="Advert Manager"
-              to="/advert-manager"
-              icon={<span className="material-symbols-outlined">campaign</span>}
-              selected={selected}
-              setSelected={setSelected}
-            />
-            {/* <Item
-              title="Withdrawal Request"
-              to="/withdrawal"
-              icon={
-                <span className="material-symbols-outlined">attach_money</span>
-              }
-              selected={selected}
-              setSelected={setSelected}
-            /> */}
-            <Item
-              title="Subscriptions Manager"
-              to="/subscriptions"
-              icon={<span className="material-symbols-outlined">subscriptions</span>}
-              selected={selected}
-              setSelected={setSelected}
-            />
+            {/* Conditionally Render Team, Customer, Advert, and Subscriptions Managers for Superadmin */}
+            {user?.role === 'superadmin' && (
+              <>
+                <Item
+                  title="Manage Team"
+                  to="/team"
+                  icon={<PeopleOutlinedIcon />}
+                  selected={selected}
+                  setSelected={setSelected}
+                />
+                <Item
+                  title="Manage Customer"
+                  to="/customer-manager"
+                  icon={<span className="material-symbols-outlined">groups</span>}
+                  selected={selected}
+                  setSelected={setSelected}
+                />
+                <Item
+                  title="Advert Manager"
+                  to="/advert-manager"
+                  icon={<span className="material-symbols-outlined">campaign</span>}
+                  selected={selected}
+                  setSelected={setSelected}
+                />
+                <Item
+                  title="Subscriptions Manager"
+                  to="/subscriptions"
+                  icon={<span className="material-symbols-outlined">subscriptions</span>}
+                  selected={selected}
+                  setSelected={setSelected}
+                />
+              </>
+            )}
+            {/* Other items for all users */}
             <Item
               title="Promo Code"
               to="/promo-code"
-              icon={
-                <span className="material-symbols-outlined">app_promo</span>
-              }
+              icon={<span className="material-symbols-outlined">app_promo</span>}
               selected={selected}
               setSelected={setSelected}
             />
@@ -247,9 +231,7 @@ const Sidebar = () => {
             <Item
               title="Email Notification"
               to="/email-notification"
-              icon={<span className="material-symbols-outlined">
-                  mark_email_unread
-                </span>}
+              icon={<span className="material-symbols-outlined">mark_email_unread</span>}
               selected={selected}
               setSelected={setSelected}
             />
