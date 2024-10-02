@@ -137,7 +137,7 @@ const CreatePushNotification = ({ handleCancel }) => {
           fontWeight="600"
           color={colors.greenAccent[500]}
         >
-          Create and Send Email
+          Create and Send Push Notification
         </Typography>
         <Button
           variant="outlined"
@@ -212,7 +212,7 @@ const CreatePushNotification = ({ handleCancel }) => {
                     fontSize: "18px",
                   }}
                 >
-                  {loading ? <CircularProgress size={24} /> : "Send Email"}
+                  {loading ? <CircularProgress size={24} /> : "Send Now"}
                 </Button>
               </Grid>
             </Grid>
