@@ -211,6 +211,13 @@ const Sidebar = () => {
                   selected={selected}
                   setSelected={setSelected}
                 />
+                <Item
+                  title="Premium Plans"
+                  to="/plans"
+                  icon={<span className="material-symbols-outlined">paid</span>}
+                  selected={selected}
+                  setSelected={setSelected}
+                />
               </>
             )}
             {/* Other items for all users */}
