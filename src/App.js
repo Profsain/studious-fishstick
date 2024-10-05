@@ -8,6 +8,7 @@ import AdvertManager from "./scenes/advertisement";
 import PromoCodeManager from "./scenes/promo";
 import PushNotificationManager from "./scenes/pushnotify";
 import SubscriptionManager from "./scenes/subscription";
+import SubscriptionPlans from "./scenes/plans";
 import WithdrawalRequest from "./scenes/withdrawal";
 import Topbar from './scenes/global/Topbar';
 import Sidebar from './scenes/global/Sidebar';
@@ -71,6 +72,11 @@ function App() {
                       <Route path="/subscriptions" element={
                         <ProtectedRoute allowedRoles={['superadmin']}>
                           <SubscriptionManager />
+                        </ProtectedRoute>
+                      } />
+                      <Route path="/plans" element={
+                        <ProtectedRoute allowedRoles={['superadmin']}>
+                          <SubscriptionPlans />
                         </ProtectedRoute>
                       } />
 
