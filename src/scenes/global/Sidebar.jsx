@@ -190,6 +190,7 @@ const Sidebar = () => {
                   selected={selected}
                   setSelected={setSelected}
                 />
+
                 <Item
                   title="Manage Customer"
                   to="/customer-manager"
@@ -197,6 +198,7 @@ const Sidebar = () => {
                   selected={selected}
                   setSelected={setSelected}
                 />
+
                 <Item
                   title="Advert Manager"
                   to="/advert-manager"
@@ -211,6 +213,7 @@ const Sidebar = () => {
                   selected={selected}
                   setSelected={setSelected}
                 />
+                {/* plan manager update */}
                 <Item
                   title="Premium Plans"
                   to="/plans"
