@@ -1,7 +1,8 @@
 // Function to fetch all admins
+const API_URL = process.env.REACT_APP_API_URL;
 async function getAllAdmins() {
     try {
-      const response = await fetch('https://splinx-server.onrender.com/admin/admin-get-all');
+      const response = await fetch(`${API_URL}/admin/admin-get-all`);
       if (!response.ok) {
         throw new Error('Network response was not ok');
       }
